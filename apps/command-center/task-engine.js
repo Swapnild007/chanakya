@@ -8,7 +8,7 @@
   const STATUSES = Object.freeze(["open", "in_progress", "blocked", "done"]);
   function cleanTitle(value) {
     if (typeof value !== "string") throw new TypeError("Task title must be text.");
-    const title = value.replace(/\\s+/g, " ").trim();
+    const title = value.replace(/\s+/g, " ").trim();
     if (!title) throw new Error("Describe the work before creating a task.");
     if (title.length > 4000) throw new Error("Task description must be 4,000 characters or fewer.");
     return title;
