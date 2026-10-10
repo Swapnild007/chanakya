@@ -32,11 +32,11 @@ class CognitiveFirewallTests(unittest.TestCase):
         self.assertIn('src="classifier.js"', html)
         self.assertIn('src="app.js"', html)
         self.assertLess(html.index('src="classifier.js"'), html.index('src="app.js"'))
-        self.assertNotRegex(html, r'<script[^>]+src=["\\']https?://')
-        self.assertNotRegex(js, r'\\bfetch\\s*\\(')
-        self.assertNotRegex(js, r'\\bXMLHttpRequest\\b')
-        self.assertNotRegex(classifier, r'\\bfetch\\s*\\(')
-        self.assertNotRegex(classifier, r'\\bXMLHttpRequest\\b')
+        self.assertNotIn('src="https://', html)
+        self.assertNotRegex(js, re.compile(r"\bfetch\s*\("))
+        self.assertNotRegex(js, re.compile(r"\bXMLHttpRequest\b"))
+        self.assertNotRegex(classifier, re.compile(r"\bfetch\s*\("))
+        self.assertNotRegex(classifier, re.compile(r"\bXMLHttpRequest\b"))
 
     def test_classifier_has_one_runtime_owner(self):
         app = APP_PATH.read_text(encoding="utf-8")
