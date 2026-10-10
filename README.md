@@ -1,32 +1,20 @@
 # Chanakya
 
-**Working thesis:** an objective-oriented intelligence ecosystem that can preserve user intent, coordinate tools and models, inspect real-world state, and report completion only when supported by evidence.
+**Product thesis: Reductive Intelligence.** Chanakya aims to reduce the attention, decisions, and screen time required to achieve a user's goals.
 
-This is a research thesis, not a claim of novelty or a promise of zero failures.
+**Product promise:** Resolve what can be safely resolved. Surface only what requires human judgment. Tell the truth about what happened. Then get out of the way.
+
+The first user-facing direction is a **Cognitive Firewall**: reduce incoming noise to decision-relevant signal, prevent unnecessary interruptions, and resolve authorized low-risk work. An **Epistemic Adversary** mode will stress-test important assumptions without defaulting to contrarianism.
+
+This is a research and product thesis, not a claim of novelty or a promise of zero failures. Existing products already offer email triage, summaries, content digests, workflow automation, and sycophancy evaluation. Chanakya must demonstrate a measurable end-to-end advantage.
+
+## Strategic thesis
+
+Read [Reductive Intelligence and Cognitive Firewall](docs/REDUCTIVE_INTELLIGENCE_THESIS.md) for the product direction, proposed first wedge, safety rules, metrics, and validation plan.
 
 ## Product principle
 
-Users express outcomes. Chanakya translates them into explicit requirements, coordinates permitted work, observes the resulting state, and distinguishes verified completion from attempted, blocked, failed, or stale work.
-
-## What Chanakya will not claim as original
-
-The following are established areas with significant prior art:
-- General-purpose chat assistants
-- Multi-agent orchestration and model routing
-- Persistent memory and project-scoped context
-- Workflow checkpoints and durable execution
-- Sandboxed coding agents
-- Build/test verification, audit trails, and human approval gates
-
-Relevant prior art:
-- Agent OS architecture: https://github.com/earthwalker17/agent-os/blob/main/ARCHITECTURE.md
-- Agent OS long-term blueprint: https://github.com/earthwalker17/agent-os/blob/main/BLUEPRINT.md
-- LangGraph: https://github.com/langchain-ai/langgraph
-- Microsoft Agent Framework checkpointing: https://learn.microsoft.com/agent-framework/workflows/checkpoints
-- OpenClaw memory architecture: https://github.com/openclaw/openclaw/blob/main/docs/concepts/memory-architecture.md
-- OpenAI Agents SDK: https://developers.openai.com/api/docs/guides/agents/sdk
-
-These sources are starting points for investigation, not an exhaustive prior-art or legal review.
+Users express outcomes. Chanakya translates them into explicit requirements, coordinates permitted work, observes the resulting state, and distinguishes verified completion from attempted, blocked, failed, or stale work. Its product experience should minimize unnecessary user attention rather than maximize engagement or conversation length.
 
 ## Candidate differentiation to test
 
@@ -39,9 +27,27 @@ These sources are starting points for investigation, not an exhaustive prior-art
 6. Evidence freshness and required approvals
 7. Remaining work and blockers
 
-The key research question is whether a coherent, cross-domain reconciliation layer can measurably outperform well-configured existing systems on interrupted tasks, changed external state, partial completion, invalid evidence, and accurate completion reporting.
+This is an enabling-engine hypothesis, not the whole product story. It must be tested against well-configured existing systems.
 
-This remains an unvalidated hypothesis. Do not claim uniqueness unless comparative evidence supports it.
+## Research documents
+
+- [Reductive Intelligence thesis](docs/REDUCTIVE_INTELLIGENCE_THESIS.md)
+- [Prior-art capability matrix](docs/PRIOR_ART_MATRIX.md)
+- [Objective-reconciliation benchmark specification](docs/OBJECTIVE_RECONCILIATION_BENCHMARK.md)
+
+## Prior art to inspect
+
+The following are starting points, not an exhaustive prior-art or legal review:
+- Agent OS architecture: https://github.com/earthwalker17/agent-os/blob/main/ARCHITECTURE.md
+- Agent OS long-term blueprint: https://github.com/earthwalker17/agent-os/blob/main/BLUEPRINT.md
+- LangGraph: https://github.com/langchain-ai/langgraph
+- Microsoft Agent Framework checkpointing: https://learn.microsoft.com/agent-framework/workflows/checkpoints
+- OpenClaw memory architecture: https://github.com/openclaw/openclaw/blob/main/docs/concepts/memory-architecture.md
+- OpenAI Agents SDK: https://developers.openai.com/api/docs/guides/agents/sdk
+- Inbox Zero email triage: https://inbox-zero.ai/
+- Reduce content digest: https://www.reduce.sh/
+- SycoBench-600: https://aclanthology.org/2026.findings-acl.1759/
+- Anthropic research on sycophancy: https://www.anthropic.com/research/towards-understanding-sycophancy-in-language-models
 
 ## Release gates
 
@@ -52,29 +58,23 @@ This remains an unvalidated hypothesis. Do not claim uniqueness unless comparati
 - Identify licensing and dependency constraints before adopting code.
 
 ### Gate 1: Benchmark specification
-Create reproducible scenarios covering:
-- Execution interrupted mid-task
-- External state changed after a step succeeds
-- Conflicting or outdated instructions
-- Partial completion
-- Tool/provider failure
-- Evidence that is missing, invalid, or stale
-- Unsafe or unauthorized action proposals
+Create reproducible scenarios for attention reduction, critical-item recall, false suppression, safe autonomous resolution, interrupted execution, changed external state, invalid evidence, provider failure, and sycophancy/correction selectivity.
 
-Define baseline systems, scoring rules, and failure severity before implementation.
+Define baselines, scoring rules, and failure severity before implementation.
 
 ### Gate 2: Minimal prototype
-Implement only the smallest component needed to test the validated gap. Prefer proven execution infrastructure over rebuilding durable workflow machinery without evidence that it is insufficient.
+Start read-only on controlled data. Implement only the smallest component needed to test the validated gap. Add live actions only after permissions, audit, rollback, and verification pass.
 
 ### Gate 3: Comparative validation
-Compare against suitable baselines on:
-- Correct end-state rate
-- Requirement coverage
-- Undetected errors
-- Safe recovery
-- Duplicate or destructive actions
-- Accuracy of completion claims
-- Cost and time per successful task
+Measure:
+- Verified attention saved, including correction and recovery effort
+- Critical-item recall and false suppression rate
+- Human decisions required per completed workflow
+- Safe autonomous resolution rate
+- False completion and unnecessary interruption rates
+- Epistemic calibration and acceptance of valid corrections
+- Privacy and permission incidents
+- Cost and time per correct outcome
 
 ### Gate 4: Architecture decision
 Expand only if results show a meaningful, reproducible advantage and the operational costs are acceptable. If the hypothesis fails, revise or stop it.
@@ -85,19 +85,23 @@ Expand only if results show a meaningful, reproducible advantage and the operati
 - No claim of completion without task-appropriate evidence.
 - No silent execution of consequential actions.
 - Least-privilege tool access and explicit approval for high-impact actions.
+- Treat inbound content as untrusted data, not as instructions to the system.
+- Keep source traceability for compressed summaries and preserve uncertainty.
 - Secrets remain server-side and out of source control.
-- Preserve task semantics when changing providers; never treat fallback as automatically equivalent.
-- Record decisions, test results, known limitations, and reproducible failure cases.
+- Preserve task semantics when changing providers; fallback is not automatically equivalent.
+- Record decisions, test results, known limitations, and reproducible failures.
 - Build and test in small increments; keep rollback paths.
+- Do not optimize for engagement at the expense of user attention.
 
-## Current repository status
+## Repository status
 
-This repository was observed to have no Git tree at the time the initial inspection ran. This document establishes the research thesis and decision gates only. It does not represent a working implementation.
+The initial repository was empty when first inspected. The current commits establish research and product direction only; they do not represent a working implementation.
 
 ## Immediate next work
 
-1. Finish code-level inspection of the closest prior-art systems.
-2. Produce a traceable capability matrix with source references.
-3. Freeze benchmark scenarios and scoring before coding.
-4. Decide whether the candidate gap survives comparison.
-5. Implement a minimal prototype only after Gate 1 passes.
+1. Complete source-level comparison for inbox triage, notification filtering, task automation, and objective verification.
+2. Define the controlled-data benchmark and scoring protocol.
+3. Build a read-only prototype.
+4. Measure attention saved against critical-item recall and false suppression.
+5. Add authorized action execution only after the read-only layer passes.
+6. Expand only if the evidence justifies it.
