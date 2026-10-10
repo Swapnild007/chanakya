@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const labels={overview:"Overview",assistant:"AI Assistant",firewall:"Cognitive Firewall",agents:"Agent Studio",research:"Research",knowledge:"Knowledge",automation:"Automation",models:"Model providers",integrations:"Integrations",activity:"Activity & runs",settings:"Settings"};
+const labels={overview:"Overview",assistant:"AI Assistant",tasks:"Tasks & Projects",firewall:"Cognitive Firewall",agents:"Agent Studio",research:"Research",knowledge:"Knowledge",automation:"Automation",models:"Model providers",integrations:"Integrations",activity:"Activity & runs",settings:"Settings"};
 const moduleInfo={
  assistant:{eyebrow:"YOUR AI WORKSPACE",title:"Think clearly. Move work forward.",description:"A unified assistant will coordinate reasoning, tools, and task outcomes through the shared Chanakya foundation.",status:"IN DESIGN",icon:"✳",capabilities:[["Task understanding","Turn a request into a clear objective and success criteria."],["Model routing","Choose an appropriate provider based on task, privacy, cost, and capability."],["Verified outcomes","Distinguish suggestions, attempts, verified results, and unresolved work."]],next:"Define the task contract and model-provider interface."},
  firewall:{eyebrow:"PRODUCT 01 · COGNITIVE FIREWALL",title:"Protect attention. Surface what matters.",description:"The first product reduces incoming noise to decision-relevant signal, while preserving evidence and keeping the user in control.",status:"LOCAL PROTOTYPE EXISTS",icon:"◈",capabilities:[["Urgency and consequence","Prioritize items requiring timely human attention."],["Evidence and rationale","Inspect why an item was classified and what source supports it."],["Conservative handling","Keep uncertain or consequential items visible instead of silently suppressing them."]],next:"Stabilize classifier regression tests and evaluate false alarms and missed critical items.",link:"../../prototype/index.html",linkText:"Open current Cognitive Firewall prototype"},
@@ -31,6 +31,19 @@ function renderSettings(){
  $("backOverview").addEventListener("click",()=>showView("overview"));
 }
 
+function renderTasks(){
+ const content=document.querySelector(".content");
+ let tasks=ChanakyaTaskEngine.load(localStorage);
+ const statusLabel={open:"Open",in_progress:"In progress",blocked:"Blocked",done:"Done"};
+ const escapeHtml=value=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+ const draw=()=>{
+  const counts=Object.fromEntries(ChanakyaTaskEngine.STATUSES.map(status=>[status,tasks.filter(task=>task.status===status).length]));
+  content.innerHTML='<section class="tasks-header"><div><div class="eyebrow">PERSONAL WORK QUEUE · STORED ON THIS DEVICE</div><h1>Turn intentions into trackable work.</h1><p>Tasks persist in this browser. Chanakya has not performed any external actions.</p></div><div class="task-total"><b>'+tasks.length+'</b><small>total tasks</small></div></section><section class="task-counts">'+ChanakyaTaskEngine.STATUSES.map(status=>'<div class="task-count"><span>'+statusLabel[status]+'</span><b>'+counts[status]+'</b></div>').join("")+'</section><form class="task-create" id="taskCreateForm"><label for="taskTitle">Capture a task or intended outcome</label><textarea id="taskTitle" rows="2" maxlength="4000" placeholder="Example: Prepare a comparison of the options and list the evidence needed." required></textarea><div class="task-create-foot"><small>Creates a local task only. It does not claim to execute the work.</small><button type="submit">＋ Create task</button></div></form><section class="task-list" aria-label="Tasks">'+(tasks.length?tasks.map(task=>'<article class="task-row"><div class="task-row-main"><span class="task-status status-'+task.status+'">'+statusLabel[task.status]+'</span><h2>'+escapeHtml(task.title)+'</h2><p>Created '+new Date(task.createdAt).toLocaleString()+' · '+escapeHtml(task.note||"Local task")+'</p></div><label class="task-state-label" for="state-'+task.id+'">Update status</label><select id="state-'+task.id+'" data-task-state="'+task.id+'">'+ChanakyaTaskEngine.STATUSES.map(status=>'<option value="'+status+'" '+(task.status===status?'selected':'')+'>'+statusLabel[status]+'</option>').join("")+'</select></article>').join(""):'<div class="task-empty"><b>Your queue is clear.</b><p>Create a task above, or send a message from AI Assistant to capture work here.</p></div>')+'</section><footer><span>CHANAKYA AI</span><span>Local task state · No external integrations</span><span>WORK QUEUE</span></footer>';
+  document.getElementById("taskCreateForm").addEventListener("submit",event=>{event.preventDefault();try{const result=ChanakyaTaskEngine.add(document.getElementById("taskTitle").value,tasks,localStorage);tasks=result.tasks;draw();toast("Task saved on this device.");}catch(error){toast(error.message)}});
+  content.querySelectorAll("[data-task-state]").forEach(select=>select.addEventListener("change",()=>{try{tasks=ChanakyaTaskEngine.setStatus(select.dataset.taskState,select.value,tasks,localStorage);draw();toast("Task status updated.");}catch(error){toast(error.message)}}));
+ };
+ draw();
+}
 function renderAssistant(){
  const content=document.querySelector(".content");
  content.innerHTML=`<section class="chat-welcome">
@@ -63,8 +76,11 @@ function renderAssistant(){
   const mark=document.createElement("div");mark.className="chat-brand-mark";mark.textContent="च";
   const body=document.createElement("div");body.className="message-bubble";
   const title=document.createElement("b");title.textContent="The chat interface is ready. The intelligence connection is not.";
-  const copy=document.createElement("p");copy.textContent="I’ve received your message in this local preview, but no AI model is connected yet, so I can’t generate a real answer. The next step is to finish and verify the local product foundation before adding provider APIs.";
-  body.append(title,copy);reply.append(mark,body);messages.append(user,reply);input.value="";input.style.height="auto";messages.scrollTop=messages.scrollHeight;
+  const copy=document.createElement("p");
+  try{const result=ChanakyaTaskEngine.add(message,ChanakyaTaskEngine.load(localStorage),localStorage);copy.textContent="I captured this as a local task (“"+result.task.title+"”). It is now in Tasks & Projects with Open status. This is task capture, not AI reasoning or execution; no external action was performed.";}
+  catch(error){copy.textContent=error.message;}
+  const tasksLink=document.createElement("button");tasksLink.type="button";tasksLink.className="inline-task-link";tasksLink.textContent="Open Tasks & Projects →";tasksLink.addEventListener("click",()=>showView("tasks"));
+  body.append(title,copy,tasksLink);reply.append(mark,body);messages.append(user,reply);input.value="";input.style.height="auto";messages.scrollTop=messages.scrollHeight;
  }
  form.addEventListener("submit",e=>{e.preventDefault();sendMessage(input.value)});
  input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,140)+"px"});
@@ -79,6 +95,7 @@ function showView(view){
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
  $("sidebar").classList.remove("open");
  const content=document.querySelector(".content");
+ if(view==="tasks"){renderTasks();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="assistant"){renderAssistant();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="settings"){renderSettings();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="overview"){content.innerHTML=homeMarkup;window.scrollTo({top:0,behavior:"smooth"});bindHomeActions();return}
