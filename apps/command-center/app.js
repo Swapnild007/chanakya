@@ -93,38 +93,9 @@ function renderAssistant(){
   const message=value.trim();if(!message)return;
   $("chatSuggestions")?.remove();
   appendMessage("user",message);
-  const intent=ChanakyaLocalRouter.route(message);
-  const tasks=ChanakyaTaskEngine.load(localStorage);
-  if(intent.intent==="create_task"){
-   try{const result=ChanakyaTaskEngine.add(intent.title,tasks,localStorage);appendMessage("assistant","Task captured and saved locally: "+result.task.title+"\nStatus: Open. No external work has been performed.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);}
-   catch(error){appendMessage("assistant",error.message);}
-  }else if(intent.intent==="list_tasks"){
-   const summary=ChanakyaLocalRouter.summarize(tasks);
-   const list=summary.items.length?summary.items.map((task,index)=>(index+1)+". ["+task.status.replace("_"," ")+"] "+task.title).join("\n"):"Your local task queue is empty.";
-   appendMessage("assistant","Local task summary\nTotal: "+summary.total+" · Open: "+summary.counts.open+" · In progress: "+summary.counts.in_progress+" · Blocked: "+summary.counts.blocked+" · Done: "+summary.counts.done+"\n\n"+list,[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
-  }else if(intent.intent==="plan_request"){
-   const plan=ChanakyaLocalRouter.checklist(message);
-   appendMessage("assistant",plan.ok?"Local planning checklist for: "+plan.title+"\n\n"+plan.steps.map((step,index)=>(index+1)+". "+step).join("\n")+"\n\nThis is a generic deterministic checklist, not AI-generated research or an executed plan.":"Please describe what you want to plan.");
-  }else if(intent.intent==="help"){
-   appendMessage("assistant","I can currently handle a small set of local commands:\n• “Create a task to …” saves a task.\n• “Show my tasks” summarizes your queue.\n• “Plan …” produces a general five-step checklist.\n\nOpen-ended questions, research, model reasoning, and external actions are not implemented yet.");
-  }else if(intent.intent==="status_request"){
-   const target=(intent.target||"").toLocaleLowerCase();
-   const matches=target?tasks.filter(task=>task.title.toLocaleLowerCase().includes(target)||target.includes(task.title.toLocaleLowerCase())):[];
-   if(!intent.status){
-    appendMessage("assistant","I couldn't identify the requested status. Use open, in progress, blocked, or done.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
-   }else if(matches.length===1){
-    try{
-     const updated=ChanakyaTaskEngine.setStatus(matches[0].id,intent.status,tasks,localStorage);
-     const task=updated.find(item=>item.id===matches[0].id);
-     appendMessage("assistant","Updated locally: "+task.title+"\nStatus: "+task.status.replace("_"," ")+". No external action was performed.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
-    }catch(error){appendMessage("assistant","I couldn't update that task: "+error.message);}
-   }else{
-    const reason=matches.length>1?"More than one task matches “"+intent.target+"”. I haven't changed anything.":"I couldn't find a task matching “"+intent.target+"”. I haven't changed anything.";
-    appendMessage("assistant",reason,[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
-   }
-  }else{
-   appendMessage("assistant","I received your request, but this local build does not yet have a reasoning model or a matching local capability for it. I have not converted it into a task or pretended to answer it. Try “create a task to …”, “show my tasks”, or “plan …”.");
-  }
+  const response=ChanakyaAssistantRuntime.handle(message,localStorage,{router:ChanakyaLocalRouter,taskEngine:ChanakyaTaskEngine,workflowEngine:ChanakyaWorkflowEngine});
+  const actions=(response.actions||[]).map(action=>({label:action.label+" →",run:()=>showView(action.view)}));
+  appendMessage("assistant",response.text,actions);
   input.value="";input.style.height="auto";
  }
  form.addEventListener("submit",e=>{e.preventDefault();sendMessage(input.value)});
