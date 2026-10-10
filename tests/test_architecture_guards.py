@@ -8,7 +8,7 @@ CANONICAL_DATA = ROOT / "prototype" / "data" / "sample_messages.json"
 BROWSER_BUNDLE = ROOT / "prototype" / "data.js"
 ROOT_ENTRY = ROOT / "index.html"
 COMMAND_CENTER_APP = ROOT / "apps" / "command-center" / "app.js"
-FIREWALL_APP = ROOT / "prototype" / "app.js"
+FIREWALL_CLASSIFIER = ROOT / "prototype" / "classifier.js"
 
 
 class ArchitectureGuardTests(unittest.TestCase):
@@ -27,7 +27,7 @@ class ArchitectureGuardTests(unittest.TestCase):
 
     def test_command_center_does_not_duplicate_firewall_classifier(self):
         command_center = COMMAND_CENTER_APP.read_text(encoding="utf-8").lower()
-        firewall = FIREWALL_APP.read_text(encoding="utf-8").lower()
+        firewall = FIREWALL_CLASSIFIER.read_text(encoding="utf-8").lower()
         # The ecosystem shell may link to the product, but must not copy its classifier implementation.
         classifier_markers = ("function classify(", "const categories=", "expectedcategory", "prompt_injection")
         for marker in classifier_markers:
