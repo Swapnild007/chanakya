@@ -44,7 +44,7 @@ class CognitiveFirewallTests(unittest.TestCase):
         self.assertIn("window.ChanakyaClassifier", app)
         self.assertIn("function classify(m)", classifier)
         self.assertNotIn("function classify(m)", app)
-        self.assertNotIn("baseline_category", Path(__file__).read_text(encoding="utf-8"))
+        self.assertNotRegex(Path(__file__).read_text(encoding="utf-8"), re.compile(r"^\\s*def\\s+baseline_category\\s*\\(", re.MULTILINE))
 
 
 if __name__ == "__main__":
