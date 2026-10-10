@@ -1,0 +1,21 @@
+"use strict";
+const assert=require("node:assert/strict");
+const store=require("../apps/command-center/conversation-store.js");
+function memoryStorage(){const data=new Map();return {getItem:key=>data.has(key)?data.get(key):null,setItem:(key,value)=>data.set(key,String(value)),removeItem:key=>data.delete(key)};}
+const storage=memoryStorage();
+assert.equal(store.active(storage),null);
+const first=store.create(storage,"2026-10-10T10:00:00.000Z");
+assert.equal(store.active(storage).id,first.id);
+store.append("user","Review the mobile menu",storage,"2026-10-10T10:01:00.000Z");
+store.append("assistant","I saved that locally.",storage,"2026-10-10T10:01:01.000Z");
+assert.equal(store.active(storage).title,"Review the mobile menu");
+assert.equal(store.active(storage).messages.length,2);
+const second=store.create(storage,"2026-10-10T10:02:00.000Z");
+assert.notEqual(first.id,second.id);
+assert.equal(store.active(storage).messages.length,0);
+store.select(first.id,storage);
+assert.equal(store.active(storage).messages[1].text,"I saved that locally.");
+assert.equal(store.list(storage).length,2);
+assert.throws(()=>store.select("missing",storage),/Conversation not found/);
+assert.throws(()=>store.append("system","not allowed",storage),/message is required/);
+console.log("Chanakya conversation store: local persistence, session switching, titles, and validation passed.");
