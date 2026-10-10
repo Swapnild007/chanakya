@@ -22,7 +22,7 @@
    const rows=flows.slice(0,8).map((w,i)=>(i+1)+". ["+w.status.replace(/_/g," ")+"] "+w.title+" ("+w.steps.filter(s=>s.status==="completed").length+"/"+w.steps.length+" steps)").join("\n");
    return result("Your local workflows\nTotal: "+summary.total+" · Active: "+(summary.counts.in_progress||0)+" · Blocked: "+(summary.counts.blocked||0)+" · Completed: "+(summary.counts.completed||0)+"\n\n"+rows,{actions:[{type:"navigate",view:ACTIONS.AUTOMATION,label:"Open Automation"}]});
   }
-  const createFlow=text.match(/^(?:please\s+)?(?:create|start|make)\s+(?:a\s+)?workflow\s+(?:to|for|:)?\s*(.+)$/i);
+  const createFlow=text.match(/^(?:please\s+)?(?:create|start|make)\s+(?:a\s+)?workflow(?:\s+(?:to|for)\s+|:\s*)(.+)$/i);
   if(createFlow){
    const title=clean(createFlow[1]).replace(/[?.!]+$/,"");
    if(!title)return result("What outcome should the workflow achieve?",{outcome:"needs_input"});
