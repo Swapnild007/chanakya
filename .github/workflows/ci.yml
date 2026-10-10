@@ -33,8 +33,10 @@ jobs:
           node --check apps/command-center/conversation-store.js
           node --check apps/command-center/workflow-engine.js
           node --check apps/command-center/assistant-runtime.js
+          node --check apps/command-center/tool-registry.js
           node tests/task-engine.test.cjs
           node tests/conversation-store.test.cjs
           node tests/workflow-engine.test.cjs
           node tests/assistant-runtime.test.cjs
+          node tests/tool-registry.test.cjs
           node tests/local-router.test.cjs
