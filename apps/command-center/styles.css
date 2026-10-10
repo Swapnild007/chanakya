@@ -40,3 +40,32 @@
 .compact-mode .chat-content{padding-top:20px}
 @media(max-width:760px){.chat-content{min-height:calc(100vh - 58px);padding:13px 10px}.chat-welcome{padding:20px 5px}.chat-welcome h1{font-size:32px}.chat-welcome p{font-size:11px;max-width:320px;margin:auto}.chat-workspace{min-height:460px;border-radius:14px}.chat-context{padding:12px}.chat-messages{padding:22px 13px}.suggestion-grid{grid-template-columns:1fr;gap:8px}.suggestion-chip{padding:11px}.chat-composer{margin:0 10px}.chat-disclaimer{line-height:1.6}.message-bubble{max-width:92%}}
 @media(max-width:390px){.chat-welcome h1{font-size:29px}.chat-context small{font-size:8px}.new-chat-btn{font-size:9px;padding:6px 8px}}
+
+/* Local task queue: working capability, not a mock dashboard. */
+.tasks-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:25px 4px 20px}
+.tasks-header h1{font-size:clamp(27px,3.2vw,39px);letter-spacing:-1.2px;line-height:1.15;margin:12px 0}
+.tasks-header p{font-size:12px;color:var(--muted);line-height:1.7;margin:0}
+.task-total{flex:0 0 92px;width:92px;height:92px;border:1px solid var(--line);background:#fff;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.task-total b{font-size:27px}.task-total small{font-size:9px;color:var(--muted)}
+.task-counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:15px}
+.task-count{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:7px}
+.task-count span{font-size:10px;color:var(--muted)}.task-count b{font-size:23px}
+.task-create{border:1px solid var(--line);border-radius:15px;background:#fff;padding:18px;box-shadow:var(--shadow)}
+.task-create label{display:block;font-size:12px;font-weight:750;margin-bottom:9px}
+.task-create textarea{display:block;width:100%;resize:vertical;min-height:62px;border:1px solid #e1e6ef;border-radius:10px;padding:11px;font:inherit;font-size:12px;color:var(--ink);outline-color:#9bb0ff}
+.task-create-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
+.task-create-foot small{font-size:9px;line-height:1.6;color:var(--muted)}
+.task-create-foot button{border:0;border-radius:9px;background:#4169e8;color:#fff;padding:10px 13px;font-size:11px;font-weight:750;white-space:nowrap}
+.task-list{display:grid;gap:10px;margin-top:14px}
+.task-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 130px;align-items:center;gap:15px;border:1px solid var(--line);background:#fff;border-radius:13px;padding:16px}
+.task-status{display:inline-block;border-radius:6px;padding:5px 7px;font-size:8px;font-weight:800;background:#f0f3f8;color:#69778d}
+.status-in_progress{background:#edf1ff;color:#4b63c7}.status-blocked{background:#fff2e3;color:#9a5c14}.status-done{background:#e8f7ef;color:#23764b}
+.task-row h2{font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin:8px 0 4px}
+.task-row p{font-size:9px;line-height:1.6;color:var(--muted);margin:0;overflow-wrap:anywhere}
+.task-state-label{font-size:9px;color:var(--muted)}
+.task-row select{width:100%;border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 7px;font-size:10px;color:var(--ink)}
+.task-empty{text-align:center;padding:35px 15px;border:1px dashed #d6ddea;border-radius:13px;background:#fff}
+.task-empty b{font-size:14px}.task-empty p{font-size:11px;color:var(--muted);line-height:1.7}
+.inline-task-link{display:block;margin-top:9px;border:0;background:transparent;padding:0;color:#4169e8;font-size:10px;font-weight:800;cursor:pointer}
+@media(max-width:760px){.tasks-header{padding:18px 2px}.task-total{width:67px;height:67px;flex-basis:67px;border-radius:15px}.task-total b{font-size:22px}.task-counts{gap:6px}.task-count{padding:10px 8px}.task-count span{font-size:9px}.task-count b{font-size:20px}.task-row{grid-template-columns:minmax(0,1fr);gap:8px;padding:14px}.task-state-label{margin-top:4px}.task-row select{max-width:none}.task-create{padding:13px}.task-create-foot{align-items:flex-start;flex-direction:column}.task-create-foot button{width:100%}}
+@media(max-width:390px){.tasks-header h1{font-size:25px}.task-count span{font-size:8px}}
