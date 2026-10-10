@@ -1,38 +1,39 @@
 const $=id=>document.getElementById(id);
 const labels={overview:"Overview",assistant:"AI Assistant",firewall:"Cognitive Firewall",agents:"Agent Studio",research:"Research",knowledge:"Knowledge",automation:"Automation",models:"Model providers",integrations:"Integrations",activity:"Activity & runs"};
-const descriptions={
- overview:"Your unified workspace preview.",
- assistant:"A unified assistant is planned to coordinate models, tools, and task outcomes. No model is connected in this preview.",
- firewall:"The existing local Cognitive Firewall prototype is available in the repository. It currently uses synthetic messages and deterministic rules.",
- agents:"Design specialized agents around a clear job, bounded permissions, and testable success criteria. Agent execution is not connected yet.",
- research:"Evidence-first research workflows are planned. Live web research is not connected to this interface.",
- knowledge:"Shared memory and retrieval are planned. No personal knowledge sources are connected.",
- automation:"Workflow coordination and verified execution are planned. This preview cannot perform external actions.",
- models:"The model gateway will provide a replaceable interface for supported AI providers. No provider credentials or API calls are configured.",
- integrations:"Integrations will be added selectively with least-privilege access. No accounts are connected.",
- activity:"Execution history will distinguish attempted, completed, failed, blocked, and unverified work. This preview has no real task runs."
+const moduleInfo={
+ assistant:{eyebrow:"YOUR AI WORKSPACE",title:"Think clearly. Move work forward.",description:"A unified assistant will coordinate reasoning, tools, and task outcomes through the shared Chanakya foundation.",status:"IN DESIGN",icon:"✳",capabilities:[["Task understanding","Turn a request into a clear objective and success criteria."],["Model routing","Choose an appropriate provider based on task, privacy, cost, and capability."],["Verified outcomes","Distinguish suggestions, attempts, verified results, and unresolved work."]],next:"Define the task contract and model-provider interface."},
+ firewall:{eyebrow:"PRODUCT 01 · COGNITIVE FIREWALL",title:"Protect attention. Surface what matters.",description:"The first product reduces incoming noise to decision-relevant signal, while preserving evidence and keeping the user in control.",status:"LOCAL PROTOTYPE EXISTS",icon:"◈",capabilities:[["Urgency and consequence","Prioritize items requiring timely human attention."],["Evidence and rationale","Inspect why an item was classified and what source supports it."],["Conservative handling","Keep uncertain or consequential items visible instead of silently suppressing them."]],next:"Stabilize classifier regression tests and evaluate false alarms and missed critical items.",link:"../../prototype/index.html",linkText:"Open current Cognitive Firewall prototype"},
+ agents:{eyebrow:"AGENT WORKSPACE",title:"Specialists with clear boundaries.",description:"Create purpose-built agents with defined responsibilities, permissions, and measurable completion criteria.",status:"PLANNED",icon:"⌘",capabilities:[["Agent definition","Specify role, inputs, outputs, and completion conditions."],["Bounded tools","Grant only the tools and permissions an agent needs."],["Evaluation","Test behavior against repeatable scenarios before enabling execution."]],next:"Define the agent manifest and runtime contract."},
+ research:{eyebrow:"EVIDENCE WORKSPACE",title:"Research that shows its work.",description:"Turn questions into structured findings with source traceability, uncertainty, and explicit gaps in evidence.",status:"PLANNED",icon:"⌕",capabilities:[["Question decomposition","Break a broad question into answerable research tasks."],["Source ledger","Keep findings linked to their supporting sources."],["Evidence review","Separate established facts, inference, and unknowns."]],next:"Define the evidence schema and source quality rubric."},
+ knowledge:{eyebrow:"MEMORY & RETRIEVAL",title:"Useful context. Traceable origins.",description:"A shared knowledge layer should retrieve relevant context without blurring source provenance or privacy boundaries.",status:"PLANNED",icon:"▤",capabilities:[["Source-aware memory","Preserve where information came from and when it was observed."],["Relevant retrieval","Bring forward only context useful to the current task."],["User control","Make retention and deletion behavior explicit."]],next:"Define memory boundaries, provenance, and retention rules."},
+ automation:{eyebrow:"WORKFLOW ORCHESTRATION",title:"From intention to verified outcome.",description:"Coordinate multi-step workflows, pause for approval when needed, and reconcile the result against the original objective.",status:"PLANNED",icon:"↗",capabilities:[["Workflow state","Track pending, running, blocked, failed, and completed steps."],["Approval gates","Require human authorization for consequential actions."],["Reconciliation","Verify observed results instead of assuming an action succeeded."]],next:"Specify workflow states, permissions, and recovery behavior."},
+ models:{eyebrow:"SHARED PLATFORM",title:"Choose models without locking the ecosystem.",description:"A provider-independent gateway will give products a stable interface while making capability, privacy, latency, and cost trade-offs explicit.",status:"PLANNED",icon:"◇",capabilities:[["Provider adapters","Normalize request and response contracts where semantics allow."],["Task routing","Match workloads to appropriate models and tools."],["Cost and reliability","Measure latency, errors, and spend without hiding provider differences."]],next:"Define provider-neutral interfaces and a mocked adapter for tests."},
+ integrations:{eyebrow:"TOOLS & CONNECTORS",title:"Connected by permission, not by default.",description:"Integrations will be introduced one at a time, beginning with read-only access and clear scopes.",status:"PLANNED",icon:"⧉",capabilities:[["Least privilege","Request only the access needed for the selected workflow."],["Untrusted input boundary","Treat retrieved content as data, never as system instructions."],["Auditable actions","Record approvals, calls, outcomes, and failures."]],next:"Design the connector permission and audit contract."},
+ activity:{eyebrow:"OBSERVABILITY",title:"Know what happened, not just what was attempted.",description:"A trustworthy platform needs an honest record of task state, evidence, failures, and remaining work.",status:"PLANNED",icon:"◷",capabilities:[["Run history","Record task steps and their observed outcomes."],["Evidence freshness","Show when the supporting evidence was last checked."],["Failure visibility","Make retries, blockers, and uncertain outcomes inspectable."]],next:"Define a shared execution event schema."}
 };
+let homeMarkup="";
 function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
+function showInfo(title,body){$("dialogTitle").textContent=title;$("dialogText").textContent=body;$("infoDialog").showModal()}
 function showView(view){
  const name=labels[view]||"Overview";
  $("crumb").textContent=name;
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
  $("sidebar").classList.remove("open");
- if(view==="overview"){window.scrollTo({top:0,behavior:"smooth"});return}
- if(view==="firewall"){
-  showInfo("Cognitive Firewall","The current local prototype is available at prototype/index.html in the repository. This command-center preview is a UI shell; navigation does not connect or execute product functionality.");
-  return;
- }
- showInfo(name,descriptions[view]||"This product module is planned and not implemented yet.");
+ const content=document.querySelector(".content");
+ if(view==="overview"){content.innerHTML=homeMarkup;window.scrollTo({top:0,behavior:"smooth"});bindHomeActions();return}
+ const m=moduleInfo[view];
+ if(!m)return;
+ const capabilities=m.capabilities.map((c,i)=>'<article class="module-cap"><span class="cap-number">0'+(i+1)+'</span><div><b>'+c[0]+'</b><p>'+c[1]+'</p></div></article>').join("");
+ content.innerHTML='<button class="back-link" id="backOverview">← Back to overview</button><section class="module-hero"><div><div class="eyebrow">'+m.eyebrow+'</div><h1>'+m.title+'</h1><p>'+m.description+'</p><span class="module-status">'+m.status+'</span></div><div class="module-hero-icon">'+m.icon+'</div></section><section class="module-layout"><div class="panel module-panel"><div class="section-heading"><div><h2>Capability map</h2><p>Planned boundaries for this product.</p></div></div><div class="module-caps">'+capabilities+'</div></div><aside class="panel next-panel"><div class="eyebrow">NEXT ENGINEERING MILESTONE</div><h2>'+m.next+'</h2><p>This is a roadmap item, not a claim that the capability is already implemented.</p>'+(m.link?'<a class="module-link" href="'+m.link+'">'+m.linkText+' ↗</a>':'')+'<div class="module-boundary"><span class="status-dot"></span><div><b>Current boundary</b><small>No live AI calls, external integrations, or autonomous actions are enabled from this screen.</small></div></div></aside></section><footer><span>CHANAKYA AI</span><span>One intelligence foundation. Specialized products. Verified outcomes.</span><span>DESIGN PREVIEW 01</span></footer>';
+ $("backOverview").addEventListener("click",()=>showView("overview"));
+ window.scrollTo({top:0,behavior:"smooth"});
 }
-document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",()=>showView(el.dataset.view)));
-document.querySelectorAll("[data-action]").forEach(el=>el.addEventListener("click",()=>{
- const action=el.dataset.action;
- if(action==="ask")showInfo("Ask Chanakya", "The shared assistant is planned. No model is connected, and no prompt is sent to a server in this preview.");
- if(action==="agent")showView("agents");
- if(action==="research")showView("research");
-}));
-function showInfo(title,body){$("dialogTitle").textContent=title;$("dialogText").textContent=body;$("infoDialog").showModal()}
-$("helpBtn").addEventListener("click",()=>showInfo("A design preview, not a live AI system","This is Phase 1 of the Chanakya ecosystem: a responsive command-center UI shell. Product cards show intended modules, not completed capabilities. No accounts, model APIs, external tools, or autonomous actions are connected."));
+function bindHomeActions(){
+ document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",()=>showView(el.dataset.view)));
+ document.querySelectorAll("[data-action]").forEach(el=>el.addEventListener("click",()=>{const action=el.dataset.action;if(action==="ask")showView("assistant");if(action==="agent")showView("agents");if(action==="research")showView("research")}));
+}
+homeMarkup=document.querySelector(".content").innerHTML;
+bindHomeActions();
+$("helpBtn").addEventListener("click",()=>showInfo("A design preview, not a live AI system","This is Phase 1 of the Chanakya ecosystem: a responsive command-center UI shell with local product navigation. Product pages show planned boundaries, not completed capabilities. No accounts, model APIs, external tools, or autonomous actions are connected."));
 $("menuBtn").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("sidebar").classList.remove("open")});
