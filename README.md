@@ -114,3 +114,9 @@ The repository includes a local Cognitive Firewall prototype under `prototype/`,
 4. Add a provider-independent model interface only if it improves measured outcomes.
 5. Add one read-only source integration only after the evaluation harness is in place.
 6. Add approved actions and MCP interoperability only after permission, audit, and verification tests pass.
+
+## Ecosystem UI phase
+
+The first unified ecosystem interface is available at [apps/command-center/index.html](apps/command-center/index.html). It is a responsive, local-only UI shell for the planned Chanakya products and shared platform capabilities. Product navigation and preview explanations work locally; cards marked planned or in design are not implemented capabilities. No accounts, model providers, external tools, or autonomous actions are connected.
+
+To preview it, open `apps/command-center/index.html` in a browser. No build step or dependency installation is required.
