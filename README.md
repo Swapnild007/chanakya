@@ -34,6 +34,7 @@ This is an enabling-engine hypothesis, not the whole product story. It must be t
 - [End-to-end delivery plan](docs/DELIVERY_PLAN.md)
 - [Initial architecture](docs/ARCHITECTURE.md)
 - [No-duplication architecture policy](docs/NO_DUPLICATION_POLICY.md)
+- [Repository architecture and duplication audit](docs/REPOSITORY_ARCHITECTURE_AUDIT.md)
 - [API and MCP architecture decision](docs/API_MCP_ARCHITECTURE.md)
 - [Cognitive Firewall automated test plan](tests/COGNITIVE_FIREWALL_TEST_PLAN.md)
 - Automated regression tests: `tests/test_cognitive_firewall.py`
