@@ -30,7 +30,7 @@
     if(tool.validate(input)!==true)throw new Error("Tool input failed validation. No action was performed.");
     output=tool.run(input,ctx);status="succeeded";
    }catch(e){error=clean(e&&e.message)||"Tool execution failed.";}
-   const record={id,tool:name,permission:tool?tool.permission:"unknown",status,startedAt,finishedAt:new Date().toISOString(),input:input===undefined?null:input,output:status==="succeeded"?output:null,error,externalAction:false};
+   const record={id,tool:name,permission:tool?tool.permission:"unknown",status,startedAt,finishedAt:new Date().toISOString(),input:input===undefined?null:input,output:status==="succeeded"?output:null,error,externalAction:!!(tool&&tool.permission==="external_write"&&status==="succeeded")};
    const rows=readRuns(storage);rows.unshift(record);storage.setItem(KEY,JSON.stringify(rows.slice(0,200)));
    return {ok:status==="succeeded",record,output,error};
   }
