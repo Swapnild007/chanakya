@@ -69,3 +69,46 @@
 .inline-task-link{display:block;margin-top:9px;border:0;background:transparent;padding:0;color:#4169e8;font-size:10px;font-weight:800;cursor:pointer}
 @media(max-width:760px){.tasks-header{padding:18px 2px}.task-total{width:67px;height:67px;flex-basis:67px;border-radius:15px}.task-total b{font-size:22px}.task-counts{gap:6px}.task-count{padding:10px 8px}.task-count span{font-size:9px}.task-count b{font-size:20px}.task-row{grid-template-columns:minmax(0,1fr);gap:8px;padding:14px}.task-state-label{margin-top:4px}.task-row select{max-width:none}.task-create{padding:13px}.task-create-foot{align-items:flex-start;flex-direction:column}.task-create-foot button{width:100%}}
 @media(max-width:390px){.tasks-header h1{font-size:25px}.task-count span{font-size:8px}}
+
+/* Mobile navigation and persistent conversation workspace */
+.mobile-scrim{display:none}
+.chat-context-title{min-width:0;flex:1}
+.chat-context-title b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.chat-history-select{max-width:170px;min-width:0;border:1px solid var(--line);border-radius:8px;background:#fff;color:#65738a;padding:7px 9px;font-size:10px}
+.chat-history-select:focus-visible,.new-chat-btn:focus-visible,.mobile-menu:focus-visible{outline:3px solid #a8b8ff;outline-offset:2px}
+@media(max-width:760px){
+ .mobile-scrim{display:block;position:fixed;inset:0;background:rgba(20,32,53,.32);backdrop-filter:blur(2px);z-index:6;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+ .mobile-scrim.visible{opacity:1;visibility:visible}
+ .sidebar{z-index:7;width:min(292px,86vw);padding:20px 14px 14px;overflow-y:auto}
+ body.nav-open{overflow:hidden}
+ .chat-content{min-height:calc(100dvh - 58px);padding:14px 10px 12px}
+ .chat-welcome{padding:14px 7px 18px}
+ .chat-welcome h1{font-size:clamp(29px,8vw,37px);letter-spacing:-1.25px}
+ .chat-welcome p{max-width:330px;margin:0 auto;line-height:1.7}
+ .chat-workspace{min-height:calc(100dvh - 270px);border-radius:15px}
+ .chat-context{padding:12px;gap:8px;flex-wrap:wrap}
+ .chat-context-title{flex:1 1 calc(100% - 28px)}
+ .chat-context-title b{max-width:100%;font-size:11px}
+ .chat-history-select{flex:1 1 100%;max-width:none;width:100%;order:3}
+ .new-chat-btn{margin-left:0;white-space:nowrap;padding:8px 9px}
+ .chat-messages{min-height:220px;padding:19px 13px;gap:14px}
+ .assistant-intro{margin:5px 0 7px;gap:10px}
+ .assistant-intro p,.message-bubble p{font-size:12px;line-height:1.7}
+ .suggestion-grid{grid-template-columns:1fr;gap:8px}
+ .suggestion-chip{min-height:58px;padding:11px 12px;gap:10px}
+ .suggestion-chip b{font-size:11px}.suggestion-chip small{font-size:10px;line-height:1.4}
+ .chat-composer{margin:0 10px;padding:11px;border-radius:13px}
+ .chat-composer textarea{min-height:42px;font-size:16px;line-height:1.45}
+ .composer-bottom{align-items:center}
+ .composer-bottom span{font-size:9px;line-height:1.4;max-width:calc(100% - 44px)}
+ .composer-bottom button{width:36px;height:36px;flex:0 0 36px}
+ .chat-disclaimer{line-height:1.6;margin:10px 12px 14px}
+ .chat-message{gap:8px}
+ .message-bubble{max-width:88%;padding:10px 12px}
+}
+@media(max-width:390px){
+ .chat-context{gap:7px}
+ .new-chat-btn{font-size:9px}
+ .chat-history-select{font-size:11px}
+ .chat-messages{padding:16px 10px}
+}
