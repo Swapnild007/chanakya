@@ -1,0 +1,26 @@
+"use strict";
+const assert=require("node:assert/strict");
+const engine=require("../apps/command-center/workflow-engine.js");
+function memoryStorage(){const data=new Map();return {getItem:key=>data.has(key)?data.get(key):null,setItem:(key,value)=>data.set(key,String(value))};}
+const storage=memoryStorage();
+assert.deepEqual(engine.read(storage),[]);
+const flow=engine.create("Ship the mobile navigation",storage,"2026-10-10T10:00:00.000Z",["Review layout","Test interaction"]);
+assert.equal(flow.status,"ready");assert.equal(flow.steps.length,2);
+engine.start(flow.id,storage,"2026-10-10T10:01:00.000Z");
+let current=engine.read(storage)[0];assert.equal(current.status,"in_progress");
+assert.throws(()=>engine.setStep(flow.id,"step-1","completed","",storage),/description is required/);
+engine.setStep(flow.id,"step-1","completed","CI passed for navigation tests",storage,"2026-10-10T10:02:00.000Z");
+current=engine.read(storage)[0];assert.equal(current.steps[0].evidence,"CI passed for navigation tests");assert.equal(current.status,"in_progress");
+engine.setStep(flow.id,"step-2","blocked","",storage,"2026-10-10T10:03:00.000Z");
+current=engine.read(storage)[0];assert.equal(current.status,"blocked");
+assert.throws(()=>engine.start(flow.id,storage),/Resolve the blocked step/);
+engine.unblockStep(flow.id,"step-2",storage,"2026-10-10T10:04:00.000Z");
+assert.equal(engine.read(storage)[0].status,"ready");
+engine.start(flow.id,storage,"2026-10-10T10:05:00.000Z");
+engine.setStep(flow.id,"step-2","completed","Verified the mobile menu opens and closes",storage,"2026-10-10T10:06:00.000Z");
+current=engine.read(storage)[0];assert.equal(current.status,"completed");
+assert.throws(()=>engine.cancel(flow.id,storage),/already closed/);
+const summary=engine.summary(engine.read(storage));assert.equal(summary.counts.completed,1);assert.equal(summary.items[0].completed,2);
+const cancelled=engine.create("Cancel a draft",storage);engine.cancel(cancelled.id,storage);assert.equal(engine.read(storage).find(w=>w.id===cancelled.id).status,"cancelled");
+assert.throws(()=>engine.create("  ",storage),/description is required/);
+console.log("Chanakya workflow engine: lifecycle, evidence, blockers, recovery, cancellation and summaries passed.");
