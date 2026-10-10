@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div class="mobile-scrim" id="mobileScrim" aria-hidden="true"></div>
 <div class="app-shell">
 <aside class="sidebar" id="sidebar">
   <a class="brand" href="#" id="brandHome" aria-label="Chanakya AI chat home"><span class="brand-mark">च</span><span><strong>chanakya</strong><small>INTELLIGENCE OS</small></span></a>
@@ -63,5 +64,6 @@
 <dialog id="infoDialog"><form method="dialog"><button class="dialog-close" aria-label="Close">×</button><div class="eyebrow">CHANAKYA AI</div><h2 id="dialogTitle">Preview information</h2><p id="dialogText"></p><button class="dialog-ok">Understood</button></form></dialog>
 <script src="task-engine.js"></script>
 <script src="local-router.js"></script>
+<script src="conversation-store.js"></script>
 <script src="app.js"></script>
 </body></html>
