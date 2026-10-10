@@ -4,12 +4,14 @@ const runtime=require("../apps/command-center/assistant-runtime.js");
 const router=require("../apps/command-center/local-router.js");
 const tasks=require("../apps/command-center/task-engine.js");
 const workflows=require("../apps/command-center/workflow-engine.js");
+const toolRegistry=require("../apps/command-center/tool-registry.js");
 class Store{constructor(){this.data={}}getItem(k){return this.data[k]??null}setItem(k,v){this.data[k]=String(v)}removeItem(k){delete this.data[k]}}
-const storage=new Store(),caps={router,taskEngine:tasks,workflowEngine:workflows};
+const storage=new Store(),base={router,taskEngine:tasks,workflowEngine:workflows,toolRegistry};
+const executionRegistry=runtime.createToolRegistry(storage,base),caps={...base,executionRegistry};
 let r=runtime.handle("Create a task to review the release checklist",storage,caps);
-assert.equal(r.outcome,"completed");assert.match(r.text,/Task captured/);assert.equal(tasks.load(storage).length,1);assert.equal(r.actions[0].view,"tasks");
+assert.equal(r.outcome,"completed");assert.match(r.text,/Task captured/);assert.equal(tasks.load(storage).length,1);assert.equal(r.actions[0].view,"tasks");assert.ok(r.meta.runId);assert.equal(executionRegistry.history()[0].tool,"tasks.create");
 r=runtime.handle("Show my tasks",storage,caps);assert.match(r.text,/Total: 1/);assert.match(r.text,/review the release checklist/);
-r=runtime.handle("Create a workflow to ship the command center",storage,caps);assert.match(r.text,/Workflow created locally/);assert.equal(workflows.read(storage).length,1);assert.equal(r.actions[0].view,"automation");
+r=runtime.handle("Create a workflow to ship the command center",storage,caps);assert.match(r.text,/Workflow created locally/);assert.equal(workflows.read(storage).length,1);assert.equal(r.actions[0].view,"automation");assert.equal(executionRegistry.history()[0].tool,"workflows.create");
 r=runtime.handle("List workflows",storage,caps);assert.match(r.text,/ship the command center/);
 r=runtime.handle("Help me think through a decision about model routing",storage,caps);assert.equal(r.meta.capability,"decision_framework");assert.match(r.text,/Evidence/);
 r=runtime.handle("Plan a safe release",storage,caps);assert.match(r.text,/Plan framework/);assert.match(r.text,/not researched, executed, or verified/);
