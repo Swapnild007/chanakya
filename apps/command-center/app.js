@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const labels={overview:"Overview",assistant:"AI Assistant",firewall:"Cognitive Firewall",agents:"Agent Studio",research:"Research",knowledge:"Knowledge",automation:"Automation",models:"Model providers",integrations:"Integrations",activity:"Activity & runs"};
+const labels={overview:"Overview",assistant:"AI Assistant",firewall:"Cognitive Firewall",agents:"Agent Studio",research:"Research",knowledge:"Knowledge",automation:"Automation",models:"Model providers",integrations:"Integrations",activity:"Activity & runs",settings:"Settings"};
 const moduleInfo={
  assistant:{eyebrow:"YOUR AI WORKSPACE",title:"Think clearly. Move work forward.",description:"A unified assistant will coordinate reasoning, tools, and task outcomes through the shared Chanakya foundation.",status:"IN DESIGN",icon:"✳",capabilities:[["Task understanding","Turn a request into a clear objective and success criteria."],["Model routing","Choose an appropriate provider based on task, privacy, cost, and capability."],["Verified outcomes","Distinguish suggestions, attempts, verified results, and unresolved work."]],next:"Define the task contract and model-provider interface."},
  firewall:{eyebrow:"PRODUCT 01 · COGNITIVE FIREWALL",title:"Protect attention. Surface what matters.",description:"The first product reduces incoming noise to decision-relevant signal, while preserving evidence and keeping the user in control.",status:"LOCAL PROTOTYPE EXISTS",icon:"◈",capabilities:[["Urgency and consequence","Prioritize items requiring timely human attention."],["Evidence and rationale","Inspect why an item was classified and what source supports it."],["Conservative handling","Keep uncertain or consequential items visible instead of silently suppressing them."]],next:"Stabilize classifier regression tests and evaluate false alarms and missed critical items.",link:"../../prototype/index.html",linkText:"Open current Cognitive Firewall prototype"},
@@ -14,12 +14,29 @@ const moduleInfo={
 let homeMarkup="";
 function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600)}
 function showInfo(title,body){$("dialogTitle").textContent=title;$("dialogText").textContent=body;$("infoDialog").showModal()}
+const SETTINGS_KEY="chanakya.commandCenter.settings.v1";
+const defaultSettings={compact:false,reduceMotion:false,localNotifications:false};
+function readSettings(){try{return {...defaultSettings,...JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}")}}catch{return {...defaultSettings}}}
+function saveSettings(settings){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));applySettings(settings)}
+function applySettings(settings){
+ document.body.classList.toggle("compact-mode",!!settings.compact);
+ document.body.classList.toggle("reduce-motion",!!settings.reduceMotion);
+}
+function renderSettings(){
+ const s=readSettings();
+ const row=(key,title,desc)=>'<label class="setting-row"><span><b>'+title+'</b><small>'+desc+'</small></span><input type="checkbox" data-setting="'+key+'" '+(s[key]?'checked':'')+'></label>';
+ document.querySelector(".content").innerHTML='<button class="back-link" id="backOverview">← Back to overview</button><section class="module-hero"><div><div class="eyebrow">WORKSPACE PREFERENCES</div><h1>Make Chanakya work your way.</h1><p>Local preview preferences are saved in this browser only. No account or server sync is connected.</p><span class="module-status">LOCAL SETTINGS</span></div><div class="module-hero-icon">⚙</div></section><section class="settings-grid"><div class="panel settings-panel"><div class="section-heading"><div><h2>Experience</h2><p>Adjust how the workspace looks and behaves.</p></div></div>'+row("compact","Compact layout","Reduce spacing to show more content on screen.")+row("reduceMotion","Reduce motion","Limit animated transitions in the interface.")+'</div><div class="panel settings-panel"><div class="section-heading"><div><h2>Notifications</h2><p>Preview-only preferences, not real alerts.</p></div></div>'+row("localNotifications","In-app demo notices","Allow brief confirmations for local UI actions only.")+'<div class="settings-note">Privacy: these settings stay in this browser local storage. They do not control external services.</div><button class="outline settings-reset" id="resetSettings">Reset preferences</button></div></section><footer><span>CHANAKYA AI</span><span>Preferences stay local in this preview.</span><span>SETTINGS</span></footer>';
+ document.querySelectorAll("[data-setting]").forEach(input=>input.addEventListener("change",()=>{const next=readSettings();next[input.dataset.setting]=input.checked;saveSettings(next);toast("Preference saved on this device.")}));
+ $("resetSettings").addEventListener("click",()=>{saveSettings({...defaultSettings});renderSettings();toast("Preferences reset.")});
+ $("backOverview").addEventListener("click",()=>showView("overview"));
+}
 function showView(view){
  const name=labels[view]||"Overview";
  $("crumb").textContent=name;
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
  $("sidebar").classList.remove("open");
  const content=document.querySelector(".content");
+ if(view==="settings"){renderSettings();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="overview"){content.innerHTML=homeMarkup;window.scrollTo({top:0,behavior:"smooth"});bindHomeActions();return}
  const m=moduleInfo[view];
  if(!m)return;
@@ -33,6 +50,7 @@ function bindHomeActions(){
  document.querySelectorAll("[data-action]").forEach(el=>el.addEventListener("click",()=>{const action=el.dataset.action;if(action==="ask")showView("assistant");if(action==="agent")showView("agents");if(action==="research")showView("research")}));
 }
 homeMarkup=document.querySelector(".content").innerHTML;
+applySettings(readSettings());
 bindHomeActions();
 $("helpBtn").addEventListener("click",()=>showInfo("A design preview, not a live AI system","This is Phase 1 of the Chanakya ecosystem: a responsive command-center UI shell with local product navigation. Product pages show planned boundaries, not completed capabilities. No accounts, model APIs, external tools, or autonomous actions are connected."));
 $("menuBtn").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
