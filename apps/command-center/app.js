@@ -67,20 +67,38 @@ function renderAssistant(){
  </section>
  <footer><span>CHANAKYA AI</span><span>Less noise. More verified outcomes.</span><span>PREVIEW MODE</span></footer>`;
  const messages=$("chatMessages"), form=$("chatForm"), input=$("chatInput");
+ function appendMessage(role, contentText, actions){
+  const row=document.createElement("div");row.className="chat-message "+(role==="user"?"user-message":"assistant-message");
+  if(role!=="user"){const mark=document.createElement("div");mark.className="chat-brand-mark";mark.textContent="च";row.append(mark);}
+  const bubble=document.createElement("div");bubble.className="message-bubble";
+  const text=document.createElement("p");text.textContent=contentText;text.style.whiteSpace="pre-line";bubble.append(text);
+  (actions||[]).forEach(action=>{const button=document.createElement("button");button.type="button";button.className="inline-task-link";button.textContent=action.label;button.addEventListener("click",action.run);bubble.append(button);});
+  row.append(bubble);messages.append(row);messages.scrollTop=messages.scrollHeight;
+ }
  function sendMessage(value){
-  const message=value.trim(); if(!message)return;
+  const message=value.trim();if(!message)return;
   $("chatSuggestions")?.remove();
-  const user=document.createElement("div");user.className="chat-message user-message";
-  const userBubble=document.createElement("div");userBubble.className="message-bubble";userBubble.textContent=message;user.appendChild(userBubble);
-  const reply=document.createElement("div");reply.className="chat-message assistant-message";
-  const mark=document.createElement("div");mark.className="chat-brand-mark";mark.textContent="च";
-  const body=document.createElement("div");body.className="message-bubble";
-  const title=document.createElement("b");title.textContent="The chat interface is ready. The intelligence connection is not.";
-  const copy=document.createElement("p");
-  try{const result=ChanakyaTaskEngine.add(message,ChanakyaTaskEngine.load(localStorage),localStorage);copy.textContent="I captured this as a local task (“"+result.task.title+"”). It is now in Tasks & Projects with Open status. This is task capture, not AI reasoning or execution; no external action was performed.";}
-  catch(error){copy.textContent=error.message;}
-  const tasksLink=document.createElement("button");tasksLink.type="button";tasksLink.className="inline-task-link";tasksLink.textContent="Open Tasks & Projects →";tasksLink.addEventListener("click",()=>showView("tasks"));
-  body.append(title,copy,tasksLink);reply.append(mark,body);messages.append(user,reply);input.value="";input.style.height="auto";messages.scrollTop=messages.scrollHeight;
+  appendMessage("user",message);
+  const intent=ChanakyaLocalRouter.route(message);
+  const tasks=ChanakyaTaskEngine.load(localStorage);
+  if(intent.intent==="create_task"){
+   try{const result=ChanakyaTaskEngine.add(intent.title,tasks,localStorage);appendMessage("assistant","Task captured and saved locally: "+result.task.title+"\nStatus: Open. No external work has been performed.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);}
+   catch(error){appendMessage("assistant",error.message);}
+  }else if(intent.intent==="list_tasks"){
+   const summary=ChanakyaLocalRouter.summarize(tasks);
+   const list=summary.items.length?summary.items.map((task,index)=>(index+1)+". ["+task.status.replace("_"," ")+"] "+task.title).join("\n"):"Your local task queue is empty.";
+   appendMessage("assistant","Local task summary\nTotal: "+summary.total+" · Open: "+summary.counts.open+" · In progress: "+summary.counts.in_progress+" · Blocked: "+summary.counts.blocked+" · Done: "+summary.counts.done+"\n\n"+list,[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+  }else if(intent.intent==="plan_request"){
+   const plan=ChanakyaLocalRouter.checklist(message);
+   appendMessage("assistant",plan.ok?"Local planning checklist for: "+plan.title+"\n\n"+plan.steps.map((step,index)=>(index+1)+". "+step).join("\n")+"\n\nThis is a generic deterministic checklist, not AI-generated research or an executed plan.":"Please describe what you want to plan.");
+  }else if(intent.intent==="help"){
+   appendMessage("assistant","I can currently handle a small set of local commands:\n• “Create a task to …” saves a task.\n• “Show my tasks” summarizes your queue.\n• “Plan …” produces a general five-step checklist.\n\nOpen-ended questions, research, model reasoning, and external actions are not implemented yet.");
+  }else if(intent.intent==="status_request"){
+   appendMessage("assistant","I can update task status in Tasks & Projects, but I cannot reliably identify which task you mean from this sentence alone. Open the task queue and choose its status directly.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+  }else{
+   appendMessage("assistant","I received your request, but this local build does not yet have a reasoning model or a matching local capability for it. I have not converted it into a task or pretended to answer it. Try “create a task to …”, “show my tasks”, or “plan …”.");
+  }
+  input.value="";input.style.height="auto";
  }
  form.addEventListener("submit",e=>{e.preventDefault();sendMessage(input.value)});
  input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,140)+"px"});
