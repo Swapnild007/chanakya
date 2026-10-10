@@ -43,4 +43,5 @@ jobs:
           node tests/tool-registry.test.cjs
           node tests/model-gateway.test.cjs
           node tests/brain-dataset.test.cjs
+          node tests/brain-corpus.test.cjs
           node tests/local-router.test.cjs
