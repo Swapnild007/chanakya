@@ -56,10 +56,10 @@ function renderAssistant(){
   <div class="chat-messages" id="chatMessages" aria-live="polite">
    <div class="assistant-intro"><div class="chat-brand-mark">च</div><div><b>Start with what matters.</b><p>Ask a question, bring a decision, or describe an outcome you want. Chanakya is being built to help you move from intention to verified results.</p></div></div>
    <div class="suggestion-grid" id="chatSuggestions">
-    <button class="suggestion-chip" data-prompt="Help me think through an important decision">◈ <span><b>Think through a decision</b><small>Clarify options and trade-offs</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Create a task to think through an important decision">◈ <span><b>Think through a decision</b><small>Clarify options and trade-offs</small></span><span class="arrow">↗</span></button>
     <button class="suggestion-chip" data-prompt="Help me make a clear plan for my priorities today">☷ <span><b>Plan my priorities</b><small>Turn goals into next steps</small></span><span class="arrow">↗</span></button>
-    <button class="suggestion-chip" data-prompt="Help me research a topic and identify what evidence I need">⌕ <span><b>Explore a question</b><small>Structure a research task</small></span><span class="arrow">↗</span></button>
-    <button class="suggestion-chip" data-prompt="Help me design an AI agent for a specific task">⌘ <span><b>Design an AI agent</b><small>Define its job and boundaries</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Create a task to research a topic and identify the evidence needed">⌕ <span><b>Explore a question</b><small>Structure a research task</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Create a task to design an AI agent for a specific task">⌘ <span><b>Design an AI agent</b><small>Define its job and boundaries</small></span><span class="arrow">↗</span></button>
    </div>
   </div>
   <form class="chat-composer" id="chatForm"><label class="sr-only" for="chatInput">Message Chanakya</label><textarea id="chatInput" rows="1" placeholder="Message Chanakya..." maxlength="4000"></textarea><div class="composer-bottom"><span>Preview only · No live AI model connected</span><button type="submit" id="sendChatBtn" aria-label="Send message">↑</button></div></form>
@@ -94,7 +94,20 @@ function renderAssistant(){
   }else if(intent.intent==="help"){
    appendMessage("assistant","I can currently handle a small set of local commands:\n• “Create a task to …” saves a task.\n• “Show my tasks” summarizes your queue.\n• “Plan …” produces a general five-step checklist.\n\nOpen-ended questions, research, model reasoning, and external actions are not implemented yet.");
   }else if(intent.intent==="status_request"){
-   appendMessage("assistant","I can update task status in Tasks & Projects, but I cannot reliably identify which task you mean from this sentence alone. Open the task queue and choose its status directly.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+   const target=(intent.target||"").toLocaleLowerCase();
+   const matches=target?tasks.filter(task=>task.title.toLocaleLowerCase().includes(target)||target.includes(task.title.toLocaleLowerCase())):[];
+   if(!intent.status){
+    appendMessage("assistant","I couldn't identify the requested status. Use open, in progress, blocked, or done.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+   }else if(matches.length===1){
+    try{
+     const updated=ChanakyaTaskEngine.setStatus(matches[0].id,intent.status,tasks,localStorage);
+     const task=updated.find(item=>item.id===matches[0].id);
+     appendMessage("assistant","Updated locally: "+task.title+"\nStatus: "+task.status.replace("_"," ")+". No external action was performed.",[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+    }catch(error){appendMessage("assistant","I couldn't update that task: "+error.message);}
+   }else{
+    const reason=matches.length>1?"More than one task matches “"+intent.target+"”. I haven't changed anything.":"I couldn't find a task matching “"+intent.target+"”. I haven't changed anything.";
+    appendMessage("assistant",reason,[{label:"Open Tasks & Projects →",run:()=>showView("tasks")}]);
+   }
   }else{
    appendMessage("assistant","I received your request, but this local build does not yet have a reasoning model or a matching local capability for it. I have not converted it into a task or pretended to answer it. Try “create a task to …”, “show my tasks”, or “plan …”.");
   }
