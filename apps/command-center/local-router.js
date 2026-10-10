@@ -14,6 +14,7 @@
  function extractTaskTitle(input){
   return input.trim()
    .replace(/^(please\s+)?(can you\s+)?(add|create|capture|track|remember|save|make)\s+(a\s+|an\s+|the\s+)?(new\s+)?(task|to-?do|action item|work item|reminder)\b\s*/i,"")
+   .replace(/^[:,-]\s*/,"")
    .replace(/^(to|for)\s*[:,-]?\s*/i,"")
    .replace(/^(to\s+)?(help me\s+)?/i,"")
    .replace(/[?.!]+$/,"").trim();
