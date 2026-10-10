@@ -32,6 +32,7 @@ This is an enabling-engine hypothesis, not the whole product story. It must be t
 ## Engineering and delivery
 
 - [Genuine AI product decision and research](docs/GENUINE_AI_PRODUCT_DECISION.md)
+- [Chanakya Cognitive Architecture](docs/CHANAKYA_COGNITIVE_ARCHITECTURE.md)
 - [Pre-integration completion gate](docs/PRE_INTEGRATION_COMPLETION_GATE.md)
 - [End-to-end delivery plan](docs/DELIVERY_PLAN.md)
 - [Initial architecture](docs/ARCHITECTURE.md)
