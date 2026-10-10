@@ -31,6 +31,7 @@ This is an enabling-engine hypothesis, not the whole product story. It must be t
 
 ## Engineering and delivery
 
+- [Pre-integration completion gate](docs/PRE_INTEGRATION_COMPLETION_GATE.md)
 - [End-to-end delivery plan](docs/DELIVERY_PLAN.md)
 - [Initial architecture](docs/ARCHITECTURE.md)
 - [No-duplication architecture policy](docs/NO_DUPLICATION_POLICY.md)
