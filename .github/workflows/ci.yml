@@ -23,6 +23,8 @@ jobs:
       - name: Validate synthetic dataset and JavaScript syntax
         run: |
           python -m unittest discover -s tests -p 'test_*.py' -v
+          node --check prototype/classifier.js
           node --check prototype/app.js
+          node tests/classifier.test.cjs
           node --check prototype/data.js
           node --check apps/command-center/app.js
