@@ -45,6 +45,7 @@ This is an enabling-engine hypothesis, not the whole product story. It must be t
 
 - [Reductive Intelligence thesis](docs/REDUCTIVE_INTELLIGENCE_THESIS.md)
 - [Prior-art capability matrix](docs/PRIOR_ART_MATRIX.md)
+- [Real-product research and architecture decision](docs/REAL_PRODUCT_RESEARCH_DECISION.md)
 - [Objective-reconciliation benchmark specification](docs/OBJECTIVE_RECONCILIATION_BENCHMARK.md)
 
 ## Prior art to inspect
@@ -107,7 +108,7 @@ Expand only if results show a meaningful, reproducible advantage and the operati
 
 ## Repository status
 
-The repository includes a local Cognitive Firewall prototype under `prototype/`, a synthetic 12-message dataset, a deterministic baseline classifier, inspectable rationale/evidence, session-only user corrections, API/MCP architecture decisions, an end-to-end delivery plan, initial architecture notes, automated regression tests, and GitHub Actions CI configuration. CI has been configured but has not yet been observed passing. The prototype is not connected to a model or live accounts and executes no external actions.
+The repository includes a local Cognitive Firewall prototype under `prototype/`, a synthetic 12-message dataset, a deterministic baseline classifier, inspectable rationale/evidence, session-only user corrections, API/MCP architecture decisions, an end-to-end delivery plan, initial architecture notes, automated regression tests, and GitHub Actions CI configuration. The latest observed CI run passed the automated test suite, including the mock-only Model Gateway contract tests. This does not establish model intelligence, browser end-to-end quality, or production readiness. The prototype is not connected to a model or live accounts and executes no external actions.
 
 ## Immediate next work
 
@@ -120,6 +121,6 @@ The repository includes a local Cognitive Firewall prototype under `prototype/`,
 
 ## Ecosystem UI phase
 
-The first unified ecosystem interface is available at [apps/command-center/index.html](apps/command-center/index.html). It is a responsive, local-only UI shell for the planned Chanakya products and shared platform capabilities. Product navigation and preview explanations work locally; cards marked planned or in design are not implemented capabilities. No accounts, model providers, external tools, or autonomous actions are connected.
+The first unified ecosystem interface is available at [apps/command-center/index.html](apps/command-center/index.html). It is a responsive, local-only UI shell for the planned Chanakya products and shared platform capabilities. Product navigation and preview explanations work locally; cards marked planned or in design are not implemented capabilities. No live model provider, real account, external tool, or autonomous external action is connected. The Model Gateway is a mock-only contract and is not wired into the assistant chat path.
 
 To preview it, open `apps/command-center/index.html` in a browser. No build step or dependency installation is required.
