@@ -1,0 +1,12 @@
+"use strict";
+const assert=require("node:assert/strict");
+const router=require("../apps/command-center/local-router.js");
+assert.equal(router.route("Show my tasks").intent,"list_tasks");
+assert.equal(router.route("Create a task to audit the UI").intent,"create_task");
+assert.equal(router.route("Help").intent,"help");
+assert.equal(router.route("Plan a product launch").intent,"plan_request");
+assert.equal(router.route("What is the capital of France?").intent,"unsupported");
+const summary=router.summarize([{id:"a",title:"One",status:"open"},{id:"b",title:"Two",status:"done"}]);
+assert.equal(summary.total,2);assert.equal(summary.counts.open,1);assert.equal(summary.counts.done,1);
+assert.equal(router.checklist("Plan a release").steps.length,5);
+console.log("Chanakya local intent router: intent routing, task summaries, and checklist planning passed.");
