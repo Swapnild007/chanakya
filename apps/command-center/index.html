@@ -9,10 +9,9 @@
 <body>
 <div class="app-shell">
 <aside class="sidebar" id="sidebar">
-  <a class="brand" href="#" aria-label="Chanakya home"><span class="brand-mark">च</span><span><strong>chanakya</strong><small>INTELLIGENCE OS</small></span></a>
+  <a class="brand" href="#" id="brandHome" aria-label="Chanakya AI chat home"><span class="brand-mark">च</span><span><strong>chanakya</strong><small>INTELLIGENCE OS</small></span></a>
   <div class="workspace-label">WORKSPACE</div>
   <nav class="nav" aria-label="Main navigation">
-    <button class="nav-item active" data-view="overview"><span class="nav-icon">◫</span>Overview</button>
     <button class="nav-item" data-view="assistant"><span class="nav-icon">✳</span>AI Assistant <span class="nav-pill">CORE</span></button>
     <button class="nav-item" data-view="firewall"><span class="nav-icon">◈</span>Cognitive Firewall</button>
     <button class="nav-item" data-view="agents"><span class="nav-icon">⌘</span>Agent Studio</button>
@@ -31,21 +30,31 @@
 </aside>
 <main class="main">
 <header class="topbar"><button class="mobile-menu" id="menuBtn" aria-label="Toggle navigation">☰</button><div class="breadcrumbs"><span>Workspace</span><span class="crumb-slash">/</span><b id="crumb">Overview</b></div><div class="top-actions"><span class="environment"><i></i> UI CONCEPT</span><button class="icon-btn" id="helpBtn" aria-label="About this preview">?</button><span class="avatar top-avatar">S</span></div></header>
-<div class="content">
-<section class="welcome"><div><div class="eyebrow"><span class="sparkle">✳</span> YOUR INTELLIGENCE, IN ONE PLACE</div><h1>Good morning.<br><span>What matters today?</span></h1><p>One workspace for your AI tools, agents, knowledge, and outcomes.</p></div><div class="welcome-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="core-glyph">च</div><span class="orbit-dot dot-a"></span><span class="orbit-dot dot-b"></span><span class="orbit-dot dot-c"></span></div></section>
-<section class="quick-row" aria-label="Quick actions"><button class="quick-card" data-action="ask"><span class="quick-icon blue">✳</span><span><b>Ask Chanakya</b><small>Think through a task</small></span><span class="arrow">↗</span></button><button class="quick-card" data-action="agent"><span class="quick-icon purple">⌘</span><span><b>Build an agent</b><small>Design a specialist</small></span><span class="arrow">↗</span></button><button class="quick-card" data-action="research"><span class="quick-icon green">⌕</span><span><b>Start research</b><small>Explore a question</small></span><span class="arrow">↗</span></button></section>
-<section class="section-block"><div class="section-heading"><div><h2>Your workspace</h2><p>Specialized products, connected through one shared foundation.</p></div><span class="section-note">PRODUCT ECOSYSTEM</span></div>
-<div class="product-grid">
-<button class="product-card featured" data-view="assistant"><div class="product-top"><span class="product-icon p-blue">✳</span><span class="status-tag in-design">IN DESIGN</span></div><h3>AI Assistant</h3><p>A single place to reason, plan, and coordinate work across Chanakya.</p><div class="product-foot"><span>Shared intelligence core</span><span class="arrow">↗</span></div></button>
-<button class="product-card" data-view="firewall"><div class="product-top"><span class="product-icon p-amber">◈</span><span class="status-tag prototype">PROTOTYPE</span></div><h3>Cognitive Firewall</h3><p>Reduce digital noise. Surface decisions, deadlines, and consequential signals.</p><div class="product-foot"><span>First product · local demo</span><span class="arrow">↗</span></div></button>
-<button class="product-card" data-view="agents"><div class="product-top"><span class="product-icon p-violet">⌘</span><span class="status-tag planned">PLANNED</span></div><h3>Agent Studio</h3><p>Create specialized agents with clear jobs, boundaries, and success criteria.</p><div class="product-foot"><span>Agent runtime</span><span class="arrow">↗</span></div></button>
-<button class="product-card" data-view="research"><div class="product-top"><span class="product-icon p-green">⌕</span><span class="status-tag planned">PLANNED</span></div><h3>Research</h3><p>Gather evidence, compare sources, and turn questions into structured findings.</p><div class="product-foot"><span>Evidence-first workflows</span><span class="arrow">↗</span></div></button>
-<button class="product-card" data-view="knowledge"><div class="product-top"><span class="product-icon p-slate">▤</span><span class="status-tag planned">PLANNED</span></div><h3>Knowledge</h3><p>Bring relevant context to the task without losing source traceability.</p><div class="product-foot"><span>Memory &amp; retrieval</span><span class="arrow">↗</span></div></button>
-<button class="product-card" data-view="automation"><div class="product-top"><span class="product-icon p-cyan">↗</span><span class="status-tag planned">PLANNED</span></div><h3>Automation</h3><p>Coordinate approved multi-step workflows and verify what actually happened.</p><div class="product-foot"><span>Execution &amp; reconciliation</span><span class="arrow">↗</span></div></button>
-</div></section>
-<section class="lower-grid"><div class="panel"><div class="section-heading compact"><div><h2>Shared intelligence core</h2><p>Capabilities designed to power every product.</p></div><span class="core-badge">FOUNDATION</span></div><div class="core-list"><div class="core-row"><span class="core-symbol">◇</span><div><b>Model gateway</b><small>Provider-independent interface</small></div><span class="cap-state">Planned</span></div><div class="core-row"><span class="core-symbol">⌘</span><div><b>Agent runtime</b><small>Bounded execution and handoffs</small></div><span class="cap-state">Planned</span></div><div class="core-row"><span class="core-symbol">▤</span><div><b>Memory &amp; retrieval</b><small>Relevant context with provenance</small></div><span class="cap-state">Planned</span></div><div class="core-row"><span class="core-symbol">✓</span><div><b>Verification engine</b><small>Evidence-backed completion states</small></div><span class="cap-state">Planned</span></div></div></div>
-<div class="panel principle-panel"><div class="principle-mark">“</div><div class="eyebrow">THE CHANAKYA PRINCIPLE</div><h2>Less noise.<br>More verified outcomes.</h2><p>Chanakya is designed to protect attention, not capture it. Every product should make progress clearer and unnecessary decisions fewer.</p><div class="principle-rule"></div><div class="principle-foot"><span class="status-dot"></span> Read-only preview · No live integrations</div></div></section>
-<footer><span>CHANAKYA AI</span><span>One intelligence foundation. Specialized products. Verified outcomes.</span><span>DESIGN PREVIEW 01</span></footer>
+<div class="content chat-content">
+<section class="chat-welcome">
+  <div class="eyebrow"><span class="sparkle">✳</span> CHANAKYA AI</div>
+  <h1>What can I help you<br><span>think through today?</span></h1>
+  <p>One conversation for questions, planning, research, and getting work done.</p>
+</section>
+<section class="chat-workspace" aria-label="AI chat">
+  <div class="chat-context"><span class="chat-status-dot"></span><div><b>New conversation</b><small>Private workspace · Preview mode</small></div><button id="newChatBtn" class="new-chat-btn" type="button">＋ New chat</button></div>
+  <div class="chat-messages" id="chatMessages" aria-live="polite">
+    <div class="assistant-intro"><div class="chat-brand-mark">च</div><div><b>Start with what matters.</b><p>Ask a question, bring a decision, or describe an outcome you want. Chanakya is being built to help you move from intention to verified results.</p></div></div>
+    <div class="suggestion-grid" id="chatSuggestions">
+      <button class="suggestion-chip" data-prompt="Help me think through an important decision">◈ <span><b>Think through a decision</b><small>Clarify options and trade-offs</small></span><span class="arrow">↗</span></button>
+      <button class="suggestion-chip" data-prompt="Help me make a clear plan for my priorities today">☷ <span><b>Plan my priorities</b><small>Turn goals into next steps</small></span><span class="arrow">↗</span></button>
+      <button class="suggestion-chip" data-prompt="Help me research a topic and identify what evidence I need">⌕ <span><b>Explore a question</b><small>Structure a research task</small></span><span class="arrow">↗</span></button>
+      <button class="suggestion-chip" data-prompt="Help me design an AI agent for a specific task">⌘ <span><b>Design an AI agent</b><small>Define its job and boundaries</small></span><span class="arrow">↗</span></button>
+    </div>
+  </div>
+  <form class="chat-composer" id="chatForm">
+    <label class="sr-only" for="chatInput">Message Chanakya</label>
+    <textarea id="chatInput" rows="1" placeholder="Message Chanakya..." maxlength="4000"></textarea>
+    <div class="composer-bottom"><span>Preview only · No live AI model connected</span><button type="submit" id="sendChatBtn" aria-label="Send message">↑</button></div>
+  </form>
+  <p class="chat-disclaimer">Chanakya can make mistakes. Important outcomes will need evidence and verification.</p>
+</section>
+<footer><span>CHANAKYA AI</span><span>Less noise. More verified outcomes.</span><span>PREVIEW MODE</span></footer>
 </div>
 </main>
 </div>
