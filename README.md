@@ -95,13 +95,13 @@ Expand only if results show a meaningful, reproducible advantage and the operati
 
 ## Repository status
 
-The initial repository was empty when first inspected. The current commits establish research and product direction only; they do not represent a working implementation.
+The repository now includes a local Cognitive Firewall prototype under `prototype/`, a synthetic 12-message dataset, a deterministic baseline classifier, inspectable rationale/evidence, session-only user corrections, a test plan, and API/MCP architecture decisions. The prototype is not connected to a model or live accounts and executes no external actions.
 
 ## Immediate next work
 
-1. Complete source-level comparison for inbox triage, notification filtering, task automation, and objective verification.
-2. Define the controlled-data benchmark and scoring protocol.
-3. Build a read-only prototype.
-4. Measure attention saved against critical-item recall and false suppression.
-5. Add authorized action execution only after the read-only layer passes.
-6. Expand only if the evidence justifies it.
+1. Label the synthetic dataset and run repeatable classification/safety tests.
+2. Measure baseline critical-item recall, false suppression, and category-level errors.
+3. Compare manual review against the prototype using a controlled protocol.
+4. Add a provider-independent model interface only if it improves measured outcomes.
+5. Add one read-only source integration only after the evaluation harness is in place.
+6. Add approved actions and MCP interoperability only after permission, audit, and verification tests pass.
