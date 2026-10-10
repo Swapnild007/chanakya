@@ -18,7 +18,7 @@ def baseline_category(message):
         return "act_now"
     if any(s in text for s in ("conflict", "conflicting", "blocked", "legal", "contract notice", "review requested", "authority is unknown")):
         return "needs_decision"
-    if any(s in text for s in ("deadline", "closes tomorrow", "in 30 minutes", "overrun", "approve vendor budget")):
+    if any(s in text for s in ("closes tomorrow", "in 30 minutes", "overrun", "approve vendor budget")):
         return "act_now"
     if any(s in text for s in ("routine", "receipt", "acknowledgement", "acknowledgment")):
         return "authorized_handling"
