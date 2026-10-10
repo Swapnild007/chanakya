@@ -1,0 +1,27 @@
+name: Chanakya CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototype-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate synthetic dataset and JavaScript syntax
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py' -v
+          node --check prototype/app.js
+          node --check prototype/data.js
