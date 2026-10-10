@@ -30,12 +30,56 @@ function renderSettings(){
  $("resetSettings").addEventListener("click",()=>{saveSettings({...defaultSettings});renderSettings();toast("Preferences reset.")});
  $("backOverview").addEventListener("click",()=>showView("overview"));
 }
+
+function renderAssistant(){
+ const content=document.querySelector(".content");
+ content.innerHTML=`<section class="chat-welcome">
+  <div class="eyebrow"><span class="sparkle">✳</span> CHANAKYA AI</div>
+  <h1>What can I help you<br><span>think through today?</span></h1>
+  <p>One conversation for questions, planning, research, and getting work done.</p>
+ </section>
+ <section class="chat-workspace" aria-label="AI chat">
+  <div class="chat-context"><span class="chat-status-dot"></span><div><b>New conversation</b><small>Private workspace · Preview mode</small></div><button id="newChatBtn" class="new-chat-btn" type="button">＋ New chat</button></div>
+  <div class="chat-messages" id="chatMessages" aria-live="polite">
+   <div class="assistant-intro"><div class="chat-brand-mark">च</div><div><b>Start with what matters.</b><p>Ask a question, bring a decision, or describe an outcome you want. Chanakya is being built to help you move from intention to verified results.</p></div></div>
+   <div class="suggestion-grid" id="chatSuggestions">
+    <button class="suggestion-chip" data-prompt="Help me think through an important decision">◈ <span><b>Think through a decision</b><small>Clarify options and trade-offs</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Help me make a clear plan for my priorities today">☷ <span><b>Plan my priorities</b><small>Turn goals into next steps</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Help me research a topic and identify what evidence I need">⌕ <span><b>Explore a question</b><small>Structure a research task</small></span><span class="arrow">↗</span></button>
+    <button class="suggestion-chip" data-prompt="Help me design an AI agent for a specific task">⌘ <span><b>Design an AI agent</b><small>Define its job and boundaries</small></span><span class="arrow">↗</span></button>
+   </div>
+  </div>
+  <form class="chat-composer" id="chatForm"><label class="sr-only" for="chatInput">Message Chanakya</label><textarea id="chatInput" rows="1" placeholder="Message Chanakya..." maxlength="4000"></textarea><div class="composer-bottom"><span>Preview only · No live AI model connected</span><button type="submit" id="sendChatBtn" aria-label="Send message">↑</button></div></form>
+  <p class="chat-disclaimer">Chanakya can make mistakes. Important outcomes will need evidence and verification.</p>
+ </section>
+ <footer><span>CHANAKYA AI</span><span>Less noise. More verified outcomes.</span><span>PREVIEW MODE</span></footer>`;
+ const messages=$("chatMessages"), form=$("chatForm"), input=$("chatInput");
+ function sendMessage(value){
+  const message=value.trim(); if(!message)return;
+  $("chatSuggestions")?.remove();
+  const user=document.createElement("div");user.className="chat-message user-message";
+  const userBubble=document.createElement("div");userBubble.className="message-bubble";userBubble.textContent=message;user.appendChild(userBubble);
+  const reply=document.createElement("div");reply.className="chat-message assistant-message";
+  const mark=document.createElement("div");mark.className="chat-brand-mark";mark.textContent="च";
+  const body=document.createElement("div");body.className="message-bubble";
+  const title=document.createElement("b");title.textContent="The chat interface is ready. The intelligence connection is not.";
+  const copy=document.createElement("p");copy.textContent="I’ve received your message in this local preview, but no AI model is connected yet, so I can’t generate a real answer. The next step is to finish and verify the local product foundation before adding provider APIs.";
+  body.append(title,copy);reply.append(mark,body);messages.append(user,reply);input.value="";input.style.height="auto";messages.scrollTop=messages.scrollHeight;
+ }
+ form.addEventListener("submit",e=>{e.preventDefault();sendMessage(input.value)});
+ input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,140)+"px"});
+ content.querySelectorAll("[data-prompt]").forEach(button=>button.addEventListener("click",()=>{input.value=button.dataset.prompt;input.focus()}));
+ $("newChatBtn").addEventListener("click",()=>renderAssistant());
+}
+
 function showView(view){
- const name=labels[view]||"Overview";
+ if(view==="overview")view="assistant";
+ const name=labels[view]||"AI Assistant";
  $("crumb").textContent=name;
  document.querySelectorAll(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
  $("sidebar").classList.remove("open");
  const content=document.querySelector(".content");
+ if(view==="assistant"){renderAssistant();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="settings"){renderSettings();applySettings(readSettings());window.scrollTo({top:0,behavior:"smooth"});return}
  if(view==="overview"){content.innerHTML=homeMarkup;window.scrollTo({top:0,behavior:"smooth"});bindHomeActions();return}
  const m=moduleInfo[view];
@@ -52,6 +96,8 @@ function bindHomeActions(){
 homeMarkup=document.querySelector(".content").innerHTML;
 applySettings(readSettings());
 bindHomeActions();
+$("brandHome").addEventListener("click",e=>{e.preventDefault();showView("assistant")});
+showView("assistant");
 $("helpBtn").addEventListener("click",()=>showInfo("A design preview, not a live AI system","This is Phase 1 of the Chanakya ecosystem: a responsive command-center UI shell with local product navigation. Product pages show planned boundaries, not completed capabilities. No accounts, model APIs, external tools, or autonomous actions are connected."));
 $("menuBtn").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("sidebar").classList.remove("open")});
