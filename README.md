@@ -29,6 +29,15 @@ Users express outcomes. Chanakya translates them into explicit requirements, coo
 
 This is an enabling-engine hypothesis, not the whole product story. It must be tested against well-configured existing systems.
 
+## Engineering and delivery
+
+- [End-to-end delivery plan](docs/DELIVERY_PLAN.md)
+- [Initial architecture](docs/ARCHITECTURE.md)
+- [API and MCP architecture decision](docs/API_MCP_ARCHITECTURE.md)
+- [Cognitive Firewall automated test plan](tests/COGNITIVE_FIREWALL_TEST_PLAN.md)
+- Automated regression tests: `tests/test_cognitive_firewall.py`
+- GitHub Actions CI: `.github/workflows/ci.yml`
+
 ## Research documents
 
 - [Reductive Intelligence thesis](docs/REDUCTIVE_INTELLIGENCE_THESIS.md)
@@ -95,7 +104,7 @@ Expand only if results show a meaningful, reproducible advantage and the operati
 
 ## Repository status
 
-The repository now includes a local Cognitive Firewall prototype under `prototype/`, a synthetic 12-message dataset, a deterministic baseline classifier, inspectable rationale/evidence, session-only user corrections, a test plan, and API/MCP architecture decisions. The prototype is not connected to a model or live accounts and executes no external actions.
+The repository includes a local Cognitive Firewall prototype under `prototype/`, a synthetic 12-message dataset, a deterministic baseline classifier, inspectable rationale/evidence, session-only user corrections, API/MCP architecture decisions, an end-to-end delivery plan, initial architecture notes, automated regression tests, and GitHub Actions CI configuration. CI has been configured but has not yet been observed passing. The prototype is not connected to a model or live accounts and executes no external actions.
 
 ## Immediate next work
 
