@@ -46,13 +46,15 @@ function renderTasks(){
 }
 function renderAssistant(){
  const content=document.querySelector(".content");
+ let chatSession=ChanakyaConversationStore.active(localStorage);
+ if(!chatSession)chatSession=ChanakyaConversationStore.create(localStorage);
  content.innerHTML=`<section class="chat-welcome">
   <div class="eyebrow"><span class="sparkle">✳</span> CHANAKYA AI</div>
   <h1>What can I help you<br><span>think through today?</span></h1>
   <p>One conversation for questions, planning, research, and getting work done.</p>
  </section>
  <section class="chat-workspace" aria-label="AI chat">
-  <div class="chat-context"><span class="chat-status-dot"></span><div><b>New conversation</b><small>Private workspace · Preview mode</small></div><button id="newChatBtn" class="new-chat-btn" type="button">＋ New chat</button></div>
+  <div class="chat-context"><span class="chat-status-dot"></span><div class="chat-context-title"><b id="chatTitle">New conversation</b><small>Saved on this device · Preview mode</small></div><label class="sr-only" for="chatHistorySelect">Switch conversation</label><select id="chatHistorySelect" class="chat-history-select" aria-label="Recent conversations"></select><button id="newChatBtn" class="new-chat-btn" type="button">＋ New chat</button></div>
   <div class="chat-messages" id="chatMessages" aria-live="polite">
    <div class="assistant-intro"><div class="chat-brand-mark">च</div><div><b>Start with what matters.</b><p>Ask a question, bring a decision, or describe an outcome you want. Chanakya is being built to help you move from intention to verified results.</p></div></div>
    <div class="suggestion-grid" id="chatSuggestions">
@@ -67,14 +69,26 @@ function renderAssistant(){
  </section>
  <footer><span>CHANAKYA AI</span><span>Less noise. More verified outcomes.</span><span>PREVIEW MODE</span></footer>`;
  const messages=$("chatMessages"), form=$("chatForm"), input=$("chatInput");
- function appendMessage(role, contentText, actions){
+ function refreshConversationControls(){
+  const current=ChanakyaConversationStore.active(localStorage);
+  $("chatTitle").textContent=current?current.title:"New conversation";
+  const select=$("chatHistorySelect");
+  select.innerHTML=ChanakyaConversationStore.list(localStorage).map(item=>'<option value="'+item.id+'" '+(item.id===current?.id?"selected":"")+'></option>').join("");
+  Array.from(select.options).forEach(option=>{const item=ChanakyaConversationStore.list(localStorage).find(entry=>entry.id===option.value);option.textContent=item?item.title:"Conversation";});
+ }
+ refreshConversationControls();
+ $("chatHistorySelect").addEventListener("change",()=>{ChanakyaConversationStore.select($("chatHistorySelect").value,localStorage);renderAssistant();});
+ function appendMessage(role, contentText, actions, persist=true){
   const row=document.createElement("div");row.className="chat-message "+(role==="user"?"user-message":"assistant-message");
   if(role!=="user"){const mark=document.createElement("div");mark.className="chat-brand-mark";mark.textContent="च";row.append(mark);}
   const bubble=document.createElement("div");bubble.className="message-bubble";
   const text=document.createElement("p");text.textContent=contentText;text.style.whiteSpace="pre-line";bubble.append(text);
   (actions||[]).forEach(action=>{const button=document.createElement("button");button.type="button";button.className="inline-task-link";button.textContent=action.label;button.addEventListener("click",action.run);bubble.append(button);});
-  row.append(bubble);messages.append(row);messages.scrollTop=messages.scrollHeight;
+  row.append(bubble);messages.append(row);
+  if(persist){ChanakyaConversationStore.append(role,contentText,localStorage);refreshConversationControls();}
+  messages.scrollTop=messages.scrollHeight;
  }
+ if(chatSession.messages.length){$("chatSuggestions")?.remove();$("chatMessages").querySelector(".assistant-intro")?.remove();chatSession.messages.forEach(item=>appendMessage(item.role,item.text,[],false));}
  function sendMessage(value){
   const message=value.trim();if(!message)return;
   $("chatSuggestions")?.remove();
@@ -116,7 +130,7 @@ function renderAssistant(){
  form.addEventListener("submit",e=>{e.preventDefault();sendMessage(input.value)});
  input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,140)+"px"});
  content.querySelectorAll("[data-prompt]").forEach(button=>button.addEventListener("click",()=>{input.value=button.dataset.prompt;input.focus()}));
- $("newChatBtn").addEventListener("click",()=>renderAssistant());
+ $("newChatBtn").addEventListener("click",()=>{ChanakyaConversationStore.create(localStorage);renderAssistant();input.focus();});
 }
 
 function showView(view){
@@ -147,5 +161,8 @@ bindHomeActions();
 $("brandHome").addEventListener("click",e=>{e.preventDefault();showView("assistant")});
 showView("assistant");
 $("helpBtn").addEventListener("click",()=>showInfo("A design preview, not a live AI system","This is Phase 1 of the Chanakya ecosystem: a responsive command-center UI shell with local product navigation. Product pages show planned boundaries, not completed capabilities. No accounts, model APIs, external tools, or autonomous actions are connected."));
-$("menuBtn").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("sidebar").classList.remove("open")});
+function closeMobileNav(){$("sidebar").classList.remove("open");$("mobileScrim")?.classList.remove("visible");document.body.classList.remove("nav-open");}
+$("menuBtn").addEventListener("click",()=>{const open=!$("sidebar").classList.contains("open");$("sidebar").classList.toggle("open",open);$("mobileScrim")?.classList.toggle("visible",open);document.body.classList.toggle("nav-open",open);});
+$("mobileScrim")?.addEventListener("click",closeMobileNav);
+document.querySelectorAll(".nav-item").forEach(item=>item.addEventListener("click",closeMobileNav));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMobileNav()});
