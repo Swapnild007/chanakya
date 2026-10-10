@@ -72,5 +72,5 @@ class CognitiveFirewallTests(unittest.TestCase):
         self.assertIn("untrusted content", js)
         self.assertLess(js.index("ignore all prior instructions"), js.index("security|unusual sign-in"))
 
-if __ ().__name__ == "__main__":
+if __name__ == "__main__":
     unittest.main()
