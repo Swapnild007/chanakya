@@ -13,7 +13,7 @@
   "Complete the work and record the observed result.",
   "Verify the result against the original objective."
  ]);
- function read(storage){try{const d=JSON.parse(storage.getItem(KEY)||"null");return d&&Array.isArray(d.workflows)?d.workflows.filter(w=>w&&typeof w.id==="string"&&Array.isArray(w.steps)):[]}catch{return []}}
+ function read(storage){try{const d=JSON.parse(storage.getItem(KEY)||"null"),items=Array.isArray(d)?d:d&&Array.isArray(d.workflows)?d.workflows:[];return items.filter(w=>w&&typeof w.id==="string"&&Array.isArray(w.steps))}catch{return []}}
  function persist(items,storage){storage.setItem(KEY,JSON.stringify(items));return items}
  function clean(value,max=4000){if(typeof value!=="string")throw new TypeError("Expected text.");const s=value.replace(/\s+/g," ").trim();if(!s)throw new Error("A description is required.");if(s.length>max)throw new Error("Text is too long.");return s}
  function create(title,storage,now,steps){
