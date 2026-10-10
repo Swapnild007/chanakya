@@ -30,5 +30,7 @@ jobs:
           node --check apps/command-center/app.js
           node --check apps/command-center/task-engine.js
           node --check apps/command-center/local-router.js
+          node --check apps/command-center/conversation-store.js
           node tests/task-engine.test.cjs
+          node tests/conversation-store.test.cjs
           node tests/local-router.test.cjs
