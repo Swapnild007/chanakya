@@ -93,7 +93,9 @@ function renderAssistant(){
   const message=value.trim();if(!message)return;
   $("chatSuggestions")?.remove();
   appendMessage("user",message);
-  const response=ChanakyaAssistantRuntime.handle(message,localStorage,{router:ChanakyaLocalRouter,taskEngine:ChanakyaTaskEngine,workflowEngine:ChanakyaWorkflowEngine});
+  const capabilities={router:ChanakyaLocalRouter,taskEngine:ChanakyaTaskEngine,workflowEngine:ChanakyaWorkflowEngine,toolRegistry:ChanakyaToolRegistry};
+  const executionRegistry=ChanakyaAssistantRuntime.createToolRegistry(localStorage,capabilities);
+  const response=ChanakyaAssistantRuntime.handle(message,localStorage,{...capabilities,executionRegistry});
   const actions=(response.actions||[]).map(action=>({label:action.label+" →",run:()=>showView(action.view)}));
   appendMessage("assistant",response.text,actions);
   input.value="";input.style.height="auto";
