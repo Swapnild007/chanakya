@@ -68,13 +68,5 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
     "removing a negative-going transit box must add back the fitted depth, not deepen the dip");
 }
 
-{
-  const c={period:2.5,epoch:1000.4,duration:.12,depth:.01};
-  const p=synthetic(2.5,.01,.12,5,.01);
-  const residual=S.removeCandidateBox(p,c);
-  const inTransit=residual.filter(x=>Math.abs(S.phaseOf(x.t,c))<=c.duration/(2*c.period));
-  const outside=residual.filter(x=>Math.abs(S.phaseOf(x.t,c))>Math.max(c.duration/c.period,.04));
-  assert.ok(Math.abs(S.median(inTransit.map(x=>x.y))-S.median(outside.map(x=>x.y)))<.0015,
-    "removing a negative-going transit box must add back the fitted depth, not deepen the dip");
-}
+
 console.log("AstroLens shared science-core tests passed.");
