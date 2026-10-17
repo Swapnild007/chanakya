@@ -10,6 +10,10 @@ AstroLens already has a substantial browser-based foundation: catalogue access, 
 
 The next milestone should be **evidence-backed validation of the existing pipeline**, not feature expansion. Unit tests on synthetic data establish repeatability for selected functions; they do not establish scientific performance on real observations.
 
+## Executed diagnostic results
+
+Actual CSV diagnostics and the failed dependency-install attempt are now recorded in [`validation/EXECUTED_SECTOR70_DIAGNOSTICS.md`](../validation/EXECUTED_SECTOR70_DIAGNOSTICS.md). The input integrity, cadence, gap, and flux-distribution checks were executed. A limited custom phase-folded box scan found local maxima at 0.4594, 0.7554, and 0.5050 days under one detrending choice; these are exploratory and **not** Astropy/Lightkurve results or significance estimates. Astropy and Lightkurve could not be installed because the package index was unreachable, so the independent-tool agreement and >=1,000-run calibrated null gates remain open. No app code or deployment was changed.
+
 ## Independent search and null calibration artifacts
 
 The priority-1/2 audit runner and its interpretation limits are documented in [`validation/INDEPENDENT_BLS_AUDIT_PLAN.md`](../validation/INDEPENDENT_BLS_AUDIT_PLAN.md). The runner is [`validation/independent_bls_audit.py`](../validation/independent_bls_audit.py), with dependencies in [`validation/requirements-independent.txt`](../validation/requirements-independent.txt). These artifacts define a reproducible Astropy BLS / Lightkurve comparison and 1,000-run conditional maximum-power null experiment. They have **not yet been executed** in this environment because Astropy and Lightkurve are not installed and package retrieval is unavailable; therefore no independent peak agreement or empirical FAP is claimed.
