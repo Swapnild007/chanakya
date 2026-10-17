@@ -73,9 +73,23 @@
     for(const k of Object.keys(cards))state(k,"QUERYING","Connecting to the public service…");
     try {
       const safe=target.replace(/'/g,"''");
-      const simbadRaw=await tap("https://simbad.cds.unistra.fr/simbad/sim-tap/sync","SELECT TOP 5 main_id,ra,dec,otype,sp_type FROM basic WHERE ident='"+safe+"'","csv");
-      const simbad=parseCSV(simbadRaw), sh=simbad[0].map(x=>x.toLowerCase().trim()), si=n=>sh.indexOf(n);
-      if(si("ra")<0||si("dec")<0||simbad.length<2)throw Error("SIMBAD could not resolve this name. Try a standard object name or catalogue identifier.");
+      const simbadUrl="https://simbad.cds.unistra.fr/simbad/sim-tap/sync";
+      let simbadRaw, simbad, simbadError;
+      const resolutionQueries=[
+        "SELECT TOP 5 b.main_id,b.ra,b.dec,b.otype,b.sp_type FROM ident AS i JOIN basic AS b ON i.oidref=b.oid WHERE i.id='"+safe+"'",
+        "SELECT TOP 5 main_id,ra,dec,otype,sp_type FROM basic WHERE main_id='"+safe+"'"
+      ];
+      for(const query of resolutionQueries){
+        try{
+          const raw=await tap(simbadUrl,query,"csv");
+          const parsed=parseCSV(raw);
+          const heads=parsed[0].map(x=>x.toLowerCase().trim());
+          if(heads.includes("ra")&&heads.includes("dec")&&parsed.length>1){simbadRaw=raw;simbad=parsed;break;}
+          simbadError=Error("SIMBAD query returned no matching coordinate row.");
+        }catch(err){simbadError=err;}
+      }
+      if(!simbad)throw Error("SIMBAD resolution failed after identifier-table and exact-main-ID queries. "+(simbadError?.message||"No coordinate row returned.")+" Open SIMBAD directly to verify the target.");
+      const sh=simbad[0].map(x=>x.toLowerCase().trim()), si=n=>sh.indexOf(n);
       const sr=simbad[1], get=n=>sr[si(n)]||"", ra=Number(get("ra")),dec=Number(get("dec"));
       if(!Number.isFinite(ra)||!Number.isFinite(dec))throw Error("SIMBAD returned invalid sky coordinates.");
       state("simbad","LIVE",table(simbad,3),"live");
