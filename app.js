@@ -114,7 +114,7 @@ function renderBLSResult(result,csvText){
   const core=window.AstroLensScienceCore;
   if(core?.denseRefine&&result.unique?.length){const refined=core.denseRefine(result.points,result.unique.slice(0,3),result.baseline,.02,201);result.unique=[...refined,...result.unique.slice(3)].sort((a,b)=>b.snr-a.snr);result.denseRefinement={windowFraction:.02,steps:201,refinedCandidates:Math.min(3,result.unique.length)};}
   const eventStats=core?.eventStats&&result.unique.length?core.eventStats(result.points,result.unique[0]):null,depthCheck=core?.eventDepthConsistency&&eventStats?core.eventDepthConsistency(eventStats):null,depthReportable=depthCheck?.consistent===true;
-  const depthLabel=r=>depthReportable?(r.depth*1e6).toFixed(0)+" ppm":"WITHHELD · event depths inconsistent";
+  const depthLabel=r=>depthReportable?(r.depth*1e6).toFixed(0)+" ppm (box-fit, not validated)":"WITHHELD · event depths inconsistent";
   const rows=result.unique.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.period.toFixed(6)+' d</td><td>'+r.epoch.toFixed(6)+'</td><td>'+(r.duration*24).toFixed(2)+' h</td><td>'+depthLabel(r)+'</td><td>'+r.snr.toFixed(1)+'</td><td>'+r.cycles.toFixed(2)+'</td></tr>').join('');
   const target=($("#mastTarget")?.value||"").trim().toLowerCase();
   const known=window.AstroLensScienceCore?.KNOWN||[{name:"TRAPPIST-1 b",period:1.510826},{name:"TRAPPIST-1 c",period:2.421937},{name:"TRAPPIST-1 d",period:4.049219},{name:"TRAPPIST-1 e",period:6.101013},{name:"TRAPPIST-1 f",period:9.207540},{name:"TRAPPIST-1 g",period:12.352446},{name:"TRAPPIST-1 h",period:18.772866}]
