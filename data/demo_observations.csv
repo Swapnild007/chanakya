@@ -1,0 +1,7 @@
+candidate_id,synthetic,signal_type,signal_to_noise,data_quality,repeatability,known_object_match
+DEMO-001,true,transit,14.8,0.92,0.88,false
+DEMO-002,true,transit,9.4,0.78,0.82,
+DEMO-003,true,stellar_variability,11.2,0.74,0.66,
+DEMO-004,true,transit,3.1,0.35,0.30,
+DEMO-005,true,transient,7.6,0.62,0.40,
+DEMO-006,true,transit,12.6,0.88,0.90,false
