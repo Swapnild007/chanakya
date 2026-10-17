@@ -50,6 +50,7 @@ function runBLS(csvText){
     for(const p of raw){let phase=((p.t-raw[0].t)*freq)%1;if(phase<0)phase+=1;const b=Math.min(bins-1,Math.floor(phase*bins));sums[b]+=p.y;counts[b]++}
     const ps=new Float64Array(bins*2+1),pc=new Float64Array(bins*2+1);
     for(let b=0;b<bins*2;b++){const j=b%bins;ps[b+1]=ps[b]+sums[j];pc[b+1]=pc[b]+counts[j]}
+    let bestForPeriod=null;
     for(const duration of durations){
       const width=Math.max(2,Math.min(Math.floor(bins*.2),Math.round(bins*duration/period)));
       if(width>=bins*.25)continue;
@@ -60,9 +61,10 @@ function runBLS(csvText){
         const snr=depth/scatter*Math.sqrt(nIn*nOut/raw.length);
         // Epoch is the midpoint of the transit window in the original time system.
         const epoch=raw[0].t+((start+width/2)/bins)/freq;
-        results.push({period,epoch,duration:width/bins*period,depth,snr,nIn,cycles:baseline/period,score:snr});
+        const candidate={period,epoch:raw[0].t+((((start+width/2)/bins)%1)/freq),duration:width/bins*period,depth,snr,nIn,cycles:baseline/period,score:snr};if(!bestForPeriod||candidate.score>bestForPeriod.score)bestForPeriod=candidate;
       }
     }
+    if(bestForPeriod)results.push(bestForPeriod);
   }
   results.sort((a,b)=>b.score-a.score);
   const unique=[];
@@ -75,7 +77,7 @@ function renderBLSResult(result){
 }
 $("#blsBtn")?.addEventListener("click",async()=>{
   const btn=$("#blsBtn");if(!selectedCSV)return;btn.disabled=true;$("#blsStatus").textContent="Searching trial periods and transit durations. This may take a little while on mobile…";
-  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.","success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
+  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.";$("#blsStatus").className="status-message success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
 });
 
 // ── NASA MAST real light-curve import ──────────────────────────────────────
