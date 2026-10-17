@@ -213,10 +213,11 @@ $("#mastFetchBtn")?.addEventListener("click",async()=>{const btn=$("#mastFetchBt
 $("#mastTarget")?.addEventListener("keydown",e=>{if(e.key==="Enter")$("#mastFetchBtn").click()});
 
 function drawCurve(){const canvas=$("#curveCanvas");if(!canvas)return;const box=canvas.getBoundingClientRect();if(!box.width||!box.height)return;const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(box.width*dpr);canvas.height=Math.round(box.height*dpr);const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const w=box.width,h=box.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle="#183047";ctx.lineWidth=1;for(let i=1;i<5;i++){const y=12+(h-28)*i/5;ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(w-12,y);ctx.stroke()}ctx.fillStyle="#8aa6c0";ctx.font="10px monospace";ctx.textAlign="center";ctx.fillText("NO OBSERVATION LOADED",w/2,h/2-5);ctx.font="9px monospace";ctx.fillText("Import FITS or CSV to plot measured flux",w/2,h/2+14);ctx.textAlign="left";}
-const originalRender=render;render=function(){originalRender();drawCurve()};
+
 const explore=$("#exploreBtn");if(explore)explore.addEventListener("click",()=>$("#liveBtn").click());
 const menu=$("#mobileMenu");if(menu)menu.addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
 document.querySelectorAll(".nav-link").forEach(a=>a.addEventListener("click",()=>$("#sidebar").classList.remove("open")));
 window.addEventListener("resize",drawCurve);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(drawCurve);
+drawCurve();
 render();
