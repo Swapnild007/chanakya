@@ -10,7 +10,7 @@
     analysis: {title:"AI Analysis", show:[".analysis-grid"], mode:"analysis"},
     known: {title:"Known Objects", show:[".workspace"], mode:"known"},
     reports: {title:"Reports & Methods", show:["#method","#commandPanels"], mode:"reports"},
-    sky: {title:"Sky Map & Reports", show:["#commandPanels"], mode:"sky"}
+    sky: {title:"Sky Map & Reports", show:[".analysis-grid"], mode:"sky"}
   };
   let current="overview";
   const main=$(".main-content");
@@ -24,8 +24,8 @@
     if(t.includes("light curve"))return "lightcurve";
     if(t.includes("ai analysis")||t.includes("analysis"))return "analysis";
     if(t.includes("known"))return "known";
-    if(t.includes("report")||t.includes("method"))return "reports";
     if(t.includes("sky map"))return "sky";
+    if(t.includes("report")||t.includes("method"))return "reports";
     return "overview";
   }
   function setView(key,updateHash=true){
@@ -37,8 +37,9 @@
       upload=lab?.querySelector(".upload-row"), scan=lab?.querySelector("#scanStatus"),
       scanResults=lab?.querySelector("#scanResults"), bls=lab?.querySelector(".bls-tools"),
       full=lab?.querySelector("#fullAnalysis"), panelHead=lab?.querySelector(".panel-head"),
-      dossier=lab?.querySelector(".detail-panel");
+      dossier=lab?.querySelector(".detail-panel"), skyPanel=$(".analysis-grid > .command-panel");
     [curve,mast,upload,scan,scanResults,bls,full,panelHead,dossier].forEach(el=>visible(el,true));
+    visible(skyPanel,cfg.mode==="sky");
     if(cfg.mode==="data"){
       [curve,upload,scan,scanResults,bls,full,dossier].forEach(el=>visible(el,false));
       const h=panelHead?.querySelector("h2");if(h)h.textContent="Data Explorer";
@@ -49,13 +50,15 @@
       [curve,mast,upload,scan,scanResults,bls,dossier].forEach(el=>visible(el,false));
       const h=panelHead?.querySelector("h2");if(h)h.textContent="AI Analysis";
       visible(full,true);
+    }else if(cfg.mode==="sky"){
+      [curve,mast,upload,scan,scanResults,bls,full,panelHead,dossier].forEach(el=>visible(el,false));
     }else{
       const h=panelHead?.querySelector("h2");if(h)h.textContent="Light Curve Lab";
     }
     const command=$("#commandPanels");
     if(command){
-      const cards=$$(".command-panel",command);
-      cards.forEach((el,i)=>visible(el,cfg.mode==="sky"?i===0:cfg.mode==="reports"?i===1:true));
+      const cards=$(".command-panel",command);
+      cards.forEach(el=>visible(el,cfg.mode==="reports"));
     }
     $$(".sidebar .nav-link").forEach(a=>{
       const k=a.dataset.workspaceView||infer(a.textContent);
