@@ -41,11 +41,13 @@
     const idx=(names)=>{for(const n of names){const i=h.findIndex(x=>x===n||x.includes(n));if(i>=0)return i;}return -1;};
     const ti=idx(["time","btjd","bjd","jd"]), fi=idx(["pdcsap_flux","sap_flux","relative_flux","flux","brightness"]), qi=idx(["quality"]), ei=idx(["pdcsap_flux_err","sap_flux_err","flux_err"]);
     if(ti<0||fi<0) throw Error("Time and flux columns were not recognized. Expected TIME and PDCSAP_FLUX/FLUX.");
-    const all=rows.slice(1).map((r,i)=>({t:Number(r[ti]),f:Number(r[fi]),q:qi>=0?Number(r[qi]):0,e:ei>=0?Number(r[ei]):NaN,row:i+2}))
+    const all=rows.slice(1).map((r,i)=>({t:Number(r[ti]),f:Number(r[fi]),q:qi>=0?Number(r[qi]):null,e:ei>=0?Number(r[ei]):NaN,row:i+2}))
       .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.f)&&p.f>0);
-    const good=all.filter(p=>qi<0||p.q===0).sort((a,b)=>a.t-b.t);
-    if(good.length<100)throw Error("At least 100 valid observations are required; found "+good.length+".");
-    return {all,points:good,qualityColumn:qi>=0,fluxColumn:rows[0][fi],timeColumn:rows[0][ti],errorColumn:ei>=0?rows[0][ei]:null,rawRows:rows.length-1};
+    const qualityRemoved=qi>=0?all.filter(p=>p.q!==0).length:0;
+    const missingQuality=qi>=0?all.filter(p=>!Number.isFinite(p.q)).length:0;
+    const good=(qi<0?all:all.filter(p=>p.q===0)).sort((a,b)=>a.t-b.t);
+    if(good.length<100)throw Error("At least 100 valid unflagged observations are required; found "+good.length+".");
+    return {all,points:good,qualityColumn:qi>=0,qualityRemoved,missingQuality,invalidRows:rows.length-1-all.length,fluxColumn:rows[0][fi],timeColumn:rows[0][ti],errorColumn:ei>=0?rows[0][ei]:null,rawRows:rows.length-1};
   }
   function normalize(points) {
     const center=median(points.map(p=>p.f));
@@ -100,20 +102,14 @@
     return {minP,maxP,nTrial,scatter,candidates:unique};
   }
   function phaseStats(points,c) {
-    const bins=80, arr=Array.from({length:bins},()=>[]);
+    const bins=80,arr=Array.from({length:bins},()=>[]);
     for(const p of points){let ph=(((p.t-c.epoch+c.period/2)/c.period)%1+1)%1-.5;const i=Math.max(0,Math.min(bins-1,Math.floor((ph+.5)*bins)));arr[i].push(p.y);}
     const curve=arr.map((v,i)=>({phase:(i+.5)/bins-.5,flux:v.length?median(v):null,n:v.length}));
     const inside=curve.filter(x=>Math.abs(x.phase)<Math.max(c.duration/c.period/2,.02)&&x.flux!==null);
     const outside=curve.filter(x=>Math.abs(x.phase)>.18&&x.flux!==null);
     const dip=inside.length&&outside.length?median(outside.map(x=>x.flux))-median(inside.map(x=>x.flux)):NaN;
-    const even=[],odd=[];
-    const outOfTransit=points.filter(p=>{const ph=(((p.t-c.epoch+c.period/2)/c.period)%1+1)%1-.5;return Math.abs(ph)>Math.max(c.duration/c.period,0.04);}).map(p=>p.y);
-    const outsideLevel=median(outOfTransit);
-    points.forEach(p=>{const cycle=Math.round((p.t-c.epoch)/c.period),phaseDistance=Math.abs((p.t-c.epoch)/c.period-cycle);if(phaseDistance<c.duration/c.period*.7){(Math.abs(cycle)%2?odd:even).push(p.y);}});
-    const evenDepth=Number.isFinite(outsideLevel)&&even.length?outsideLevel-median(even):NaN;
-    const oddDepth=Number.isFinite(outsideLevel)&&odd.length?outsideLevel-median(odd):NaN;
-    const oddEvenRatio=Number.isFinite(evenDepth)&&Number.isFinite(oddDepth)&&Math.max(evenDepth,oddDepth)>0?Math.min(evenDepth,oddDepth)/Math.max(evenDepth,oddDepth):NaN;
-    return {curve,dip,evenDepth,oddDepth,oddEvenRatio,evenN:even.length,oddN:odd.length};
+    const shared=window.AstroLensScienceCore?window.AstroLensScienceCore.eventStats(points,c):{};
+    return {...shared,curve,dip};
   }
   function harmonicNote(period, list) {
     for(const x of list){if(x.period===period)continue;const ratio=period/x.period;
@@ -121,9 +117,8 @@
     }return "No simple harmonic match in the reported top peaks.";
   }
   function knownMatches(candidates,target) {
-    const refs=[["TRAPPIST-1 b",1.510826],["TRAPPIST-1 c",2.421937],["TRAPPIST-1 d",4.049219],["TRAPPIST-1 e",6.101013],["TRAPPIST-1 f",9.207540],["TRAPPIST-1 g",12.352446],["TRAPPIST-1 h",18.772866]];
-    if(!/trappist\s*[- ]?1/i.test(target||""))return [];
-    return candidates.map(c=>{const r=refs.map(x=>({...x,delta:Math.abs(c.period-x[1])/x[1]*100})).sort((a,b)=>a.delta-b.delta)[0];return {...c,match:r.delta<3?r:null,closest:r};});
+    if(!window.AstroLensScienceCore)return [];
+    return candidates.map(c=>{const a=window.AstroLensScienceCore.aliasInfo(c.period,target);return {...c,match:(a.type==="known"||a.type==="alias")?[a.label,a.reference,a.error*100]:null,closest:a.reference?{0:a.label,1:a.reference,delta:a.error*100}:null,alias:a};});
   }
   function renderPlot(canvas, points, candidate, stats) {
     if(!canvas||!candidate)return;
@@ -144,7 +139,7 @@
       ["Valid points",meta.points.length.toLocaleString(),"After non-finite/flux screening"],
       ["Time baseline",meta.baseline.toFixed(3)+" d","Observation span"],
       ["Median cadence",(meta.cadence*1440).toFixed(2)+" min","From positive time differences"],
-      ["Quality removed",meta.qualityColumn?(meta.all.length-meta.points.length).toLocaleString():"Not supplied","No QUALITY column means no flag screening"],
+      ["Quality-flagged rows excluded",meta.qualityColumn?meta.qualityRemoved.toLocaleString():"Not supplied",meta.qualityColumn?"QUALITY=0 rows retained; invalid flags excluded":"No QUALITY column in the loaded CSV; no flag screening applied"],
       ["Top refined signal",best?best.period.toFixed(5)+" d":"None","Best screening hypothesis, not a planet"],
       ["Processing agreement",agreement(rawSearch.candidates,detSearch.candidates),"Cross-mode consistency"]
     ];
@@ -155,12 +150,12 @@
     const consistency=best&&phase?phase.dip:NaN;
     const judgement=best&&best.snr>=8&&Number.isFinite(consistency)&&consistency>0?"Signal merits follow-up, but independent validation is still required.":"No robust transit claim from this run: peaks are screening hypotheses until a clear repeatable dip survives processing and vetting.";
     $("#faResults").innerHTML=`
-      <div class="fa-verdict"><div><small>PRELIMINARY SCIENTIFIC VERDICT</small><strong>${esc(judgement)}</strong><p>Signal ranking is based on an approximate box search. SNR is not a formal false-alarm probability.</p></div><button id="faExport" class="secondary">Export report JSON ↓</button></div>
+      <div class="fa-verdict"><div><small>PRELIMINARY SCIENTIFIC VERDICT</small><strong>${esc(judgement)}</strong><p>Signal ranking is based on an approximate box search. SNR is not a formal false-alarm probability. A positive result is a follow-up hypothesis, not a planet confirmation.</p></div><button id="faExport" class="secondary">Export report JSON ↓</button></div>
       <div class="fa-columns"><article class="fa-card"><h3>01 · Original flux</h3><p>Median-normalized only, no added rolling baseline. This is the control analysis.</p><div class="fa-table-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Duration</th><th>Depth</th><th>Approx SNR</th><th>Cycles</th></tr></thead><tbody>${rowsRaw||"<tr><td colspan='6'>No candidates returned</td></tr>"}</tbody></table></div></article>
       <article class="fa-card"><h3>02 · Rolling-median detrended</h3><p>One-day median baseline sampled every 0.5 day. Edge and signal suppression are possible.</p><div class="fa-table-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Duration</th><th>Depth</th><th>Approx SNR</th><th>Cycles</th><th>Alias check</th></tr></thead><tbody>${rowsDet||"<tr><td colspan='7'>No candidates returned</td></tr>"}</tbody></table></div></article></div>
       <article class="fa-card"><h3>03 · Phase-folded leading candidate</h3><p>Inspect whether the dip is narrow and repeatable. A cloud of points without a coherent dip is weak evidence.</p><canvas id="faFold" aria-label="Phase folded leading candidate"></canvas><p class="fa-muted" id="faFoldNote"></p></article>
-      <div class="fa-columns"><article class="fa-card"><h3>04 · Event consistency</h3><div class="fa-checks">${checkRow("Positive phase-fold dip",Number.isFinite(consistency)&&consistency>0,Number.isFinite(consistency)?(consistency*1e6).toFixed(0)+" ppm estimated from phase bins":"Not measurable")}${checkRow("Cross-processing stability",agreement(rawSearch.candidates,detSearch.candidates).startsWith("Consistent"),agreement(rawSearch.candidates,detSearch.candidates))}${checkRow("Known-planet period check",match.some(x=>x.match),match.some(x=>x.match)?"Close period match exists, not identity proof":(/trappist/i.test(target)?"No close reference-period match in top detrended peaks":"Target not recognized as TRAPPIST-1; known-planet cross-match not run"))}${checkRow("Odd/even depth consistency",Number.isFinite(phase?.oddEvenRatio)&&phase.evenN>=5&&phase.oddN>=5&&phase.oddEvenRatio>.5,Number.isFinite(phase?.oddEvenRatio)?"Even depth "+(phase.evenDepth*1e6).toFixed(0)+" ppm; odd depth "+(phase.oddDepth*1e6).toFixed(0)+" ppm; ratio "+phase.oddEvenRatio.toFixed(2)+" ("+phase.evenN+"/"+phase.oddN+" points). Preliminary only.":"Too few samples near odd/even events for comparison")}${checkRow("Centroid / pixel vetting",false,"Not available in this light-curve CSV; requires target-pixel data")}${checkRow("Formal false-alarm probability",false,"Not calculated by this approximate screening algorithm")}</div></article>
-      <article class="fa-card"><h3>05 · Data quality & method</h3><ul class="fa-list"><li>Flux column: <b>${esc(meta.fluxColumn)}</b>; time column: <b>${esc(meta.timeColumn)}</b>.</li><li>Rows read: ${meta.rawRows.toLocaleString()}; finite positive flux rows: ${meta.all.length.toLocaleString()}; accepted quality rows: ${meta.points.length.toLocaleString()}.</li><li>Trial grid: ${rawSearch.nTrial} frequencies in each mode; period span ${rawSearch.minP.toFixed(3)} to ${rawSearch.maxP.toFixed(3)} days.</li><li>Duration grid and phase bins are approximate. Peaks may be harmonics, eclipsing binaries, stellar variability, instrumental artifacts, or noise.</li><li>NASA notes that PDCSAP flux already has long-term trends corrected using co-trending basis vectors. Compare modes rather than assuming extra detrending improves the signal. <a href="https://heasarc.gsfc.nasa.gov/docs/tess/LightCurveFile-Object-Tutorial.html" target="_blank" rel="noreferrer">NASA TESS light-curve guide ↗</a></li></ul></article></div>`;
+      <div class="fa-columns"><article class="fa-card"><h3>04 · Event consistency</h3><div class="fa-checks">${checkRow("Positive phase-fold dip",Number.isFinite(consistency)&&consistency>0,Number.isFinite(consistency)?(consistency*1e6).toFixed(0)+" ppm estimated from phase bins":"Not measurable")}${checkRow("Cross-processing stability",agreement(rawSearch.candidates,detSearch.candidates).startsWith("Consistent"),agreement(rawSearch.candidates,detSearch.candidates))}${checkRow("Known-planet period check",match.some(x=>x.match),match.some(x=>x.match)?"Close period match exists, not identity proof":(/trappist/i.test(target)?"No close reference-period match in top detrended peaks":"Target not recognized as TRAPPIST-1; known-planet cross-match not run"))}${checkRow("Odd/even event-depth comparison",Number.isFinite(phase?.oddEvenSigma)&&phase.evenN>=3&&phase.oddN>=3,Number.isFinite(phase?.oddEvenSigma)?"Odd "+(phase.oddDepth*1e6).toFixed(0)+" ± "+(phase.oddErr*1e6).toFixed(0)+" ppm; even "+(phase.evenDepth*1e6).toFixed(0)+" ± "+(phase.evenErr*1e6).toFixed(0)+" ppm; difference "+phase.oddEvenSigma.toFixed(1)+"σ; "+phase.oddN+"/"+phase.evenN+" sampled events.":"Too few well-sampled events for a parity test")}${checkRow("Centroid / pixel vetting",false,"Not available in this light-curve CSV; requires target-pixel data")}${checkRow("Formal false-alarm probability",false,"Not calculated by this approximate screening algorithm")}</div></article>
+      <article class="fa-card"><h3>05 · Data quality & method</h3><ul class="fa-list"><li>Flux column: <b>${esc(meta.fluxColumn)}</b>; time column: <b>${esc(meta.timeColumn)}</b>. Metadata provenance: <b>${esc(report.meta.metadataOrigin)}</b>.</li><li>Rows read: ${meta.rawRows.toLocaleString()}; invalid time/flux rows: ${meta.invalidRows.toLocaleString()}; finite positive flux rows: ${meta.all.length.toLocaleString()}; ${meta.qualityColumn?"nonzero/missing QUALITY flags excluded: "+meta.qualityRemoved.toLocaleString():"QUALITY column absent; flag screening unavailable"}; accepted rows: ${meta.points.length.toLocaleString()}.</li><li>Trial grid: ${rawSearch.nTrial} frequencies in each mode; period span ${rawSearch.minP.toFixed(3)} to ${rawSearch.maxP.toFixed(3)} days.</li><li>Duration grid and phase bins are approximate. Peaks may be harmonics, eclipsing binaries, stellar variability, instrumental artifacts, or noise.</li><li>NASA notes that PDCSAP flux already has long-term trends corrected using co-trending basis vectors. Compare modes rather than assuming extra detrending improves the signal. <a href="https://heasarc.gsfc.nasa.gov/docs/tess/LightCurveFile-Object-Tutorial.html" target="_blank" rel="noreferrer">NASA TESS light-curve guide ↗</a></li></ul></article></div>`;
     const bestStats=best?phaseStats(report.pointsForStats,best):null;
     if(best){renderPlot($("#faFold"),report.pointsForStats,best,bestStats);$("#faFoldNote").textContent="Period "+best.period.toFixed(6)+" d · "+best.cycles.toFixed(1)+" baseline cycles · "+report.pointsForStats.length.toLocaleString()+" points. Gold line shows phase-bin medians."; }
     $("#faExport").addEventListener("click",()=>downloadTextFile(JSON.stringify(report.exportData,null,2),"astrolens-full-analysis.json","application/json"));
@@ -174,8 +169,7 @@
       if(file.size>25*1024*1024)throw Error("Files over 25 MB are not supported by this browser analysis.");
       setStatus("Reading observation and checking fields…");
       let csv;
-      if(/\.fits?$/i.test(file.name)){const conv=parseFitsLightCurve(await file.arrayBuffer());csv=conv.csv;}
-      else csv=await file.text();
+      if(/\.fits?$/i.test(file.name)){const conv=parseFitsLightCurve(await file.arrayBuffer());csv=conv.csv;window.__astrolensFitsMeta=conv.metadata||null;}else{window.__astrolensFitsMeta=file.__astrolensFitsMeta||null;csv=await file.text();}
       tick(12);setStatus("Screening finite flux values, quality flags and cadence…");
       const meta=parseData(csv),points=meta.points,baseline=points[points.length-1].t-points[0].t;
       const gaps=[];for(let i=1;i<points.length;i++){const d=points[i].t-points[i-1].t;if(d>0)gaps.push(d);}
@@ -188,8 +182,8 @@
       const target=$("#mastTarget")?.value||"";
       const rawStats=rawSearch.candidates[0]?phaseStats(rawPoints,rawSearch.candidates[0]):null;
       const detStats=detSearch.candidates[0]?phaseStats(detPoints,detSearch.candidates[0]):null;
-      const report={meta:{...meta,baseline,cadence},raw:rawPoints,detrended:detPoints,rawSearch,detSearch,rawStats,detStats,target,pointsForStats:detSearch.candidates.length?detPoints:rawPoints};
-      report.exportData={createdAt:new Date().toISOString(),sourceFile:file.name,sourceTarget:target||null,diagnostics:{measurements:points.length,baselineDays:baseline,medianCadenceDays:cadence,qualityColumn:meta.qualityColumn,fluxColumn:meta.fluxColumn,timeColumn:meta.timeColumn},originalFlux:{periodRangeDays:[rawSearch.minP,rawSearch.maxP],trialFrequencies:rawSearch.nTrial,candidates:rawSearch.candidates},rollingMedianDetrended:{windowDays:1,stepDays:.5,periodRangeDays:[detSearch.minP,detSearch.maxP],trialFrequencies:detSearch.nTrial,candidates:detSearch.candidates},processingAgreement:agreement(rawSearch.candidates,detSearch.candidates),limitations:["Approximate browser BLS screening, not NASA SPOC or a validated transit pipeline.","SNR is not a formal false-alarm probability.","Odd/even, centroid, pixel-level and independent confirmation checks are not completed." ]};
+      const report={meta:{...meta,baseline,cadence,metadataOrigin:file.name.toLowerCase().endsWith(".fits")?"FITS header and light-curve table":file.__astrolensFitsMeta?"Original FITS metadata retained with converted CSV":"CSV only; FITS-header metadata unavailable"},raw:rawPoints,detrended:detPoints,rawSearch,detSearch,rawStats,detStats,target,pointsForStats:detSearch.candidates.length?detPoints:rawPoints};
+      report.exportData={createdAt:new Date().toISOString(),sourceFile:file.name,sourceTarget:target||null,diagnostics:{measurements:points.length,baselineDays:baseline,medianCadenceDays:cadence,qualityColumn:meta.qualityColumn,qualityRemoved:meta.qualityRemoved,invalidRows:meta.invalidRows,metadataOrigin:report.meta.metadataOrigin,fluxColumn:meta.fluxColumn,timeColumn:meta.timeColumn},originalFlux:{periodRangeDays:[rawSearch.minP,rawSearch.maxP],trialFrequencies:rawSearch.nTrial,candidates:rawSearch.candidates},rollingMedianDetrended:{windowDays:1,stepDays:.5,periodRangeDays:[detSearch.minP,detSearch.maxP],trialFrequencies:detSearch.nTrial,candidates:detSearch.candidates},processingAgreement:agreement(rawSearch.candidates,detSearch.candidates),limitations:["Approximate browser BLS screening, not NASA SPOC or a validated transit pipeline.","SNR is not a formal false-alarm probability.","Odd/even, centroid, pixel-level and independent confirmation checks are not completed." ]};
       lastReport=report;renderReport(report);tick(100);setStatus("Full analysis complete. Review both processing modes and the validation limits below.","success");
       if(/\.fits?$/i.test(file.name))$("#faFileMeta").textContent="FITS converted locally for analysis · "+points.length.toLocaleString()+" quality-screened rows";
     } catch(e){setStatus("Full analysis failed: "+e.message,"error");$("#faResults").innerHTML='<div class="fa-error">'+esc(e.message)+'</div>';tick(0);}
