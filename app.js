@@ -91,7 +91,7 @@ function renderBLSResult(result,csvText){
 }
 $("#blsBtn")?.addEventListener("click",async()=>{
   const btn=$("#blsBtn");if(!selectedCSV)return;btn.disabled=true;$("#blsStatus").textContent="Searching trial periods and transit durations. This may take a little while on mobile…";
-  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;window.__astrolensFitsMeta=null;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv;window.__astrolensFitsMeta=converted.metadata||null}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result,textData);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.";$("#blsStatus").className="status-message success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
+  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;window.__astrolensFitsMeta=selectedCSV.__astrolensFitsMeta||null;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv;window.__astrolensFitsMeta=converted.metadata||null;selectedCSV.__astrolensFitsMeta=window.__astrolensFitsMeta}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result,textData);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.";$("#blsStatus").className="status-message success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
 });
 
 
@@ -155,7 +155,7 @@ async function importMastProduct(item){
     const buffer=await res.arrayBuffer();if(buffer.byteLength<2880)throw Error("The archive returned an empty or invalid FITS file.");
     const parsed=parseFitsLightCurve(buffer);window.__astrolensFitsMeta=parsed.metadata||null;const filename=(item.product.productFilename||"tess_lightcurve").replace(/\.fits$/i,"").replace(/[^a-z0-9._-]/gi,"_");
     downloadTextFile(parsed.csv,filename+"_astrolens.csv");
-    const file=new File([parsed.csv],filename+"_astrolens.csv",{type:"text/csv"});selectedCSV=file;$("#lightCurveFile").value="";$("#scanBtn").disabled=false;$("#scanStatus").textContent="Loaded "+parsed.count+" real measurements from "+(item.product.productFilename||"MAST FITS")+" ("+parsed.fluxColumn+"). Click Scan signal to inspect the data.";
+    const file=new File([parsed.csv],filename+"_astrolens.csv",{type:"text/csv"});file.__astrolensFitsMeta=parsed.metadata||null;selectedCSV=file;$("#lightCurveFile").value="";$("#scanBtn").disabled=false;$("#scanStatus").textContent="Loaded "+parsed.count+" real measurements from "+(item.product.productFilename||"MAST FITS")+" ("+parsed.fluxColumn+"). Click Scan signal to inspect the data.";
     const result=scanLightCurve(parseCSV(parsed.csv));drawRealCurve(parsed.csv);
     $("#scanResults").innerHTML="<p>Preview from downloaded MAST data: "+parsed.count+" valid measurements. CSV has been downloaded and loaded for scanning.</p>";
     mastStatus("Success: converted "+parsed.count+" measurements from "+(item.product.productFilename||"a MAST FITS file")+" to CSV. The CSV was downloaded and is ready to scan.","success");
