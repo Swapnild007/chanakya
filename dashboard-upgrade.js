@@ -59,7 +59,7 @@
      sidebar.classList.remove("open"); syncMenu();
    }));
    document.addEventListener("click", e => {
-     if (window.innerWidth <= 760 && sidebar.classList.contains("open") && !sidebar.contains(e.target) && !menu.contains(e.target)) {
+     if (window.innerWidth <= 1050 && sidebar.classList.contains("open") && !sidebar.contains(e.target) && !menu.contains(e.target)) {
        sidebar.classList.remove("open"); syncMenu();
      }
    });
@@ -67,14 +67,14 @@
  const search = $(".top-search"), input = $("#searchInput");
  if (search && input) {
    search.addEventListener("click", e => {
-     if (window.innerWidth > 760 || e.target === input) return;
+     if (window.innerWidth > 1050 || e.target === input) return;
      e.preventDefault();
      search.classList.add("search-open");
      input.style.display = "block";
      input.focus();
    });
    input.addEventListener("blur", () => {
-     if (window.innerWidth <= 760 && !input.value.trim()) {
+     if (window.innerWidth <= 1050 && !input.value.trim()) {
        search.classList.remove("search-open");
        input.style.display = "";
      }
