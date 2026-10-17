@@ -101,8 +101,14 @@
       ctx.fillStyle="#9fc4d6";ctx.font="10px monospace";ctx.fillText("Transit "+(event.cycle+1)+" · "+event.epoch.toFixed(3),x+7,y+14);
       const subset=points.filter(p=>Math.abs(p.t-event.epoch)<=Math.max(c.duration*2,c.period*.015));
       const ys=subset.map(p=>p.y),lo=Math.min(...ys,0)-Math.max(c.depth,1e-5)*.5,hi=Math.max(...ys,0)+Math.max(c.depth,1e-5)*.5,span=Math.max(hi-lo,1e-7);
+      const before=subset.filter(p=>p.t<event.epoch).map(p=>p.y),after=subset.filter(p=>p.t>=event.epoch).map(p=>p.y);
+      const scatter=window.AstroLensScienceCore?window.AstroLensScienceCore.robustSigma(ys):NaN;
+      const trendDelta=before.length&&after.length?median(after)-median(before):NaN;
+      const trendErr=before.length&&after.length&&Number.isFinite(scatter)?scatter*Math.sqrt(1/before.length+1/after.length):NaN;
+      const ramp=Number.isFinite(trendDelta)&&Number.isFinite(trendErr)&&trendErr>0&&Math.abs(trendDelta/trendErr)>=3;
       ctx.strokeStyle="#34546b";ctx.beginPath();ctx.moveTo(x+8,y+cellH-25);ctx.lineTo(x+cellW-18,y+cellH-25);ctx.stroke();
       ctx.fillStyle="#59dfd0";subset.forEach(p=>{const px=x+8+((p.t-event.epoch)/Math.max(c.duration*2,c.period*.015)+1)/2*(cellW-28),py=y+24+(1-(p.y-lo)/span)*(cellH-53);ctx.beginPath();ctx.arc(px,py,1.6,0,Math.PI*2);ctx.fill();});
+      ctx.fillStyle=ramp?"#ffb38a":"#87a5b9";ctx.font="8px monospace";ctx.fillText(ramp?"LOCAL RAMP · CHECK SYSTEMATICS":(before.length&&after.length?"No >3σ endpoint ramp":"Incomplete side coverage"),x+7,y+cellH-14);
     });
   }
   function render(result,csvText,fileName) {
