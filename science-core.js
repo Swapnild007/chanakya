@@ -63,6 +63,11 @@
     const half=Math.max(c.duration/(2*c.period),.003);
     return points.map(p=>({...p,y:p.y+(Math.abs(phaseOf(p.t,c))<=half?c.depth:0)}));
   }
+  function removeCandidateBox(points,c){
+    if(!c||!(c.period>0)||!(c.depth>0))return points.map(p=>({...p}));
+    const half=Math.max(c.duration/(2*c.period),.003);
+    return points.map(p=>({...p,y:p.y+(Math.abs(phaseOf(p.t,c))<=half?c.depth:0)}));
+  }
   function blockBootstrap(points,candidates,trials=199,blockSize=10){
     if(points.length<100||!candidates.length)return {n:0,exceed:0,p:null,observed:NaN,method:"unavailable"};
     const values=points.map(p=>p.y),top=candidates.slice(0,3),observed=scoreAtPeriods(points,values,top),primary=top[0];
