@@ -33,6 +33,7 @@
   if(mastFetch) mastFetch.addEventListener("click",()=>setTimeout(syncFile,1000));
   const originalScan=$("#scanBtn");
   if(originalScan) originalScan.addEventListener("click",()=>setTimeout(syncFile,500));
+  const scanStatusNode=$("#scanStatus"); if(scanStatusNode&&typeof MutationObserver!=="undefined"){new MutationObserver(syncFile).observe(scanStatusNode,{childList:true,subtree:true,characterData:true});}
   const median=a=>{if(!a.length)return NaN;const b=[...a].sort((x,y)=>x-y),m=Math.floor(b.length/2);return b.length%2?b[m]:(b[m-1]+b[m])/2};
   const mad=a=>{const m=median(a);return median(a.map(x=>Math.abs(x-m)))*1.4826};
   function parseData(csv) {
