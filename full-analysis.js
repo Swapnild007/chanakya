@@ -189,6 +189,9 @@
     } catch(e){setStatus("Full analysis failed: "+e.message,"error");$("#faResults").innerHTML='<div class="fa-error">'+esc(e.message)+'</div>';tick(0);}
     finally{running=false;button.disabled=!fileNow();}
   }
+  // Expose the same parser, detrending and BLS implementation to Light Curve Lab.
+  // Both screens now analyze identical accepted rows and use the same refined candidates.
+  window.AstroLensFullAnalysisSearch={parseData,normalize,detrend,searchBLS,median};
   button.addEventListener("click",run);
   syncFile();
 })();
