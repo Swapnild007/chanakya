@@ -58,10 +58,10 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   const residual=S.residualSummary(p);
   assert.equal(residual.count,p.length);
   assert.ok(Number.isFinite(residual.meanPpm)&&Number.isFinite(residual.medianPpm),"residual summary must expose finite shared mean and median");
-  const combined=S.candidateDepthSummary(p,c);
-  assert.deepEqual(combined.stats,S.eventStats(p,c),"combined candidate summary must reuse the canonical event statistics");
+  const combined=S.candidateDepthSummary(p,candidate);
+  assert.deepEqual(combined.stats,S.eventStats(p,candidate),"combined candidate summary must reuse the canonical event statistics");
   assert.deepEqual(combined.consistency,S.eventDepthConsistency(combined.stats),"combined summary must use the canonical event-consistency test");
-  assert.equal(combined.searchToEventMeanRatio,Math.abs(c.depth/combined.consistency.weightedMeanDepth));
+  assert.equal(combined.searchToEventMeanRatio,Math.abs(candidate.depth/combined.consistency.weightedMeanDepth));
   assert.ok(result.candidates.some(x=>[.5,1,2].some(ratio=>Math.abs(x.period/2.5-ratio)/ratio<.05)),"coarse re-search should retain the injected period or a recognizable half/double-period alias");
 }
 
