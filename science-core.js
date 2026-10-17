@@ -114,19 +114,26 @@
     return {candidates:unique,trialCount};
   }
   function injectionRecovery(points,c,trials=200){
-    if(points.length<100||!c||!(c.depth>0)||!(c.period>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
+    if(points.length<100||!c||!(c.period>0)||!(c.duration>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
     const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t),times=ordered.map(p=>p.t),span=times[times.length-1]-times[0];
-    const width=Math.max(c.duration/2,c.period*.003),levels=[.5,1,2].map(mult=>({mult,depth:c.depth*mult,n:0,recovered:0}));
+    const width=Math.max(c.duration/2,c.period*.003),levels=[100,200,500,1000].map(ppm=>({ppm,depth:ppm/1e6,n:0,recovered:0}));
     const residual=removeCandidateBox(ordered,c);
     let seed=61957;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     for(let k=0;k<trials;k++){
-      const level=levels[k%levels.length];level.n++;const epoch=times[0]+rand()*Math.max(span-c.period,0),inside=[],outside=[];
-      for(const p of residual){const ph=Math.abs((((p.t-epoch+c.period/2)/c.period)%1+1)%1-.5);(ph*c.period<=width?inside:outside).push(p.y-(ph*c.period<=width?level.depth:0));}
-      const depth=median(outside)-median(inside),noise=Math.max(robustSigma(outside),1e-8),snr=depth/(noise*Math.sqrt(1/Math.max(1,inside.length)+1/Math.max(1,outside.length)));
+      const level=levels[k%levels.length];level.n++;
+      const epoch=times[0]+rand()*Math.max(span-c.period,0),inside=[],outside=[];
+      for(const p of residual){
+        const phase=Math.abs((((p.t-epoch+c.period/2)/c.period)%1+1)%1-.5);
+        (phase*c.period<=width?inside:outside).push(p.y-(phase*c.period<=width?level.depth:0));
+      }
+      const depth=median(outside)-median(inside),noise=Math.max(robustSigma(outside),1e-8);
+      const error=noise*Math.sqrt(1/Math.max(1,inside.length)+1/Math.max(1,outside.length));
+      const snr=depth/Math.max(error,1e-12);
       if(Number.isFinite(depth)&&depth>=level.depth*.5&&snr>=2)level.recovered++;
     }
     levels.forEach(x=>x.fraction=x.n?x.recovered/x.n:null);
-    return {n:trials,recovered:levels.reduce((s,x)=>s+x.recovered,0),fraction:levels.reduce((s,x)=>s+x.recovered,0)/trials,levels,method:"fixed-period, randomized-epoch injections into residuals after subtracting the current box; not a blind full-search completeness estimate"};
+    return {n:trials,recovered:levels.reduce((s,x)=>s+x.recovered,0),fraction:levels.reduce((s,x)=>s+x.recovered,0)/trials,levels,
+      method:"Absolute 100/200/500/1000 ppm injections at randomized epochs; fixed candidate period and duration; recovery is measured at the known injected epoch. This is a local sensitivity diagnostic, not a blind period search or global completeness estimate."};
   }
   return {KNOWN,median,robustSigma,phaseOf,eventStats,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
 });
