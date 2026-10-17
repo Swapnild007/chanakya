@@ -130,6 +130,10 @@
     const folded=points.map(p=>({phase:(((p.t-candidate.epoch+candidate.period/2)/candidate.period)%1+1)%1-.5,y:p.y}));
     ctx.fillStyle="#53d8cb";for(const p of folded){const x=L+(p.phase+.5)*(R-L),y=T+(1-(p.y-lo)/span)*(B-T);if(y>=T-2&&y<=B+2){ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill();}}
     if(stats){ctx.strokeStyle="#f0c981";ctx.lineWidth=2;ctx.beginPath();let started=false;for(const b of stats.curve){if(b.flux===null){started=false;continue;}const x=L+(b.phase+.5)*(R-L),y=T+(1-(b.flux-lo)/span)*(B-T);if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);}ctx.stroke();}
+    // Overlay the candidate's simple box hypothesis separately from the observed binned data.
+    const baseY=T+(1-(0-lo)/span)*(B-T),dipY=T+(1-(-candidate.depth-lo)/span)*(B-T),half=(candidate.duration/candidate.period/2)*(R-L),mid=L+.5*(R-L);
+    ctx.strokeStyle="#f6d28a";ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(L,baseY);ctx.lineTo(mid-half,baseY);ctx.lineTo(mid-half,dipY);ctx.lineTo(mid+half,dipY);ctx.lineTo(mid+half,baseY);ctx.lineTo(R,baseY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle="#f6d28a";ctx.font="9px monospace";ctx.fillText("Dashed gold: BLS box hypothesis, not a fitted transit profile",Math.max(L,w-300),T+10);
   }
   function renderReport(report) {
     const {meta,raw,detrended,rawSearch,detSearch,rawStats,detStats,target}=report;
@@ -161,7 +165,7 @@
     $("#faExport").addEventListener("click",()=>downloadTextFile(JSON.stringify(report.exportData,null,2),"astrolens-full-analysis.json","application/json"));
   }
   function checkRow(label,pass,detail){return `<div class="fa-check"><span class="${pass?"fa-pass":"fa-pending"}">${pass?"✓":"·"}</span><div><b>${esc(label)}</b><small>${esc(detail)}</small></div></div>`;}
-  function agreement(a,b){if(!a.length||!b.length)return "Insufficient peaks";const p=a[0].period;const close=b.find(x=>Math.abs(x.period-p)/Math.min(x.period,p)<.03);return close?"Consistent: leading periods within 3%":"Unstable: leading peaks differ by more than 3%";}
+  function agreement(a,b){if(!a.length||!b.length)return "Insufficient peaks";const p=a[0].period;const close=b.find(x=>Math.abs(x.period-p)/Math.min(x.period,p)<.03);return close?"Consistent: leading periods within 2%":"Unstable: leading peaks differ by more than 2%";}
   async function run() {
     if(running)return;const file=fileNow();if(!file)return;
     running=true;button.disabled=true;tick(3);$("#faResults").innerHTML="";$("#faSummary").innerHTML="";
