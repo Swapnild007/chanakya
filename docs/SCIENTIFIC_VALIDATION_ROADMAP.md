@@ -10,6 +10,10 @@ AstroLens already has a substantial browser-based foundation: catalogue access, 
 
 The next milestone should be **evidence-backed validation of the existing pipeline**, not feature expansion. Unit tests on synthetic data establish repeatability for selected functions; they do not establish scientific performance on real observations.
 
+## Independent search and null calibration artifacts
+
+The priority-1/2 audit runner and its interpretation limits are documented in [`validation/INDEPENDENT_BLS_AUDIT_PLAN.md`](../validation/INDEPENDENT_BLS_AUDIT_PLAN.md). The runner is [`validation/independent_bls_audit.py`](../validation/independent_bls_audit.py), with dependencies in [`validation/requirements-independent.txt`](../validation/requirements-independent.txt). These artifacts define a reproducible Astropy BLS / Lightkurve comparison and 1,000-run conditional maximum-power null experiment. They have **not yet been executed** in this environment because Astropy and Lightkurve are not installed and package retrieval is unavailable; therefore no independent peak agreement or empirical FAP is claimed.
+
 ## Latest audit artifact
 
 The supplied CSV's structural integrity and sampling profile are recorded in [`TESS_SECTOR70_INPUT_AUDIT.md`](./TESS_SECTOR70_INPUT_AUDIT.md). Its SHA-256 is `177eceb34c8cbf6220385f3f279f444766ed2abc335067036021bcaa3181e1be`. This confirms input structure, not candidate validity. The end-to-end pipeline regression remains open because the next gate requires capturing the actual pipeline outputs on this exact input and comparing them with a reproducible run.
