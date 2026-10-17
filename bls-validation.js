@@ -166,7 +166,7 @@
     const eventRows=stats.events.map(e=>"<tr><td>"+e.cycle+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(Number.isFinite(e.depth)?(e.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(e.uncertainty)?(e.uncertainty*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+e.status+"</td></tr>").join("");
     const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenSigma)&&Math.abs(stats.oddEvenSigma)<3;
     const secondaryFlag=Number.isFinite(stats.secondaryDepth)&&stats.secondaryDepth>0&&stats.secondarySnr>=3;
-    const pText=nullTest.p===null?"Not computed":nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" restricted block-resampled maxima; not a global FAP)";
+    const pText=nullTest.p===null?"Not computed":"Conditional tail fraction "+nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" restricted block-resampled maxima; not a global FAP)";
     const modeRows=modes.map(m=>"<tr><td>"+m.window.toFixed(1)+" d</td><td>"+(Number.isFinite(m.period)?m.period.toFixed(5)+" d":"No peak")+"</td><td>"+(Number.isFinite(m.depth)?(m.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(m.snr)?m.snr.toFixed(1):"—")+"</td><td>"+m.search.trialCount+"</td><td>"+(m.agrees?"Within 2% of leading period":"Period shifted / no match")+"</td></tr>").join("");
     const injectionRows=injection.levels.map(x=>"<tr><td>"+x.ppm+" ppm</td><td>"+x.recovered+"/"+x.n+"</td><td>"+(Number.isFinite(x.fraction)?(x.fraction*100).toFixed(1)+"%":"—")+"</td><td>"+(Number.isFinite(x.ci95?.low)?(x.ci95.low*100).toFixed(1)+"–"+(x.ci95.high*100).toFixed(1)+"%":"—")+"</td></tr>").join("");
     host.insertAdjacentHTML("beforeend",`
