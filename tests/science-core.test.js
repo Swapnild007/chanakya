@@ -18,6 +18,11 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.ok(stats.oddEvenRatio>.75,"equal injected odd/even depths should have similar medians");
   assert.ok(stats.events.some(e=>e.status==="NO COVERAGE")===false,"regular cadence should cover every predicted event");
   assert.ok(stats.events.every(e=>e.n>0),"each expected event has points");
+  const quality=S.tessQualitySummary([0,1,2,4,8,16,32,64,128,175,256,NaN]);
+  assert.equal(quality.mask,175);
+  assert.equal(quality.rejected,8,"default mask excludes values sharing one or more masked TESS bits");
+  assert.equal(quality.missing,1);
+  assert.ok(quality.bits.some(b=>b.name==="Manual exclude"&&b.count>=2));
 }
 {
   const a=S.aliasInfo(.755562,"TRAPPIST-1");
@@ -28,14 +33,18 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
 }
 {
   const p=synthetic(),candidate={period:2.5,epoch:1000.4,duration:.12,depth:.01};
-  const injected=S.injectionRecovery(p,candidate,200);
-  assert.deepEqual(S.injectionRecovery(p,candidate,200),injected,"fixed-seed injection recovery must reproduce exactly");
-  assert.equal(injected.n,200);
-  assert.equal(injected.levels.reduce((n,x)=>n+x.n,0),200);
+  const injected=S.injectionRecovery(p,candidate,50,20);
+  assert.deepEqual(S.injectionRecovery(p,candidate,50,20),injected,"fixed-seed injection recovery must reproduce exactly");
+  assert.equal(injected.n,1500);
+  assert.equal(injected.levels.reduce((n,x)=>n+x.n,0),1500);
   assert.ok(injected.levels.every(x=>x.n>0));
   assert.equal(injected.levels.length,30,"sensitivity curve must sample 100 through 3000 ppm");
   assert.deepEqual(injected.levels.map(x=>x.ppm),Array.from({length:30},(_,i)=>(i+1)*100),"sensitivity levels must be ordered and reproducible");
   assert.ok(injected.levels.every(x=>x.fraction===null||x.fraction>=0&&x.fraction<=1));
+  assert.ok(injected.levels.every(x=>x.ci95.low!==null&&x.ci95.high!==null&&x.ci95.low<=x.fraction&&x.ci95.high>=x.fraction),"each recovery level must include Wilson 95% intervals");
+  assert.equal(injected.matchingRule.epoch,"recovered epoch must be within half the assumed duration (or one phase bin)");
+  assert.equal(injected.nullTrials,20);
+  assert.ok(injected.falsePositiveRate>=0&&injected.falsePositiveRate<=1);
 }
 {
   const p=synthetic(),candidate={period:2.5,epoch:1000.4,duration:.12,depth:.01};
