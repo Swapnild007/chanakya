@@ -43,8 +43,8 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.ok(injected.levels.every(x=>x.fraction===null||x.fraction>=0&&x.fraction<=1));
   assert.ok(injected.levels.every(x=>x.ci95.low!==null&&x.ci95.high!==null&&x.ci95.low<=x.fraction&&x.ci95.high>=x.fraction),"each recovery level must include Wilson 95% intervals");
   assert.equal(injected.matchingRule.epoch,"recovered epoch must be within half the assumed duration (or one phase bin)");
-  assert.equal(injected.nullTrials,20);
-  assert.ok(injected.falsePositiveRate>=0&&injected.falsePositiveRate<=1);
+  assert.equal(injected.nullTrialsPerDepth,20);
+  assert.ok(injected.levels.every(x=>x.nullTrials===20&&x.nullFalseMatchRate>=0&&x.nullFalseMatchRate<=1&&x.nullFalseMatchCI95.low<=x.nullFalseMatchRate&&x.nullFalseMatchCI95.high>=x.nullFalseMatchRate),"each injection level must include matched null controls and Wilson intervals");
 }
 {
   const p=synthetic(),candidate={period:2.5,epoch:1000.4,duration:.12,depth:.01};
