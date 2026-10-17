@@ -183,7 +183,7 @@
       }
       const ps=new Float64Array(bins*2+1),pc=new Float64Array(bins*2+1);
       for(let b=0;b<bins*2;b++){ps[b+1]=ps[b]+sums[b%bins];pc[b+1]=pc[b]+counts[b%bins];}
-      const w=Math.max(2,Math.min(Math.floor(bins*.22),Math.round(bins*width/c.period)));
+      const w=Math.max(2,Math.min(Math.floor(bins*.22),Math.round(bins*(2*width)/c.period)));
       let best=null;
       for(let b=0;b<bins;b++){
         const ni=pc[b+w]-pc[b],no=ordered.length-ni;if(ni<3||no<20)continue;
