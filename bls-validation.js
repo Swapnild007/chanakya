@@ -87,20 +87,8 @@
     }
     return best;
   }
-  const known=[{name:"TRAPPIST-1 b",period:1.510826},{name:"TRAPPIST-1 c",period:2.421937},{name:"TRAPPIST-1 d",period:4.049219},{name:"TRAPPIST-1 e",period:6.101013},{name:"TRAPPIST-1 f",period:9.207540},{name:"TRAPPIST-1 g",period:12.352446},{name:"TRAPPIST-1 h",period:18.772866}];
-  function aliasInfo(period) {
-    const exact=known.map(p=>({...p,error:Math.abs(period-p.period)/p.period})).sort((a,b)=>a.error-b.error)[0];
-    if(exact&&exact.error<=.01)return {type:"known",label:exact.name,error:exact.error,reference:exact.period,ratio:period/exact.period};
-    let best={error:Infinity,label:"No near-integer alias",ratio:null,reference:null};
-    for(const planet of known){
-      const ratio=period/planet.period;
-      for(const target of [.5,1.5,2,3]){
-        const error=Math.abs(ratio-target)/target;
-        if(error<best.error)best={error,label:planet.name+" × "+target,ratio,reference:planet.period};
-      }
-    }
-    if(best.error<=.01)return {type:"alias",...best};
-    return {type:"none",label:"No match within 1%",error:best.error,reference:best.reference,ratio:best.ratio};
+  function aliasInfo(period,targetText) {
+    return window.AstroLensScienceCore?window.AstroLensScienceCore.aliasInfo(period,targetText||$("#mastTarget")?.value||""):{type:"unavailable",label:"Shared alias rules unavailable",error:null,reference:null};
   }
   function drawEventPanels(canvas,points,c,stats) {
     const plotted=stats.events.filter(e=>e.n>0).slice(0,8);if(!canvas||!plotted.length)return;
@@ -143,7 +131,7 @@
     metadata.push(["Stellar effective temperature",fitsMeta.teff!==null&&fitsMeta.teff!==undefined?String(fitsMeta.teff)+" K":"Unavailable from this input"]);
     if(fitsMeta.sector!==null&&fitsMeta.sector!==undefined)metadata[1]=["TESS sector(s)",String(fitsMeta.sector)];
     if(fitsMeta.ticId!==null&&fitsMeta.ticId!==undefined&&!tic)metadata[0]=["TIC identifier","TIC "+fitsMeta.ticId];
-    const aliasRows=result.unique.map(c=>{const a=aliasInfo(c.period);return "<tr><td>"+c.period.toFixed(6)+" d</td><td>"+esc(a.label)+"</td><td>"+(a.reference?a.reference.toFixed(6)+" d":"—")+"</td><td>"+(a.error<=.01?(a.error*100).toFixed(2)+"%":"—")+"</td><td>"+(a.type==="known"?"Known-period proximity":a.type==="alias"?"Possible harmonic/half-period alias":"No close ratio")+"</td></tr>";}).join("");
+    const aliasRows=result.unique.map(c=>{const a=aliasInfo(c.period,target);return "<tr><td>"+c.period.toFixed(6)+" d</td><td>"+esc(a.label)+"</td><td>"+(a.reference?a.reference.toFixed(6)+" d":"—")+"</td><td>"+(a.error<=.01?(a.error*100).toFixed(2)+"%":"—")+"</td><td>"+(a.type==="known"?"Known-period proximity":a.type==="alias"?"Possible harmonic/half-period alias":"No close ratio")+"</td></tr>";}).join("");
     const eventRows=stats.events.slice(0,24).map(e=>"<tr><td>"+e.cycle+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(Number.isFinite(e.depth)?(e.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(e.uncertainty)?(e.uncertainty*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+e.status+"</td></tr>").join("");
     const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenSigma)&&Math.abs(stats.oddEvenSigma)<3;
     const secondaryFlag=Number.isFinite(stats.secondaryDepth)&&stats.secondaryDepth>0&&stats.secondarySnr>=3;
