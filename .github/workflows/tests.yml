@@ -23,4 +23,4 @@ jobs:
         with:
           node-version: "22"
       - name: Check JavaScript syntax
-        run: node --check app.js && node --check bls-validation.js && node --check full-analysis.js && node --check dashboard-upgrade.js && node --check multi-source-discovery.js
+        run: node --check science-core.js && node --check app.js && node --check bls-validation.js && node --check full-analysis.js && node --check dashboard-upgrade.js && node --check multi-source-discovery.js && node tests/science-core.test.js
