@@ -60,16 +60,17 @@
   }
   function blockBootstrap(points,candidates,trials=199,blockSize=10){
     if(points.length<100||!candidates.length)return {n:0,exceed:0,p:null,observed:NaN,method:"unavailable"};
-    const values=points.map(p=>p.y),top=candidates.slice(0,3),observed=scoreAtPeriods(points,values,top);
+    const values=points.map(p=>p.y),top=candidates.slice(0,3),observed=scoreAtPeriods(points,values,top),primary=top[0];
+    const residual=points.map((p,i)=>values[i]-(Math.abs(phaseOf(p.t,primary))<=Math.max(primary.duration/(2*primary.period),.003)?primary.depth:0));
     let seed=92821,exceed=0;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     const n=Math.max(1,Math.floor(blockSize)),blocks=[];
-    for(let i=0;i<values.length;i+=n)blocks.push(values.slice(i,Math.min(i+n,values.length)));
+    for(let i=0;i<residual.length;i+=n)blocks.push(residual.slice(i,Math.min(i+n,residual.length)));
     for(let k=0;k<trials;k++){
       const order=blocks.slice();for(let i=order.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
       const trial=order.flat().slice(0,values.length);
       if(scoreAtPeriods(points,trial,top)>=observed)exceed++;
     }
-    return {n:trials,exceed,p:(1+exceed)/(trials+1),observed,method:"block-resampled residuals at the top three candidate periods only"};
+    return {n:trials,exceed,p:(1+exceed)/(trials+1),observed,method:"block-resampled residuals after subtracting the leading box, evaluated only at the top three candidate periods"};
   }
   function scoreAtPeriods(points,values,candidates){
     const bins=128,scatter=Math.max(robustSigma(values),1e-7);let best=0;
