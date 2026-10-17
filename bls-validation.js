@@ -119,10 +119,10 @@
     host.querySelectorAll(".bls-summary").forEach(el=>{if(el.textContent.includes("Known-system period comparison"))el.remove();});
     let parsed;try{parsed=parse(csvText);}catch(e){host.insertAdjacentHTML("beforeend",'<p class="science-note">'+esc(e.message)+'</p>');return;}
     const points=result.points,top=result.unique[0],stats=foldMetrics(points,top);
+    const core=window.AstroLensScienceCore;
     const residualMeanPpm=points.reduce((sum,p)=>sum+p.y,0)/Math.max(1,points.length)*1e6;
     const residualMedianPpm=core?.median?core.median(points.map(p=>p.y))*1e6:median(points.map(p=>p.y))*1e6;
     const depthConsistency=window.AstroLensScienceCore?.eventDepthConsistency?window.AstroLensScienceCore.eventDepthConsistency(stats):{n:0,chiSquare:null,degreesFreedom:0,reducedChiSquare:null,consistent:null};
-    const core=window.AstroLensScienceCore;
     const nullTest=core?core.blockBootstrap(points,result.unique,199,10):{p:null,n:0,exceed:0};
     const injection=core?core.injectionRecovery(points,top,50,100):{n:0,levels:[],fraction:null};
     const modes=[.5,1,2].map(w=>{const p=detrend(parsed.good,w),search=core?core.quickSearch(p,result.minP,result.maxP,result.baseline,300):{candidates:[],trialCount:0};if(core?.denseRefine&&search.candidates.length)search.candidates=core.denseRefine(p,search.candidates.slice(0,1),result.baseline,.02,201);const lead=search.candidates[0]||null;return {window:w,points:p,search,lead,depth:lead?.depth??NaN,snr:lead?.snr??NaN,period:lead?.period??NaN,agrees:!!lead&&Math.abs(lead.period-top.period)/top.period<=.02};});
