@@ -1,21 +1,66 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#09111f">
-<meta name="description" content="AstroLens: evidence-first astronomy candidate research dashboard">
-<title>AstroLens | Astronomy Discovery Lab</title><link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b16">
+<meta name="description" content="AstroLens is an evidence-first astronomy discovery workspace for exploring candidate objects and inspecting light curves.">
+<title>AstroLens | Deep Sky Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="topbar"><a class="brand" href="#" aria-label="AstroLens home"><span class="brand-mark">✦</span><span>ASTROLENS<small>ASTRONOMY DISCOVERY LAB</small></span></a><span class="status"><i></i> RESEARCH WORKSPACE</span></header>
+<div class="cosmos" aria-hidden="true"><span class="starfield starfield-a"></span><span class="starfield starfield-b"></span></div>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="AstroLens home"><span class="brand-symbol"><span></span></span><span class="brand-name">astro<span>lens</span><small>DEEP SKY OBSERVATORY</small></span></a>
+  <div class="topbar-center"><span class="live-dot"></span><span>OBSERVATION SYSTEM</span><span class="topbar-divider"></span><span class="mono">AL / 01</span></div>
+  <a class="topbar-link" href="#method"><span class="status-ring"></span> Research protocol <span aria-hidden="true">↗</span></a>
+</header>
 <main>
-<section class="hero"><div class="eyebrow">EVIDENCE FIRST · CANDIDATE EXPLORATION</div><h1>The universe leaves clues.<br><em>Let's find the signal.</em></h1><p>Explore real public astronomy catalogues, scan a light-curve CSV for unusual dips, and keep each lead tied to evidence. A candidate is not a confirmed discovery.</p>
-<div class="hero-actions"><button id="liveBtn" class="primary">Load live NASA TESS catalogue <span>↗</span></button><button id="demoBtn" class="secondary">Use demo records</button><a class="text-link" href="#dataLab">Scan your own light curve ↓</a></div><p id="statusMessage" class="status-message" role="status">Ready. Live catalogue access requires an internet connection.</p></section>
-<section class="stats" aria-label="Workspace summary"><article><span class="stat-label">CANDIDATES IN VIEW</span><strong id="candidateCount">0</strong><small>Current result set</small></article><article><span class="stat-label">HIGH-PRIORITY LEADS</span><strong id="priorityCount">0</strong><small>Review score ≥ 70 / 100</small></article><article><span class="stat-label">DATA MODE</span><strong class="stat-mode">DEMO</strong><small id="dataMode">Synthetic sample data</small></article></section>
-<section class="workspace"><div class="section-head"><div><div class="eyebrow">CANDIDATE EXPLORER</div><h2>Signal review</h2></div><label class="search"><span>⌕</span><input id="searchInput" placeholder="Search candidate or object type" aria-label="Search candidates"></label></div>
-<div class="filters" role="group" aria-label="Filter candidates"><button class="filter active" data-filter="all">All signals</button><button class="filter" data-filter="high">High priority</button><button class="filter" data-filter="planet">Transit-like</button><button class="filter" data-filter="stellar">Stellar</button></div>
-<div id="candidateList" class="candidate-list"><div class="empty">Loading demo candidates…</div></div><p id="sourceNote" class="disclaimer">Demo records are synthetic. They do not represent real celestial objects or telescope measurements.</p></section>
-<section id="dataLab" class="data-lab"><div class="eyebrow">LOCAL LIGHT-CURVE TRIAGE</div><h2>Scan a light-curve CSV</h2><p>Choose a CSV with columns for time and flux/brightness. Analysis runs in this browser; the file is not uploaded. This first-pass detector flags low-flux outliers only. It is not a periodic transit search and will produce false positives.</p><div class="upload-row"><label class="file-picker">Choose CSV<input id="lightCurveFile" type="file" accept=".csv,text/csv"></label><button id="scanBtn" class="secondary" disabled>Scan light curve</button></div><p id="scanStatus" class="status-message" role="status">Expected columns: time and flux (column names can vary).</p><div id="scanResults"></div></section>
-<section id="method" class="method"><div><div class="eyebrow">TRANSPARENT BY DESIGN</div><h2>A score is a starting point,<br>not a scientific verdict.</h2><p>Live TESS Objects of Interest (TOI) are already-known catalogue entries awaiting or undergoing vetting. Loading them demonstrates real data access, not new discovery. The CSV scanner separately flags unusual observations for review.</p><p>Sources: <a href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html" target="_blank" rel="noreferrer">NASA Exoplanet Archive TAP</a> · <a href="https://mast.stsci.edu/api/v0/" target="_blank" rel="noreferrer">MAST API</a></p></div><div class="method-cards"><article><b>01</b><h3>Signal quality</h3><p>Check data quality and signal-to-noise before prioritizing a lead.</p></article><article><b>02</b><h3>Catalogue context</h3><p>Cross-match with known objects and preserve identifiers and source URLs.</p></article><article><b>03</b><h3>Independent validation</h3><p>Periodicity, false-positive checks and follow-up are required before scientific claims.</p></article></div></section>
-<footer><span>ASTROLENS · EARLY RESEARCH BUILD</span><span>No confirmed discoveries claimed</span></footer></main>
-<dialog id="detailDialog"><button class="dialog-close" id="closeDialog" aria-label="Close details">×</button><div id="detailContent"></div></dialog><script src="app.js"></script></body></html>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="eyebrow-line"></span> THE SEARCH FOR WHAT'S OUT THERE</div>
+      <p class="hero-kicker mono">MISSION 001 &nbsp; / &nbsp; SIGNAL INTELLIGENCE</p>
+      <h1>Somewhere in the<br>dark, <em>there's a signal.</em></h1>
+      <p class="hero-description">Explore the known candidate universe. Inspect light curves. Follow the evidence from an unusual signal to a defensible scientific lead.</p>
+      <div class="hero-actions"><button id="liveBtn" class="primary"><span class="button-icon">↗</span> Connect to NASA archive</button><button id="demoBtn" class="secondary">Explore sample data <span aria-hidden="true">→</span></button></div>
+      <p id="statusMessage" class="status-message" role="status"><span class="status-pip"></span> System ready. Live archive access requires an internet connection.</p>
+    </div>
+    <div class="hero-art" aria-label="Stylized exoplanet and orbital paths">
+      <div class="art-label art-label-top"><span class="art-cross">+</span> DEEP FIELD <span class="mono">04:27:18</span></div>
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+      <div class="planet-halo"></div><div class="planet"><div class="planet-atmosphere"></div><div class="planet-shadow"></div></div>
+      <span class="planet-moon"></span><span class="orbit-point"></span><span class="art-star star-one">✦</span><span class="art-star star-two">✧</span><span class="art-star star-three">·</span>
+      <div class="planet-callout"><span class="callout-line"></span><span class="mono">TARGET FIELD 01</span><strong>Unknowns welcome.</strong></div>
+      <div class="art-label art-label-bottom"><span>EXPLORATION MODE</span><span class="mono">N 21° / S 08°</span></div>
+    </div>
+  </section>
+  <section class="metrics" aria-label="Workspace summary">
+    <article class="metric-card metric-featured"><div class="metric-head"><span class="metric-icon">◎</span><span class="metric-label">CANDIDATES IN VIEW</span><span class="metric-index">01</span></div><strong id="candidateCount">0</strong><div class="metric-foot"><span class="metric-foot-dot"></span> Current result set</div></article>
+    <article class="metric-card"><div class="metric-head"><span class="metric-icon">⌁</span><span class="metric-label">HIGH-PRIORITY LEADS</span><span class="metric-index">02</span></div><strong id="priorityCount">0</strong><div class="metric-foot">Review score ≥ 70 / 100</div></article>
+    <article class="metric-card"><div class="metric-head"><span class="metric-icon">◌</span><span class="metric-label">ACTIVE DATA SOURCE</span><span class="metric-index">03</span></div><strong class="stat-mode">DEMO</strong><div class="metric-foot" id="dataMode">Synthetic sample data</div></article>
+    <article class="metric-card metric-protocol"><div class="metric-head"><span class="metric-label">SCIENTIFIC STANDARD</span><span class="protocol-check">✓</span></div><strong class="protocol-title">Evidence first.</strong><div class="metric-foot">Candidate ≠ confirmation</div></article>
+  </section>
+  <section class="workspace" id="explorer">
+    <div class="section-head"><div><div class="eyebrow"><span class="eyebrow-line"></span> THE CANDIDATE FIELD</div><h2>Signal explorer<span class="heading-period">.</span></h2><p class="section-description">Every lead has a source. Every score has a limit. Start looking.</p></div><label class="search"><span class="search-icon">⌕</span><input id="searchInput" placeholder="Search objects, IDs, signal types…" aria-label="Search candidates"><kbd>⌘ K</kbd></label></div>
+    <div class="explorer-toolbar"><div class="filters" role="group" aria-label="Filter candidates"><button class="filter active" data-filter="all">All signals <span class="filter-count" id="allCount"></span></button><button class="filter" data-filter="high">Priority leads</button><button class="filter" data-filter="planet">Transit-like</button><button class="filter" data-filter="stellar">Stellar events</button></div><span class="sort-note"><span class="sort-dot"></span> SORTED FOR REVIEW</span></div>
+    <div id="candidateList" class="candidate-list"><div class="empty">Preparing the observation field…</div></div>
+    <p id="sourceNote" class="disclaimer"><span class="note-symbol">i</span> Demo records are synthetic. They do not represent real celestial objects or telescope measurements.</p>
+  </section>
+  <section id="dataLab" class="data-lab">
+    <div class="lab-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR DATA, YOUR DISCOVERY</div><h2>Bring a light curve<span class="heading-period">.</span></h2><p>Inspect a local observation file for anomalous dips. Your file stays on this device.</p></div><div class="lab-badge"><span>↳</span> LOCAL PROCESSING</div></div>
+    <div class="lab-workspace"><div class="lab-drop-icon">⌁</div><div class="lab-instructions"><strong>Load observation data</strong><span>CSV · time and flux columns · up to 25 MB</span><small>First-pass outlier detection only. This is not yet a periodic transit search.</small></div><div class="upload-row"><label class="file-picker">Choose CSV<input id="lightCurveFile" type="file" accept=".csv,text/csv"></label><button id="scanBtn" class="secondary" disabled>Analyze signal <span aria-hidden="true">→</span></button></div></div>
+    <p id="scanStatus" class="status-message" role="status"><span class="status-pip"></span> Waiting for a CSV file. Expected columns: time and flux.</p><div id="scanResults"></div>
+  </section>
+  <section id="method" class="method">
+    <div class="method-intro"><div class="eyebrow"><span class="eyebrow-line"></span> THE SCIENCE BEHIND THE SCREEN</div><h2>Curiosity is the start.<br><em>Evidence is the standard.</em></h2><p>Live TESS Objects of Interest (TOI) are existing catalogue entries awaiting or undergoing vetting. Loading them demonstrates data access, not new discovery. The local scanner flags unusual observations for further investigation.</p><div class="source-links"><a href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html" target="_blank" rel="noreferrer">NASA Exoplanet Archive <span>↗</span></a><a href="https://mast.stsci.edu/api/v0/" target="_blank" rel="noreferrer">MAST data service <span>↗</span></a></div></div>
+    <div class="method-cards"><article><span class="method-number">01 / SIGNAL</span><h3>Measure before ranking.</h3><p>Inspect data quality, signal-to-noise and the shape of the observation.</p><span class="method-arrow">↗</span></article><article><span class="method-number">02 / CONTEXT</span><h3>Check what we already know.</h3><p>Cross-match known objects and preserve identifiers, references and source links.</p><span class="method-arrow">↗</span></article><article><span class="method-number">03 / VALIDATION</span><h3>Challenge every candidate.</h3><p>Periodicity, false-positive checks and follow-up are needed before scientific claims.</p><span class="method-arrow">↗</span></article></div>
+  </section>
+  <footer><a class="footer-brand" href="#">astro<span>lens</span></a><span>AN EARLY-STAGE RESEARCH INSTRUMENT</span><span>NO CONFIRMED DISCOVERIES CLAIMED <span class="footer-star">✳</span></span></footer>
+</main>
+<dialog id="detailDialog"><button class="dialog-close" id="closeDialog" aria-label="Close details">×</button><div id="detailContent"></div></dialog>
+<script src="app.js"></script>
+</body>
+</html>
