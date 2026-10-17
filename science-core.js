@@ -199,12 +199,12 @@
       return best;
     }
     let totalRecovered=0,totalTrials=0,nullFalsePositives=0;
+    const blockSize=10,blocks=[];
+    for(let i=0;i<residual.length;i+=blockSize)blocks.push(residual.slice(i,i+blockSize).map(p=>p.y));
     for(let k=0;k<Math.max(1,nullTrials);k++){
-      const nullEpoch=t0+rand()*Math.max(span-c.period,0);
-      const nullValues=residual.map(p=>{
-        const phase=Math.abs((((p.t-nullEpoch+c.period/2)/c.period)%1+1)%1-.5);
-        return p.y-(phase*c.period<=width?0:0);
-      });
+      const order=blocks.slice();
+      for(let i=order.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
+      const nullValues=order.flat().slice(0,ordered.length);
       const nullBest=bestAtFixedPeriod(nullValues);
       if(nullBest&&nullBest.snr>=3&&nullBest.depth>0)nullFalsePositives++;
     }
