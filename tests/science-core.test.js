@@ -32,7 +32,8 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.equal(injected.n,200);
   assert.equal(injected.levels.reduce((n,x)=>n+x.n,0),200);
   assert.ok(injected.levels.every(x=>x.n>0));
-  assert.deepEqual(injected.levels.map(x=>x.ppm),[100,200,500,1000],"sensitivity tests must include shallow absolute depths below the candidate");
+  assert.equal(injected.levels.length,30,"sensitivity curve must sample 100 through 3000 ppm");
+  assert.deepEqual(injected.levels.map(x=>x.ppm),Array.from({length:30},(_,i)=>(i+1)*100),"sensitivity levels must be ordered and reproducible");
   assert.ok(injected.levels.every(x=>x.fraction===null||x.fraction>=0&&x.fraction<=1));
 }
 {
@@ -41,6 +42,9 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.equal(result.trialCount,120);
   assert.ok(result.candidates.length>0);
   assert.deepEqual(S.quickSearch(p,.5,10,40,120),result,"identical inputs and grid must reproduce identical candidates");
+  assert.deepEqual(S.denseRefine(p,result.candidates,40),S.denseRefine(p,result.candidates,40),"dense candidate refinement must be reproducible");
+  const consistency=S.eventDepthConsistency(S.eventStats(p,{period:2.5,epoch:1000.4,duration:.12,depth:.01}));
+  assert.ok(consistency.n>=2 && Number.isFinite(consistency.chiSquare),"event-depth consistency must report chi-square");
   assert.ok(result.candidates.some(x=>[.5,1,2].some(ratio=>Math.abs(x.period/2.5-ratio)/ratio<.05)),"coarse re-search should retain the injected period or a recognizable half/double-period alias");
 }
 
