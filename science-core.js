@@ -58,10 +58,15 @@
     for(const r of rows){const t=Number(r.time),f=Number(r.flux),q=qi<0?null:Number(r.quality);if(Number.isFinite(t)&&Number.isFinite(f)&&f>0){finite++;if(qi>=0&&q!==0)flagged++;if(qi>=0&&!Number.isFinite(q))missingQuality++;}}
     return {qualityColumn:qi>=0,finite,flagged,missingQuality,accepted:finite-flagged};
   }
+  function removeCandidateBox(points,c){
+    if(!c||!(c.period>0)||!(c.depth>0))return points.map(p=>({...p}));
+    const half=Math.max(c.duration/(2*c.period),.003);
+    return points.map(p=>({...p,y:p.y+(Math.abs(phaseOf(p.t,c))<=half?c.depth:0)}));
+  }
   function blockBootstrap(points,candidates,trials=199,blockSize=10){
     if(points.length<100||!candidates.length)return {n:0,exceed:0,p:null,observed:NaN,method:"unavailable"};
     const values=points.map(p=>p.y),top=candidates.slice(0,3),observed=scoreAtPeriods(points,values,top),primary=top[0];
-    const residual=points.map((p,i)=>values[i]-(Math.abs(phaseOf(p.t,primary))<=Math.max(primary.duration/(2*primary.period),.003)?primary.depth:0));
+    const residual=removeCandidateBox(points,primary).map(p=>p.y);
     let seed=92821,exceed=0;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     const n=Math.max(1,Math.floor(blockSize)),blocks=[];
     for(let i=0;i<residual.length;i+=n)blocks.push(residual.slice(i,Math.min(i+n,residual.length)));
@@ -107,7 +112,7 @@
     if(points.length<100||!c||!(c.depth>0)||!(c.period>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
     const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t),times=ordered.map(p=>p.t),span=times[times.length-1]-times[0];
     const width=Math.max(c.duration/2,c.period*.003),levels=[.5,1,2].map(mult=>({mult,depth:c.depth*mult,n:0,recovered:0}));
-    const residual=ordered.map(p=>{const ph=Math.abs(phaseOf(p.t,c));return {...p,y:p.y+(ph*c.period<=width?c.depth:0)};});
+    const residual=removeCandidateBox(ordered,c);
     let seed=61957;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     for(let k=0;k<trials;k++){
       const level=levels[k%levels.length];level.n++;const epoch=times[0]+rand()*Math.max(span-c.period,0),inside=[],outside=[];
@@ -118,5 +123,5 @@
     levels.forEach(x=>x.fraction=x.n?x.recovered/x.n:null);
     return {n:trials,recovered:levels.reduce((s,x)=>s+x.recovered,0),fraction:levels.reduce((s,x)=>s+x.recovered,0)/trials,levels,method:"fixed-period, randomized-epoch injections into residuals after subtracting the current box; not a blind full-search completeness estimate"};
   }
-  return {KNOWN,median,robustSigma,phaseOf,eventStats,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch};
+  return {KNOWN,median,robustSigma,phaseOf,eventStats,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
 });
