@@ -132,6 +132,7 @@
     if(fitsMeta.sector!==null&&fitsMeta.sector!==undefined)metadata[1]=["TESS sector(s)",String(fitsMeta.sector)];
     if(fitsMeta.ticId!==null&&fitsMeta.ticId!==undefined&&!tic)metadata[0]=["TIC identifier","TIC "+fitsMeta.ticId];
     const aliasRows=result.unique.map(c=>{const a=aliasInfo(c.period,target);return "<tr><td>"+c.period.toFixed(6)+" d</td><td>"+esc(a.label)+"</td><td>"+(a.reference?a.reference.toFixed(6)+" d":"—")+"</td><td>"+(a.error<=.01?(a.error*100).toFixed(2)+"%":"—")+"</td><td>"+(a.type==="known"?"Known-period proximity":a.type==="alias"?"Possible harmonic/half-period alias":"No close ratio")+"</td></tr>";}).join("");
+    const validationReport={generatedAt:new Date().toISOString(),sourceFile:fileName||null,target:target||null,sourceMetadata:metaOrigin,input:{timeColumn:parsed.timeColumn,fluxColumn:parsed.fluxColumn,qualityColumn:parsed.qualityColumn,qualityRemoved:parsed.badQuality,invalidRows:parsed.invalidRows,acceptedRows:parsed.good.length},leadingCandidate:top,diagnostics:stats,blockResampledNullTest:nullTest,injectionRecovery:injection,detrendingReSearch:modes.map(m=>({windowDays:m.window,trialCount:m.search.trialCount,leadingCandidate:m.lead,agreesWithinTwoPercent:m.agrees})),knownPeriodAliases:result.unique.map(c=>({period:c.period,...aliasInfo(c.period,target)})),eventCoverage:stats.events,metadata:metadata};
     const eventRows=stats.events.slice(0,24).map(e=>"<tr><td>"+e.cycle+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(Number.isFinite(e.depth)?(e.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(e.uncertainty)?(e.uncertainty*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+e.status+"</td></tr>").join("");
     const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenSigma)&&Math.abs(stats.oddEvenSigma)<3;
     const secondaryFlag=Number.isFinite(stats.secondaryDepth)&&stats.secondaryDepth>0&&stats.secondarySnr>=3;
@@ -140,7 +141,7 @@
     const injectionRows=injection.levels.map(x=>"<tr><td>"+x.mult.toFixed(1)+"×</td><td>"+(x.depth*1e6).toFixed(0)+" ppm</td><td>"+x.recovered+"/"+x.n+"</td><td>"+(Number.isFinite(x.fraction)?(x.fraction*100).toFixed(1)+"%":"—")+"</td></tr>").join("");
     host.insertAdjacentHTML("beforeend",`
       <section class="blsv-panel" id="blsValidationPanel">
-        <div class="blsv-head"><div><div class="blsv-kicker">VALIDATION SUITE · BLS / 02</div><h3>Candidate vetting, not just peak ranking</h3><p>Diagnostics below evaluate the leading period against repeatability, secondary events, aliases and alternate detrending. None independently confirms a planet.</p></div><span class="blsv-chip">EVIDENCE CHECKS</span></div>
+        <div class="blsv-head"><div><div class="blsv-kicker">VALIDATION SUITE · BLS / 02</div><h3>Candidate vetting, not just peak ranking</h3><p>Diagnostics below evaluate the leading period against repeatability, secondary events, aliases and alternate detrending. None independently confirms a planet.</p></div><div><span class="blsv-chip">EVIDENCE CHECKS</span><button id="blsvExport" type="button">Export validation JSON ↓</button></div></div>
         <div class="blsv-grid">
           <article class="blsv-card"><small>QUALITY FLAGS</small><strong>${parsed.qualityColumn?parsed.badQuality.toLocaleString()+" removed":"Not supplied"}</strong><p>${esc(quality)}</p></article>
           <article class="blsv-card"><small>ODD / EVEN DEPTH</small><strong>${Number.isFinite(stats.oddEvenSigma)?Math.abs(stats.oddEvenSigma).toFixed(1)+"σ difference":"Insufficient data"}</strong><p>Odd ${Number.isFinite(stats.oddDepth)?(stats.oddDepth*1e6).toFixed(0)+" ± "+(stats.oddErr*1e6).toFixed(0)+" ppm":"n/a"} (${stats.oddN} events), even ${Number.isFinite(stats.evenDepth)?(stats.evenDepth*1e6).toFixed(0)+" ± "+(stats.evenErr*1e6).toFixed(0)+" ppm":"n/a"} (${stats.evenN} events); depth ratio ${Number.isFinite(stats.oddEvenRatio)?stats.oddEvenRatio.toFixed(2):"n/a"}. ${oddPass?"Difference is below 3σ under this approximate uncertainty model; not a planet confirmation.":"Depth difference or coverage is concerning / inconclusive."}</p></article>
@@ -156,6 +157,7 @@
     drawEventPanels($("#blsEventCanvas"),points,top,stats);
     drawTransitModel($("#blsFoldCanvas"),top);
     $("#blsvFetchTic")?.addEventListener("click",fetchTicMetadata);
+    $("#blsvExport")?.addEventListener("click",()=>downloadTextFile(JSON.stringify(validationReport,null,2),"astrolens-validation-"+new Date().toISOString().slice(0,10)+".json","application/json"));
   }
   async function fetchTicMetadata() {
     const button=$("#blsvFetchTic"),status=$("#blsvTicStatus"),out=$("#blsvTicDetails");
