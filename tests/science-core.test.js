@@ -32,6 +32,7 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.equal(injected.n,200);
   assert.equal(injected.levels.reduce((n,x)=>n+x.n,0),200);
   assert.ok(injected.levels.every(x=>x.n>0));
+  assert.deepEqual(injected.levels.map(x=>x.ppm),[100,200,500,1000],"sensitivity tests must include shallow absolute depths below the candidate");
   assert.ok(injected.levels.every(x=>x.fraction===null||x.fraction>=0&&x.fraction<=1));
 }
 {
@@ -39,6 +40,7 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   const result=S.quickSearch(p,.5,10,40,120);
   assert.equal(result.trialCount,120);
   assert.ok(result.candidates.length>0);
+  assert.deepEqual(S.quickSearch(p,.5,10,40,120),result,"identical inputs and grid must reproduce identical candidates");
   assert.ok(result.candidates.some(x=>[.5,1,2].some(ratio=>Math.abs(x.period/2.5-ratio)/ratio<.05)),"coarse re-search should retain the injected period or a recognizable half/double-period alias");
 }
 
