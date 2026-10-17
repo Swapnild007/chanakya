@@ -113,10 +113,46 @@
     for(const x of out)if(unique.every(y=>Math.abs(y.period-x.period)/Math.min(y.period,x.period)>.02)){unique.push(x);if(unique.length===5)break;}
     return {candidates:unique,trialCount};
   }
-  function injectionRecovery(points,c,trials=200){
+
+  function eventDepthConsistency(stats){
+    const events=(stats?.events||[]).filter(e=>e.n>=3&&Number.isFinite(e.depth)&&Number.isFinite(e.uncertainty)&&e.uncertainty>0);
+    const n=events.length,dof=n-1;
+    if(n<2)return {n,chiSquare:null,degreesFreedom:0,reducedChiSquare:null,critical95:null,consistent:null};
+    const weights=events.map(e=>1/(e.uncertainty*e.uncertainty));
+    const mean=events.reduce((s,e,i)=>s+e.depth*weights[i],0)/weights.reduce((a,b)=>a+b,0);
+    const chiSquare=events.reduce((s,e,i)=>s+((e.depth-mean)/e.uncertainty)**2,0);
+    const critical95=dof*Math.pow(1-2/(9*dof)+1.645*Math.sqrt(2/(9*dof)),3);
+    return {n,weightedMeanDepth:mean,chiSquare,degreesFreedom:dof,reducedChiSquare:chiSquare/dof,critical95,consistent:chiSquare<=critical95,
+      method:"Approximate weighted chi-square against one shared depth; 95% upper critical value uses Wilson-Hilferty approximation."};
+  }
+  function denseRefine(points,candidates,baseline,spanFraction=.02,steps=201){
+    if(!points?.length||!candidates?.length)return [];
+    const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t);
+    if(ordered.length<100)return candidates;
+    const t0=ordered[0].t,bins=128,noise=Math.max(robustSigma(ordered.map(p=>p.y)),1e-7);
+    return candidates.map(candidate=>{
+      const lo=Math.max(candidate.period*(1-spanFraction),.0001),hi=candidate.period*(1+spanFraction);
+      let best=null;
+      for(let k=0;k<steps;k++){
+        const period=lo+(hi-lo)*k/(steps-1),freq=1/period,sums=new Float64Array(bins),counts=new Uint32Array(bins);
+        for(const p of ordered){let ph=((p.t-t0)*freq)%1;if(ph<0)ph++;const b=Math.min(bins-1,Math.floor(ph*bins));sums[b]+=p.y;counts[b]++;}
+        const ps=new Float64Array(bins*2+1),pc=new Float64Array(bins*2+1);
+        for(let b=0;b<bins*2;b++){ps[b+1]=ps[b]+sums[b%bins];pc[b+1]=pc[b]+counts[b%bins];}
+        const width=Math.max(2,Math.min(Math.floor(bins*.22),Math.round(bins*candidate.duration/period)));
+        for(let s=0;s<bins;s++){
+          const ni=pc[s+width]-pc[s],no=ordered.length-ni;if(ni<3||no<20)continue;
+          const si=ps[s+width]-ps[s],depth=(ps[bins]-ps[0]-si)/no-si/ni;if(depth<=0)continue;
+          const snr=depth/noise*Math.sqrt(ni*no/ordered.length);
+          if(!best||snr>best.snr)best={...candidate,period,epoch:t0+((((s+width/2)/bins)%1)/freq),duration:width/bins*period,depth,snr,nIn:ni,cycles:baseline/period,denseGrid:{minPeriod:lo,maxPeriod:hi,steps,selectedIndex:k}};
+        }
+      }
+      return best||candidate;
+    }).sort((a,b)=>b.snr-a.snr);
+  }
+  function injectionRecovery(points,c,trials=600){
     if(points.length<100||!c||!(c.period>0)||!(c.duration>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
     const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t),times=ordered.map(p=>p.t),span=times[times.length-1]-times[0];
-    const width=Math.max(c.duration/2,c.period*.003),levels=[100,200,500,1000].map(ppm=>({ppm,depth:ppm/1e6,n:0,recovered:0}));
+    const width=Math.max(c.duration/2,c.period*.003),levels=Array.from({length:30},(_,i)=>({ppm:(i+1)*100,depth:(i+1)*100/1e6,n:0,recovered:0}));
     const residual=removeCandidateBox(ordered,c);
     let seed=61957;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     for(let k=0;k<trials;k++){
@@ -135,5 +171,5 @@
     return {n:trials,recovered:levels.reduce((s,x)=>s+x.recovered,0),fraction:levels.reduce((s,x)=>s+x.recovered,0)/trials,levels,
       method:"Absolute 100/200/500/1000 ppm injections at randomized epochs; fixed candidate period and duration; recovery is measured at the known injected epoch. This is a local sensitivity diagnostic, not a blind period search or global completeness estimate."};
   }
-  return {KNOWN,median,robustSigma,phaseOf,eventStats,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
+  return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
 });
