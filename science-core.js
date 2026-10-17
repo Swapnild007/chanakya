@@ -230,6 +230,7 @@
       }
       level.fraction=level.recovered/level.n;
       level.ci95=wilsonInterval(level.recovered,level.n);
+      const nullRow=nullStats.find(n=>n.ppm===level.ppm);level.nullFalsePositives=nullRow.nullFalsePositives;level.nullTrials=nullRow.nullTrials;level.nullFalseMatchRate=level.nullFalsePositives/level.nullTrials;level.nullFalseMatchCI95=wilsonInterval(level.nullFalsePositives,level.nullTrials);level.excessRecoveryRate=Math.max(0,level.fraction-level.nullFalseMatchRate);level.aboveNull=level.ci95.low>level.nullFalseMatchCI95.high;
       totalRecovered+=level.recovered;totalTrials+=level.n;
     }
     return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrialsPerDepth:Math.max(1,nullTrials),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes block-shuffled no-injection trials evaluated with the same depth, score, and randomized-epoch matching rule at each depth; reports recovery and null-match Wilson 95% intervals. Sensitivity is not established where intervals overlap. This is not blind full-pipeline completeness or a global false-alarm probability."};
