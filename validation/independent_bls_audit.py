@@ -25,9 +25,9 @@ try:
 except ImportError as exc:
     raise SystemExit("Missing dependency: install validation/requirements-independent.txt") from exc
 
-DEFAULT_PERIOD_MIN = 0.1
+DEFAULT_PERIOD_MIN = 0.15
 DEFAULT_PERIOD_MAX = 10.0
-DEFAULT_DURATIONS = [0.04, 0.06, 0.08, 0.10, 0.12, 0.16, 0.20]
+DEFAULT_DURATIONS = [0.02, 0.04, 0.06, 0.08, 0.10, 0.12]
 
 
 def wilson_interval(successes: int, trials: int, z: float = 1.959963984540054) -> list[float]:
@@ -97,16 +97,31 @@ def best_bls(t: np.ndarray, y: np.ndarray, periods: np.ndarray, durations: np.nd
     result = model.power(periods * u.day, durations * u.day, objective="snr")
     power = np.asarray(result.power.value if hasattr(result.power, "value") else result.power)
     ix = np.unravel_index(int(np.nanargmax(power)), power.shape)
-    def scalar(arr, index):
-        x = arr[index]
-        return float(x.value if hasattr(x, "value") else x)
+
+    def values(arr):
+        return np.asarray(arr.value if hasattr(arr, "value") else arr, dtype=float)
+
+    def align(arr, kind):
+        a = values(arr)
+        if a.shape == power.shape:
+            return a
+        if a.ndim == 1 and power.ndim == 2:
+            if kind in ("period", "time") and len(a) == power.shape[0]:
+                return np.broadcast_to(a[:, None], power.shape)
+            if kind == "duration" and len(a) == power.shape[1]:
+                return np.broadcast_to(a[None, :], power.shape)
+        return np.broadcast_to(a, power.shape)
+
+    period_grid = align(result.period, "period")
+    duration_grid = align(result.duration, "duration")
+    time_grid = align(result.transit_time, "time")
     return {
-        "period_days": scalar(result.period, ix[0]),
-        "duration_days": scalar(result.duration, ix[-1]),
-        "transit_time": scalar(result.transit_time, ix[0]),
+        "period_days": float(period_grid[ix]),
+        "duration_days": float(duration_grid[ix]),
+        "transit_time": float(time_grid[ix]),
         "max_power": float(power[ix]),
         "period_index": int(ix[0]),
-        "duration_index": int(ix[-1]),
+        "duration_index": int(ix[-1]) if len(ix) > 1 else 0,
     }
 
 
