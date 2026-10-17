@@ -1,44 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#09111f">
 <meta name="description" content="AstroLens: evidence-first astronomy candidate research dashboard">
-<title>AstroLens | Astronomy Discovery Lab</title>
-<link rel="stylesheet" href="styles.css">
+<title>AstroLens | Astronomy Discovery Lab</title><link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="#" aria-label="AstroLens home"><span class="brand-mark">✦</span><span>ASTROLENS<small>ASTRONOMY DISCOVERY LAB</small></span></a>
-  <span class="status"><i></i> RESEARCH WORKSPACE</span>
-</header>
+<header class="topbar"><a class="brand" href="#" aria-label="AstroLens home"><span class="brand-mark">✦</span><span>ASTROLENS<small>ASTRONOMY DISCOVERY LAB</small></span></a><span class="status"><i></i> RESEARCH WORKSPACE</span></header>
 <main>
-  <section class="hero">
-    <div class="eyebrow">EVIDENCE FIRST · CANDIDATE EXPLORATION</div>
-    <h1>The universe leaves clues.<br><em>Let's find the signal.</em></h1>
-    <p>Explore astronomy observations, rank unusual signals, and keep every candidate tied to evidence. A promising score is a lead, not a discovery.</p>
-    <div class="hero-actions"><button id="demoBtn" class="primary">Explore demo candidates <span>↗</span></button><a class="text-link" href="#method">How scoring works ↓</a></div>
-  </section>
-  <section class="stats" aria-label="Workspace summary">
-    <article><span class="stat-label">CANDIDATES IN VIEW</span><strong id="candidateCount">0</strong><small>Current result set</small></article>
-    <article><span class="stat-label">HIGH-PRIORITY LEADS</span><strong id="priorityCount">0</strong><small>Score ≥ 70 / 100</small></article>
-    <article><span class="stat-label">DATA MODE</span><strong class="stat-mode">DEMO</strong><small id="dataMode">Synthetic sample data</small></article>
-  </section>
-  <section class="workspace">
-    <div class="section-head"><div><div class="eyebrow">CANDIDATE EXPLORER</div><h2>Signal review</h2></div><label class="search"><span>⌕</span><input id="searchInput" placeholder="Search candidate or object type" aria-label="Search candidates"></label></div>
-    <div class="filters" role="group" aria-label="Filter candidates">
-      <button class="filter active" data-filter="all">All signals</button><button class="filter" data-filter="high">High priority</button><button class="filter" data-filter="planet">Transit-like</button><button class="filter" data-filter="stellar">Stellar</button>
-    </div>
-    <div id="candidateList" class="candidate-list"><div class="empty">Loading demo candidates…</div></div>
-    <p class="disclaimer">Demo records are synthetic. They do not represent real celestial objects or telescope measurements.</p>
-  </section>
-  <section id="method" class="method">
-    <div><div class="eyebrow">TRANSPARENT BY DESIGN</div><h2>A score is a starting point,<br>not a scientific verdict.</h2><p>AstroLens ranks records using visible heuristics. Real-world use needs calibrated datasets, false-positive analysis, and cross-matching against known catalogues.</p></div>
-    <div class="method-cards"><article><b>01</b><h3>Signal shape</h3><p>Does the observation resemble a repeatable transit or a stellar variation?</p></article><article><b>02</b><h3>Data quality</h3><p>Are uncertainty and signal-to-noise sufficient to justify review?</p></article><article><b>03</b><h3>Known-object check</h3><p>Candidate status remains provisional until catalogues and source provenance are checked.</p></article></div>
-  </section>
-  <footer><span>ASTROLENS · EARLY RESEARCH BUILD</span><span>No confirmed discoveries claimed</span></footer>
-</main>
-<dialog id="detailDialog"><button class="dialog-close" id="closeDialog" aria-label="Close details">×</button><div id="detailContent"></div></dialog>
-<script src="app.js"></script>
-</body></html>
+<section class="hero"><div class="eyebrow">EVIDENCE FIRST · CANDIDATE EXPLORATION</div><h1>The universe leaves clues.<br><em>Let's find the signal.</em></h1><p>Explore real public astronomy catalogues, scan a light-curve CSV for unusual dips, and keep each lead tied to evidence. A candidate is not a confirmed discovery.</p>
+<div class="hero-actions"><button id="liveBtn" class="primary">Load live NASA TESS catalogue <span>↗</span></button><button id="demoBtn" class="secondary">Use demo records</button><a class="text-link" href="#dataLab">Scan your own light curve ↓</a></div><p id="statusMessage" class="status-message" role="status">Ready. Live catalogue access requires an internet connection.</p></section>
+<section class="stats" aria-label="Workspace summary"><article><span class="stat-label">CANDIDATES IN VIEW</span><strong id="candidateCount">0</strong><small>Current result set</small></article><article><span class="stat-label">HIGH-PRIORITY LEADS</span><strong id="priorityCount">0</strong><small>Review score ≥ 70 / 100</small></article><article><span class="stat-label">DATA MODE</span><strong class="stat-mode">DEMO</strong><small id="dataMode">Synthetic sample data</small></article></section>
+<section class="workspace"><div class="section-head"><div><div class="eyebrow">CANDIDATE EXPLORER</div><h2>Signal review</h2></div><label class="search"><span>⌕</span><input id="searchInput" placeholder="Search candidate or object type" aria-label="Search candidates"></label></div>
+<div class="filters" role="group" aria-label="Filter candidates"><button class="filter active" data-filter="all">All signals</button><button class="filter" data-filter="high">High priority</button><button class="filter" data-filter="planet">Transit-like</button><button class="filter" data-filter="stellar">Stellar</button></div>
+<div id="candidateList" class="candidate-list"><div class="empty">Loading demo candidates…</div></div><p id="sourceNote" class="disclaimer">Demo records are synthetic. They do not represent real celestial objects or telescope measurements.</p></section>
+<section id="dataLab" class="data-lab"><div class="eyebrow">LOCAL LIGHT-CURVE TRIAGE</div><h2>Scan a light-curve CSV</h2><p>Choose a CSV with columns for time and flux/brightness. Analysis runs in this browser; the file is not uploaded. This first-pass detector flags low-flux outliers only. It is not a periodic transit search and will produce false positives.</p><div class="upload-row"><label class="file-picker">Choose CSV<input id="lightCurveFile" type="file" accept=".csv,text/csv"></label><button id="scanBtn" class="secondary" disabled>Scan light curve</button></div><p id="scanStatus" class="status-message" role="status">Expected columns: time and flux (column names can vary).</p><div id="scanResults"></div></section>
+<section id="method" class="method"><div><div class="eyebrow">TRANSPARENT BY DESIGN</div><h2>A score is a starting point,<br>not a scientific verdict.</h2><p>Live TESS Objects of Interest (TOI) are already-known catalogue entries awaiting or undergoing vetting. Loading them demonstrates real data access, not new discovery. The CSV scanner separately flags unusual observations for review.</p><p>Sources: <a href="https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html" target="_blank" rel="noreferrer">NASA Exoplanet Archive TAP</a> · <a href="https://mast.stsci.edu/api/v0/" target="_blank" rel="noreferrer">MAST API</a></p></div><div class="method-cards"><article><b>01</b><h3>Signal quality</h3><p>Check data quality and signal-to-noise before prioritizing a lead.</p></article><article><b>02</b><h3>Catalogue context</h3><p>Cross-match with known objects and preserve identifiers and source URLs.</p></article><article><b>03</b><h3>Independent validation</h3><p>Periodicity, false-positive checks and follow-up are required before scientific claims.</p></article></div></section>
+<footer><span>ASTROLENS · EARLY RESEARCH BUILD</span><span>No confirmed discoveries claimed</span></footer></main>
+<dialog id="detailDialog"><button class="dialog-close" id="closeDialog" aria-label="Close details">×</button><div id="detailContent"></div></dialog><script src="app.js"></script></body></html>
