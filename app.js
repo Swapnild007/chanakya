@@ -91,7 +91,7 @@ function renderBLSResult(result,csvText){
 }
 $("#blsBtn")?.addEventListener("click",async()=>{
   const btn=$("#blsBtn");if(!selectedCSV)return;btn.disabled=true;$("#blsStatus").textContent="Searching trial periods and transit durations. This may take a little while on mobile…";
-  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result,textData);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.";$("#blsStatus").className="status-message success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
+  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;window.__astrolensFitsMeta=null;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv;window.__astrolensFitsMeta=converted.metadata||null}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result,textData);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.";$("#blsStatus").className="status-message success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
 });
 
 
@@ -120,16 +120,16 @@ async function mastRequest(payload){
 }
 function mastStatus(msg,kind=""){const el=$("#mastStatus");if(el){el.textContent=msg;el.className="status-message "+kind}}
 function parseFitsLightCurve(buffer){
-  const bytes=new Uint8Array(buffer),view=new DataView(buffer);let offset=0,table=null;
+  const bytes=new Uint8Array(buffer),view=new DataView(buffer);let offset=0,table=null,primaryHeader={};
   const readHeader=start=>{let cards=[],end=start,done=false;while(end+80<=bytes.length){let card="";for(let j=0;j<80;j++)card+=String.fromCharCode(bytes[end+j]);cards.push(card);end+=80;if(card.startsWith("END ")){done=true;break}}if(!done)throw Error("Invalid or incomplete FITS header.");const header={};for(const card of cards){if(card[8]!=="=")continue;const key=card.slice(0,8).trim();let val=card.slice(10).split("/")[0].trim();if(val.startsWith("'"))val=val.slice(1,val.lastIndexOf("'")).trim();else if(val==="T")val=true;else if(val==="F")val=false;else if(val!=="")val=Number(val);header[key]=val}return {header,dataStart:start+Math.ceil((end-start)/2880)*2880,headerEnd:end}};
-  while(offset+2880<bytes.length){const h=readHeader(offset),x=h.header;const dataBytes=x.XTENSION==="BINTABLE"?(Number(x.NAXIS1)||0)*(Number(x.NAXIS2)||0):Math.abs(Number(x.BITPIX)||8)/8*(Number(x.NAXIS1)||0)*(Number(x.NAXIS2)||1)*(Number(x.NAXIS3)||1)*(Number(x.NAXIS4)||1);if(x.XTENSION==="BINTABLE"){table={...h,rowBytes:Number(x.NAXIS1),rows:Number(x.NAXIS2),fields:Number(x.TFIELDS)||0};break}offset=h.dataStart+Math.ceil(dataBytes/2880)*2880}
+  while(offset+2880<bytes.length){const h=readHeader(offset),x=h.header;if(offset===0)primaryHeader={...x};const dataBytes=x.XTENSION==="BINTABLE"?(Number(x.NAXIS1)||0)*(Number(x.NAXIS2)||0):Math.abs(Number(x.BITPIX)||8)/8*(Number(x.NAXIS1)||0)*(Number(x.NAXIS2)||1)*(Number(x.NAXIS3)||1)*(Number(x.NAXIS4)||1);if(x.XTENSION==="BINTABLE"){table={...h,rowBytes:Number(x.NAXIS1),rows:Number(x.NAXIS2),fields:Number(x.TFIELDS)||0,primaryHeader};break}offset=h.dataStart+Math.ceil(dataBytes/2880)*2880}
   if(!table)throw Error("No FITS binary table was found in this download.");
   const cols=[];let colOffset=0;for(let i=1;i<=table.fields;i++){const name=String(table.header["TTYPE"+i]||"").trim().toUpperCase(),form=String(table.header["TFORM"+i]||"").trim().toUpperCase(),m=form.match(/^(\d*)([A-Z])/);if(!m)throw Error("Unsupported FITS column format: "+form);const repeat=Number(m[1]||1),type=m[2],width=({L:1,X:1,B:1,I:2,J:4,K:8,A:1,E:4,D:8,C:8,M:16})[type];if(!width)throw Error("Unsupported FITS data type "+type);cols.push({name,offset:colOffset,repeat,type,width});colOffset+=repeat*width}
   const time=cols.find(c=>c.name==="TIME"),flux=cols.find(c=>c.name==="PDCSAP_FLUX")||cols.find(c=>c.name==="SAP_FLUX")||cols.find(c=>c.name==="FLUX"),quality=cols.find(c=>c.name==="QUALITY");if(!time||!flux)throw Error("FITS file lacks TIME and flux columns.");
   function numberAt(base,c){const p=base+c.offset;switch(c.type){case"D":return view.getFloat64(p,false);case"E":return view.getFloat32(p,false);case"J":return view.getInt32(p,false);case"I":return view.getInt16(p,false);case"K":return Number(view.getBigInt64(p,false));case"B":return view.getUint8(p);default:return NaN}}
   const lines=["time,flux,quality"];for(let i=0;i<table.rows;i++){const base=table.dataStart+i*table.rowBytes,t=numberAt(base,time),f=numberAt(base,flux),q=quality?numberAt(base,quality):0;if(Number.isFinite(t)&&Number.isFinite(f)&&f!==-1.7976931348623157e308&&f!==-3.4028234663852886e38)lines.push(t+","+f+","+q)}
   if(lines.length<21)throw Error("Only "+(lines.length-1)+" valid measurements were found; at least 20 are required.");
-  return {csv:lines.join("\n")+"\n",count:lines.length-1,fluxColumn:flux.name};
+  const hdr={...table.primaryHeader,...table.header};const metadata={ticId:hdr.TICID??null,sector:hdr.SECTOR??null,crowdsap:hdr.CROWDSAP??null,stellarRadius:hdr.RADIUS??hdr.STELLAR_RADIUS??null,ra:hdr.RA_OBJ??hdr.RA_TARG??null,dec:hdr.DEC_OBJ??hdr.DEC_TARG??null,teff:hdr.TEFF??null};return {csv:lines.join("\n")+"\n",count:lines.length-1,fluxColumn:flux.name,metadata};
 }
 function downloadTextFile(text,filename,type="text/csv"){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 async function searchMastTarget(target){
@@ -153,7 +153,7 @@ async function importMastProduct(item){
     const url="https://mast.stsci.edu/api/v0.1/Download/file?uri="+encodeURIComponent(item.product.dataURI);
     const res=await fetch(url);if(!res.ok)throw Error("MAST file download returned HTTP "+res.status);
     const buffer=await res.arrayBuffer();if(buffer.byteLength<2880)throw Error("The archive returned an empty or invalid FITS file.");
-    const parsed=parseFitsLightCurve(buffer);const filename=(item.product.productFilename||"tess_lightcurve").replace(/\.fits$/i,"").replace(/[^a-z0-9._-]/gi,"_");
+    const parsed=parseFitsLightCurve(buffer);window.__astrolensFitsMeta=parsed.metadata||null;const filename=(item.product.productFilename||"tess_lightcurve").replace(/\.fits$/i,"").replace(/[^a-z0-9._-]/gi,"_");
     downloadTextFile(parsed.csv,filename+"_astrolens.csv");
     const file=new File([parsed.csv],filename+"_astrolens.csv",{type:"text/csv"});selectedCSV=file;$("#lightCurveFile").value="";$("#scanBtn").disabled=false;$("#scanStatus").textContent="Loaded "+parsed.count+" real measurements from "+(item.product.productFilename||"MAST FITS")+" ("+parsed.fluxColumn+"). Click Scan signal to inspect the data.";
     const result=scanLightCurve(parseCSV(parsed.csv));drawRealCurve(parsed.csv);
