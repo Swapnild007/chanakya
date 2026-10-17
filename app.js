@@ -25,6 +25,14 @@ $("#scanBtn").addEventListener("click",async()=>{if(!selectedCSV)return;const bt
 // This is a transparent screening implementation, not the NASA SPOC pipeline.
 // Frequencies are sampled at 1/(baseline × oversampling); candidates need independent vetting.
 function runBLS(csvText){
+  const shared=window.AstroLensFullAnalysisSearch;
+  if(shared){
+    const meta=shared.parseData(csvText),points=meta.points,baseline=points[points.length-1].t-points[0].t;
+    const gaps=[];for(let i=1;i<points.length;i++){const d=points[i].t-points[i-1].t;if(d>0)gaps.push(d);}
+    const cadence=shared.median(gaps),det=shared.detrend(points,1,.5),search=shared.searchBLS(det.points,baseline,cadence);
+    const fluxValues=points.map(p=>p.f).sort((x,y)=>x-y),median=fluxValues[Math.floor(fluxValues.length/2)];
+    return {count:points.length,qualityColumn:meta.qualityColumn,qualityRemoved:meta.qualityRemoved,missingQuality:meta.missingQuality,invalidRows:meta.invalidRows,rejected:meta.rawRows-points.length,baseline,cadence,median,scatter:search.scatter,minP:search.minP,maxP:search.maxP,periodCount:search.nTrial,unique:search.candidates,fluxColumn:meta.fluxColumn,timeColumn:meta.timeColumn,points:det.points.map(p=>({t:p.t,y:p.y}))};
+  }
   const rows=parseCSV(csvText),headers=rows[0].map(v=>v.trim().toLowerCase());
   const ti=colIndex(headers,["time","btjd","bjd","jd"]),fi=colIndex(headers,["flux","pdcsap_flux","sap_flux","relative_flux"]),qi=headers.findIndex(h=>h==="quality"),ei=headers.findIndex(h=>h==="flux_err"||h==="pdcsap_flux_err"||h==="sap_flux_err");
   if(ti<0||fi<0)throw Error("Could not identify time and flux columns.");
