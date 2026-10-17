@@ -12,3 +12,43 @@ body{background:#050b16;color:#edf5ff;font-family:var(--sans)}.cosmos{z-index:-1
 
 /* Scientific BLS screening results */
 .bls-tools{margin-top:18px;padding:16px;border:1px solid rgba(83,210,219,.25);border-radius:14px;background:rgba(5,15,28,.48)}.bls-tools>.primary{width:100%}.bls-summary{padding:12px 0;color:#a5bbce;font-size:12px;line-height:1.65}.bls-summary strong{color:#dff5ff;font-size:14px}.bls-summary p{margin:5px 0}.scan-table-wrap{max-width:100%;overflow-x:auto}.scan-table{min-width:640px}.science-note{font-size:11px;line-height:1.65;color:#8da6bc;margin-top:12px}
+
+
+/* Responsive rescue: Android Chrome can retain a wide layout viewport in desktop-site mode. */
+@media (max-width: 1050px) {
+  .app-shell { display:block !important; grid-template-columns:minmax(0,1fr) !important; max-width:900px; padding:0 10px !important; }
+  .sidebar { position:fixed !important; top:58px !important; left:0 !important; bottom:0 !important; width:min(280px,84vw) !important; height:auto !important; min-height:0 !important; transform:translateX(-110%) !important; display:flex !important; z-index:60 !important; overflow-y:auto; transition:transform .22s ease !important; box-shadow:20px 0 60px #000a !important; }
+  .sidebar.open { transform:translateX(0) !important; }
+  .main-content { min-width:0; padding:0 0 22px !important; }
+  .hero { grid-template-columns:minmax(0,1fr) !important; min-height:0 !important; padding:24px 16px 18px !important; }
+  .hero-copy { position:relative; z-index:3; max-width:100%; }
+  .hero-art { position:absolute !important; right:-35px !important; top:0 !important; width:48% !important; height:100% !important; min-height:220px; opacity:.42 !important; transform:none !important; pointer-events:none; }
+  .metrics { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .candidate-list { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:10px !important; }
+  .analysis-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .analysis-grid > * { grid-column:auto !important; min-width:0; }
+  .command-panels,.method { grid-template-columns:minmax(0,1fr) !important; }
+  .mobile-menu { display:block !important; flex:0 0 auto; }
+  .topbar { position:sticky; top:0; z-index:55; height:58px; padding:0 10px; gap:8px; }
+  .topbar-center { display:none !important; }
+  .topbar-right { margin-left:auto; gap:5px; }
+  .top-search { width:36px; min-width:36px; padding:0; justify-content:center; }
+  .top-search input,.top-search kbd { display:none; }
+  .archive-button { display:none !important; }
+  .mobile-dock { position:fixed; display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; left:8px; right:8px; bottom:max(8px,env(safe-area-inset-bottom)); z-index:45; padding:7px; border:1px solid #2a455c; border-radius:13px; background:#061321ed; box-shadow:0 12px 40px #0009; backdrop-filter:blur(18px); }
+  body { padding-bottom:78px !important; }
+  .candidate-thumb { height:120px !important; overflow:hidden; position:relative; }
+  .candidate-thumb img { display:block !important; width:100% !important; height:100% !important; object-fit:cover !important; position:absolute; inset:0; }
+  .candidate-thumb:before,.candidate-thumb:after { display:none !important; content:none !important; }
+  .candidate-thumb-label { z-index:2; background:#020914c9 !important; border:1px solid #3a5a70; border-radius:4px; }
+  .panel,.command-panel { min-width:0; }
+  .curve-visual,.sky-map { max-width:100%; overflow:hidden; }
+}
+@media (max-width: 420px) {
+  .app-shell { padding:0 8px !important; }
+  .hero h1 { font-size:clamp(32px,9vw,40px) !important; }
+  .hero-actions { grid-template-columns:1fr !important; }
+  .candidate-list { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .candidate-thumb { height:94px !important; }
+  .candidate .reason { min-height:0 !important; }
+}
