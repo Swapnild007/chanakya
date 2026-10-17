@@ -149,27 +149,68 @@
       return best||candidate;
     }).sort((a,b)=>b.snr-a.snr);
   }
-  function injectionRecovery(points,c,trials=600){
-    if(points.length<100||!c||!(c.period>0)||!(c.duration>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
-    const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t),times=ordered.map(p=>p.t),span=times[times.length-1]-times[0];
-    const width=Math.max(c.duration/2,c.period*.003),levels=Array.from({length:30},(_,i)=>({ppm:(i+1)*100,depth:(i+1)*100/1e6,n:0,recovered:0}));
-    const residual=removeCandidateBox(ordered,c);
+  function wilsonInterval(successes,total,z=1.96){
+    if(!(total>0))return {low:null,high:null};
+    const p=successes/total,z2=z*z,den=1+z2/total,center=(p+z2/(2*total))/den;
+    const half=z*Math.sqrt(p*(1-p)/total+z2/(4*total*total))/den;
+    return {low:Math.max(0,center-half),high:Math.min(1,center+half)};
+  }
+  function injectionRecovery(points,c,trialsPerDepth=50,nullTrials=100){
+    if(!points?.length||points.length<100||!c||!(c.period>0)||!(c.duration>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
+    const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t);
+    const times=ordered.map(p=>p.t),t0=times[0],span=times[times.length-1]-t0;
+    const width=Math.max(c.duration/2,c.period*.003),bins=256;
+    const levels=Array.from({length:30},(_,i)=>({ppm:(i+1)*100,depth:(i+1)*100/1e6,n:0,recovered:0,ci95:{low:null,high:null}}));
+    const residual=removeCandidateBox(ordered,c),noise=Math.max(robustSigma(residual.map(p=>p.y)),1e-8);
     let seed=61957;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
-    for(let k=0;k<trials;k++){
-      const level=levels[k%levels.length];level.n++;
-      const epoch=times[0]+rand()*Math.max(span-c.period,0),inside=[],outside=[];
-      for(const p of residual){
-        const phase=Math.abs((((p.t-epoch+c.period/2)/c.period)%1+1)%1-.5);
-        (phase*c.period<=width?inside:outside).push(p.y-(phase*c.period<=width?level.depth:0));
+    const phaseDistance=(a,b)=>{const d=Math.abs(a-b)%1;return Math.min(d,1-d);};
+    function bestAtFixedPeriod(values){
+      const sums=new Float64Array(bins),counts=new Uint32Array(bins);
+      for(let i=0;i<ordered.length;i++){
+        const p=ordered[i];let ph=((p.t-t0)/c.period)%1;if(ph<0)ph++;
+        const b=Math.min(bins-1,Math.floor(ph*bins));sums[b]+=values[i];counts[b]++;
       }
-      const depth=median(outside)-median(inside),noise=Math.max(robustSigma(outside),1e-8);
-      const error=noise*Math.sqrt(1/Math.max(1,inside.length)+1/Math.max(1,outside.length));
-      const snr=depth/Math.max(error,1e-12);
-      if(Number.isFinite(depth)&&depth>=level.depth*.5&&snr>=2)level.recovered++;
+      const ps=new Float64Array(bins*2+1),pc=new Float64Array(bins*2+1);
+      for(let b=0;b<bins*2;b++){ps[b+1]=ps[b]+sums[b%bins];pc[b+1]=pc[b]+counts[b%bins];}
+      const w=Math.max(2,Math.min(Math.floor(bins*.22),Math.round(bins*width/c.period)));
+      let best=null;
+      for(let b=0;b<bins;b++){
+        const ni=pc[b+w]-pc[b],no=ordered.length-ni;if(ni<3||no<20)continue;
+        const si=ps[b+w]-ps[b],depth=(ps[bins]-ps[0]-si)/no-si/ni;
+        const snr=depth/(noise*Math.sqrt(1/ni+1/no));
+        if(!best||snr>best.snr)best={depth,snr,phase:(((b+w/2)/bins)%1),nIn:ni};
+      }
+      return best;
     }
-    levels.forEach(x=>x.fraction=x.n?x.recovered/x.n:null);
-    return {n:trials,recovered:levels.reduce((s,x)=>s+x.recovered,0),fraction:levels.reduce((s,x)=>s+x.recovered,0)/trials,levels,
-      method:"Absolute 100/200/500/1000 ppm injections at randomized epochs; fixed candidate period and duration; recovery is measured at the known injected epoch. This is a local sensitivity diagnostic, not a blind period search or global completeness estimate."};
+    let totalRecovered=0,totalTrials=0,nullFalsePositives=0;
+    for(let k=0;k<Math.max(1,nullTrials);k++){
+      const nullEpoch=t0+rand()*Math.max(span-c.period,0);
+      const nullValues=residual.map(p=>{
+        const phase=Math.abs((((p.t-nullEpoch+c.period/2)/c.period)%1+1)%1-.5);
+        return p.y-(phase*c.period<=width?0:0);
+      });
+      const nullBest=bestAtFixedPeriod(nullValues);
+      if(nullBest&&nullBest.snr>=3&&nullBest.depth>0)nullFalsePositives++;
+    }
+    for(const level of levels){
+      for(let k=0;k<Math.max(1,trialsPerDepth);k++){
+        const epoch=t0+rand()*Math.max(span-c.period,0);
+        const injectedPhase=((epoch-t0)/c.period)%1;
+        const values=residual.map(p=>{
+          let ph=((p.t-epoch+c.period/2)/c.period)%1;if(ph<0)ph++;
+          const inTransit=Math.abs(ph-.5)*c.period<=width;
+          return p.y-(inTransit?level.depth:0);
+        });
+        const found=bestAtFixedPeriod(values);
+        const epochError=found?phaseDistance(found.phase,injectedPhase)*c.period:Infinity;
+        const recovered=!!found&&found.depth>=level.depth*.5&&found.snr>=3&&epochError<=Math.max(c.duration*.5,c.period/bins);
+        level.n++;if(recovered)level.recovered++;
+      }
+      level.fraction=level.recovered/level.n;
+      level.ci95=wilsonInterval(level.recovered,level.n);
+      totalRecovered+=level.recovered;totalTrials+=level.n;
+    }
+    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrials:Math.max(1,nullTrials),nullFalsePositives,falsePositiveRate:nullFalsePositives/Math.max(1,nullTrials),nullFalsePositiveCI95:wilsonInterval(nullFalsePositives,Math.max(1,nullTrials)),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes a no-injection null check and Wilson 95% intervals. It is not blind full-pipeline completeness or a global false-alarm probability."};
   }
   return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
 });
