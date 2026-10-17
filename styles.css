@@ -84,3 +84,6 @@ body{background:#050b16;color:#edf5ff;font-family:var(--sans)}.cosmos{z-index:-1
 }
 @media(max-width:390px){.mobile-dock{left:10px;right:10px;border-radius:22px}.mobile-dock a{font-size:9px;min-height:54px}}
 @media(prefers-reduced-motion:reduce){.mobile-dock .liquid-indicator,.mobile-dock a,.mobile-dock a span{transition:none!important}}
+
+/* The hero contains only real-data entry points; do not reserve space for removed illustrative artwork. */
+.hero{grid-template-columns:minmax(0,1fr)!important;min-height:0!important}
