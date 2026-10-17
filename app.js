@@ -29,7 +29,7 @@ function runBLS(csvText){
   const ti=colIndex(headers,["time","btjd","bjd","jd"]),fi=colIndex(headers,["flux","pdcsap_flux","sap_flux","relative_flux"]),qi=headers.findIndex(h=>h==="quality"),ei=headers.findIndex(h=>h==="flux_err"||h==="pdcsap_flux_err"||h==="sap_flux_err");
   if(ti<0||fi<0)throw Error("Could not identify time and flux columns.");
   let raw=rows.slice(1).map((r,index)=>({t:Number(r[ti]),f:Number(r[fi]),q:qi>=0?Number(r[qi]):0,e:ei>=0?Number(r[ei]):NaN,row:index+2}))
-    .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.f)&&p.f>0&&(!Number.isFinite(p.q)||p.q===0));
+    .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.f)&&p.f>0&&(qi<0?p.q===0:p.q===0));
   if(raw.length<100)throw Error("BLS needs at least 100 valid, quality-screened measurements; found "+raw.length+".");
   raw.sort((a,b)=>a.t-b.t);
   const baseline=raw[raw.length-1].t-raw[0].t;
@@ -60,7 +60,6 @@ function runBLS(csvText){
         const depth=-(sumIn/nIn-(ps[bins]-ps[0])/raw.length);if(depth<=0)continue;
         const snr=depth/scatter*Math.sqrt(nIn*nOut/raw.length);
         // Epoch is the midpoint of the transit window in the original time system.
-        const epoch=raw[0].t+((start+width/2)/bins)/freq;
         const candidate={period,epoch:raw[0].t+((((start+width/2)/bins)%1)/freq),duration:width/bins*period,depth,snr,nIn,cycles:baseline/period,score:snr};if(!bestForPeriod||candidate.score>bestForPeriod.score)bestForPeriod=candidate;
       }
     }
