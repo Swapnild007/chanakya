@@ -31,4 +31,18 @@
  $("#exportCurrentResults")?.addEventListener("click",()=>{const data={note:"This export contains current displayed candidates; demo entries are synthetic and not detections.",candidates:(typeof candidates!=="undefined"?candidates:[]).map(c=>({id:c.id,name:c.name,source:c.sourceLabel||"SYNTHETIC",period:c.period,score:c.score,reason:c.reason,sourceUrl:c.sourceUrl||null}))};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));const a=document.createElement("a");a.href=url;a.download="astrolens-candidate-list.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
  const live=$("#liveBtn");if(live)live.addEventListener("click",()=>setTimeout(()=>{const rows=document.querySelectorAll("#candidateList .candidate");const list=$("#reportList");if(list&&rows.length){const row=document.createElement("div");row.className="report-row";row.innerHTML='<span class="report-bullet">↻</span><div><b>Live NASA TOI catalogue</b><small>'+rows.length+' catalogue records are currently displayed. TOIs are candidates, not confirmations.</small></div><span class="report-status">LOADED</span>';list.prepend(row);}},1500));
  window.addEventListener("resize",drawSky);drawSky();
+ // Add visual thumbnails to candidate cards without altering the underlying scientific records.
+ function decorateCandidates(){
+   document.querySelectorAll("#candidateList .candidate").forEach((card,i)=>{
+     if(card.querySelector(".candidate-thumb"))return;
+     const thumb=document.createElement("div");thumb.className="candidate-thumb";
+     const label=document.createElement("span");label.className="candidate-thumb-label";
+     const source=card.querySelector(".source-tag")?.textContent?.trim()||"SAMPLE";
+     label.textContent=source.toUpperCase();thumb.appendChild(label);card.prepend(thumb);
+   });
+ }
+ const candidateList=$("#candidateList");
+ if(candidateList&&typeof MutationObserver!=="undefined")new MutationObserver(decorateCandidates).observe(candidateList,{childList:true,subtree:false});
+ decorateCandidates();
+
 })();
