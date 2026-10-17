@@ -178,7 +178,7 @@
      const depthRatioForDisplay=best&&Number.isFinite(depthConsistencyForDisplay.weightedMeanDepth)&&Math.abs(depthConsistencyForDisplay.weightedMeanDepth)>1e-12?Math.abs(best.depth/depthConsistencyForDisplay.weightedMeanDepth):null;
      const makeRows=(a)=>a.map((c,i)=>{const st=phaseStats(report.pointsForStats,c);const harm=harmonicNote(c.period,a);const km=knownMatches([c],target)[0];return `<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${depthText(c)}</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(km?.match?km.match[0]+" match":(km?.closest?"closest "+km.closest[0]+" ("+km.closest.delta.toFixed(1)+"%)":"Not checked"))}</td><td>${esc(harm)}</td></tr>`;}).join("");
     const rowsRaw=rawSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${depthText(c)}</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td></tr>`).join("");
-    const rowsDet=detSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${(c.depth*1e6).toFixed(0)} ppm</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(harmonicNote(c.period,detSearch.candidates))}</td></tr>`).join("");
+    const rowsDet=detSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${depthText(c)}</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(harmonicNote(c.period,detSearch.candidates))}</td></tr>`).join("");
     const consistency=best&&phase?phase.dip:NaN;
     const depthConsistency=depthConsistencyForDisplay;
     const processingAgreement=agreement(rawSearch.candidates,detSearch.candidates);
@@ -230,7 +230,7 @@
       const det=detrend(points,baselineWindowDays,.5,maskSeed),detPoints=det.points,detSearch=searchBLS(detPoints,baseline,cadence);
       if(window.AstroLensScienceCore?.denseRefine){const refined=window.AstroLensScienceCore.denseRefine(detPoints,detSearch.candidates.slice(0,3),baseline,.02,201);detSearch.candidates=[...refined,...detSearch.candidates.slice(3)].sort((a,b)=>b.snr-a.snr);detSearch.denseRefinement={windowFraction:.02,steps:201,refinedCandidates:Math.min(3,detSearch.candidates.length)};}
       detSearch.transitMask={applied:!!maskSeed,seedPeriod:maskSeed?.period??null,seedDurationDays:maskSeed?.duration??null,baselineWindowDays,maskedAnchors:det.maskedAnchors,maskFallbackAnchors:det.maskFallbacks,method:"One-pass candidate transit mask before rolling-median baseline fit; exploratory protection, not independent detection."};
-      if(window.AstroLensScienceCore?.denseRefine){const refined=window.AstroLensScienceCore.denseRefine(detPoints,detSearch.candidates.slice(0,3),baseline,.02,201);detSearch.candidates=[...refined,...detSearch.candidates.slice(3)].sort((a,b)=>b.snr-a.snr);detSearch.denseRefinement={windowFraction:.02,steps:201,refinedCandidates:Math.min(3,detSearch.candidates.length)};}
+      
       tick(79);setStatus("Comparing periods, harmonics, known references and phase-folded morphology…");
       const target=$("#mastTarget")?.value||"";
       const rawStats=rawSearch.candidates[0]?phaseStats(rawPoints,rawSearch.candidates[0]):null;
