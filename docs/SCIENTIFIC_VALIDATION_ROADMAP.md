@@ -100,3 +100,46 @@ These are candidate roadmap items, not instructions to implement them immediatel
 - [ ] No scientific conclusion exceeds the available evidence.
 
 **Release rule:** Until the checklist is complete, describe the state as *scientific validation in progress*. Passing automated tests and deployment checks is necessary engineering evidence, but not sufficient scientific validation.
+
+## Engineering and UI assurance charter (NASA-inspired, not a certification claim)
+
+Use NASA's published software assurance, software engineering, planetary-data, and accessibility guidance as reference points for disciplined engineering. This charter is an internal quality target; it does **not** assert that AstroLens is NASA-certified or formally compliant with every NASA standard.
+
+### Engineering assurance
+
+- **Requirements traceability:** For each scientific output, document its input, algorithm, assumptions, units, uncertainty, and test coverage.
+- **Verification before modification:** Reproduce a defect, add a regression test where feasible, review the change, and verify both expected behavior and relevant failure cases.
+- **Controlled change:** Keep this audit branch documentation-only until the real-data gate identifies a specific issue. Do not change `main`, application code, or deployment configuration as part of this roadmap update.
+- **Reproducibility:** Record source revision, input hash, analysis parameters, and the environment or processing mode needed to repeat a result.
+- **Risk-based testing:** Prioritize scientific correctness, data integrity, and misleading-result prevention over cosmetic polish or feature count.
+
+### Mission-control UI principles
+
+- **Information hierarchy:** Make target identity, data provenance, analysis state, candidate evidence, uncertainty, and limitations easy to distinguish.
+- **Readable science first:** Favor legible axes, explicit units, honest uncertainty, sensible chart scales, and visible data gaps over decorative effects.
+- **Focused workspaces:** Keep discovery, light-curve inspection, candidate validation, and evidence/reporting tasks distinct while preserving navigation context.
+- **Precision glassmorphism, restrained:** Use compact translucent surfaces and liquid-style navigation only where they improve hierarchy. Avoid heavy blur, excessive motion, low-contrast text, or effects that compete with scientific plots.
+- **Responsive operation:** Ensure tables, charts, controls, and evidence summaries remain usable on mobile as well as desktop.
+- **Accessible interaction:** Provide keyboard access, visible focus, meaningful labels, adequate contrast, and chart cues that do not rely on color alone. Include clear loading, empty, invalid-data, and failure states.
+- **No false certainty:** Do not use color, badges, animations, or polished presentation to imply a stronger scientific result than the evidence supports.
+
+### UI and engineering review checklist
+
+- [ ] Every important displayed quantity has a defined source and unit.
+- [ ] Uncertainty, missing coverage, quality filtering, and analysis limitations are visible where decisions are made.
+- [ ] Charts remain interpretable with gaps, aliases, and low event coverage.
+- [ ] Keyboard navigation, focus states, labels, contrast, and non-color cues are reviewed.
+- [ ] Mobile layouts preserve scientific context and do not hide critical caveats.
+- [ ] Loading, empty, invalid-input, and error states are deliberate and understandable.
+- [ ] Visual effects do not reduce readability or obscure data.
+- [ ] Any code change is tied to a reproduced issue or an approved requirement and has appropriate regression coverage.
+
+### Reference guidance
+
+- NASA software assurance and software safety: https://sma.nasa.gov/docs/default-source/policies/nasa-std-8739-8b.pdf
+- NASA software engineering requirements and related resources: https://www.nasa.gov/intelligent-systems-division/software-management-office/nasa-software-engineering-procedural-requirements-standards-and-related-resources/
+- NASA accessibility resources: https://www.nasa.gov/section-508-accessibility-at-nasa/
+- NASA Planetary Data System standards overview: https://pds.nasa.gov/datastandards/about/
+
+Apply the guidance proportionately to this browser-based research tool. Do not claim formal compliance without a defined applicability assessment, documented verification, and the appropriate review.
+
