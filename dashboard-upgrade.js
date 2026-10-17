@@ -1,7 +1,7 @@
 /* Adds the sky-field and evidence/report widgets to the existing AstroLens workspace. */
 (() => {
  const $=s=>document.querySelector(s);
- const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-2";document.head.appendChild(style);
+ const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-3";document.head.appendChild(style);
  const nav=document.querySelector(".sidebar");
  if(nav&&!document.querySelector('[data-nav-extra="reports"]')){
    const item=document.createElement("a");item.className="nav-link";item.href="#commandPanels";item.dataset.navExtra="reports";item.innerHTML="<span>⌗</span> Sky Map & Reports";
@@ -92,7 +92,7 @@
    const dock = document.createElement("nav");
    dock.className = "mobile-dock";
    dock.setAttribute("aria-label", "Quick navigation");
-   dock.innerHTML = '<a href="#overview" class="active"><span>⌂</span>Home</a><a href="#explorer"><span>◎</span>Discover</a><a href="#dataLab"><span>⌁</span>Light curve</a><a href="#commandPanels"><span>▦</span>Reports</a>';
+   dock.innerHTML = '<span class="liquid-indicator" aria-hidden="true"></span><a href="#overview" data-workspace-view="overview" class="active" aria-label="Overview"><span>⌂</span>Home</a><a href="#discover" data-workspace-view="discover" aria-label="Discover"><span>⌕</span>Discover</a><a href="#lightcurve" data-workspace-view="lightcurve" aria-label="Light Curve Lab"><span>⌁</span>Light curve</a><a href="#reports" data-workspace-view="reports" aria-label="Reports and Methods"><span>▦</span>Reports</a>';
    document.body.appendChild(dock);
    dock.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
      dock.querySelectorAll("a").forEach(item => item.classList.toggle("active", item === link));
