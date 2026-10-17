@@ -149,6 +149,11 @@
     }
     const identityVerified=sameTic&&Number.isFinite(separationArcsec)&&separationArcsec<=5;
     metadata.push(["Metadata provenance",metaOrigin]);
+    metadata.push(["Mission",fitsMeta.mission??"Unavailable from this input"]);
+    metadata.push(["Object name",fitsMeta.object??"Unavailable from this input"]);
+    metadata.push(["FITS header RA_OBJ",fitsMeta.ra!==null&&fitsMeta.ra!==undefined?String(fitsMeta.ra):"Unavailable from this input"]);
+    metadata.push(["FITS header DEC_OBJ",fitsMeta.dec!==null&&fitsMeta.dec!==undefined?String(fitsMeta.dec):"Unavailable from this input"]);
+    metadata.push(["FLFRCSAP",identityVerified&&fitsMeta.flfrcsap!==null&&fitsMeta.flfrcsap!==undefined?String(fitsMeta.flfrcsap):identityVerified?"Unavailable from this input":"WITHHELD: TIC identity unverified"]);
     metadata.push(["CROWDSAP",identityVerified&&fitsMeta.crowdsap!==null&&fitsMeta.crowdsap!==undefined?String(fitsMeta.crowdsap):identityVerified?"Unavailable from this input":"WITHHELD: TIC identity unverified"]);
     metadata.push(["Stellar radius",identityVerified&&fitsMeta.stellarRadius!==null&&fitsMeta.stellarRadius!==undefined?String(fitsMeta.stellarRadius)+" (source header units)":identityVerified?"Unavailable from this input":"WITHHELD: TIC identity unverified"]);
     metadata.push(["Stellar effective temperature",identityVerified&&fitsMeta.teff!==null&&fitsMeta.teff!==undefined?String(fitsMeta.teff)+" K":identityVerified?"Unavailable from this input":"WITHHELD: TIC identity unverified"]);
