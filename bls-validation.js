@@ -163,7 +163,12 @@
     if(tic)metadata.push(["TIC identifier","TIC "+tic]);
     const sectors=[...new Set([...(fileName||"").matchAll(/s(\d{4})/gi)].map(m=>Number(m[1])))];
     metadata.push(["TESS sector(s)",sectors.length?sectors.map(n=>String(n).padStart(4,"0")).join(", "):"Not embedded in CSV filename"]);
-    metadata.push(["CROWDSAP / stellar radius","Not available in this CSV; fetch target metadata or FITS headers to calculate planet radius"]);
+    const fitsMeta=window.__astrolensFitsMeta||{};
+    metadata.push(["CROWDSAP",fitsMeta.crowdsap!==null&&fitsMeta.crowdsap!==undefined?String(fitsMeta.crowdsap):"Not present in FITS headers"]);
+    metadata.push(["Stellar radius",fitsMeta.stellarRadius!==null&&fitsMeta.stellarRadius!==undefined?String(fitsMeta.stellarRadius)+" (source header units)": "Not present in FITS headers"]);
+    metadata.push(["Stellar effective temperature",fitsMeta.teff!==null&&fitsMeta.teff!==undefined?String(fitsMeta.teff)+" K":"Not present in FITS headers"]);
+    if(fitsMeta.sector!==null&&fitsMeta.sector!==undefined)metadata[1]=["TESS sector(s)",String(fitsMeta.sector)];
+    if(fitsMeta.ticId!==null&&fitsMeta.ticId!==undefined&&!tic)metadata[0]=["TIC identifier","TIC "+fitsMeta.ticId];
     const aliasRows=result.unique.map(c=>{const a=aliasInfo(c.period);return "<tr><td>"+c.period.toFixed(6)+" d</td><td>"+esc(a.label)+"</td><td>"+(a.reference?a.reference.toFixed(6)+" d":"—")+"</td><td>"+(a.error<=.01?(a.error*100).toFixed(2)+"%":"—")+"</td><td>"+(a.type==="known"?"Known-period proximity":a.type==="alias"?"Possible harmonic/half-period alias":"No close ratio")+"</td></tr>";}).join("");
     const eventRows=stats.events.slice(0,12).map(e=>"<tr><td>"+(e.cycle+1)+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(e.depth*1e6).toFixed(0)+" ppm</td></tr>").join("");
     const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenRatio)&&stats.oddEvenRatio>=.5;
@@ -182,10 +187,40 @@
         <article class="blsv-card blsv-wide"><h4>Known-system ratios · tight 1% tolerance</h4><p>Compares every top peak against all seven published TRAPPIST-1 periods. Only exact-period proximity or half/integer ratios within 1% are flagged.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>BLS period</th><th>Nearest relationship</th><th>Reference period</th><th>Deviation</th><th>Interpretation</th></tr></thead><tbody>${hasTrappist?aliasRows:result.unique.map(c=>"<tr><td>"+c.period.toFixed(6)+" d</td><td>Target not recognized as TRAPPIST-1</td><td>—</td><td>—</td><td>Known-system comparison not run</td></tr>").join("")}</tbody></table></div></article>
         <article class="blsv-card blsv-wide"><h4>Detrending sensitivity · fixed candidate periods</h4><p>Depth is re-measured at the same top period after 0.5, 1.0 and 2.0-day rolling-median windows. This tests sensitivity, not a full BLS re-search at every window.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Window</th><th>Primary depth</th><th>In-window points</th><th>Screening result</th></tr></thead><tbody>${modeRows}</tbody></table></div></article>
         <article class="blsv-card blsv-wide"><h4>Individual transit inspection</h4><p>Each small panel shows points around a separate predicted event. Missing coverage, single-event outliers and inconsistent depths should be treated as warning signs.</p><canvas id="blsEventCanvas" style="display:block;width:100%;height:auto" aria-label="Individual transit event panels"></canvas><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Cycle</th><th>Predicted epoch</th><th>Points</th><th>Estimated depth</th></tr></thead><tbody>${eventRows||"<tr><td colspan='4'>No well-sampled individual events at this period.</td></tr>"}</tbody></table></div></article>
-        <article class="blsv-card blsv-wide"><h4>Target metadata & provenance</h4><div class="scan-table-wrap"><table class="scan-table"><tbody>${metadata.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")}<tr><th>Input columns</th><td>${esc(parsed.timeColumn)} / ${esc(parsed.fluxColumn)}${parsed.qualityColumn?" / QUALITY":""}</td></tr><tr><th>Source file</th><td>${esc(fileName||"Local CSV/FITS conversion")}</td></tr></tbody></table></div><p>Stellar radius and CROWDSAP are not guessed from light-curve shape. Obtain target metadata and aperture contamination before converting transit depth into planet radius.</p></article>
+        <article class="blsv-card blsv-wide"><h4>Target metadata & provenance</h4><p>Read from the observation FITS header where available, plus optional TIC catalogue lookup.</p><button id="blsvFetchTic" type="button">Fetch TIC stellar metadata ↗</button><p id="blsvTicStatus" class="science-note">TIC lookup is on demand. It may return multiple nearby stars; verify the identifier and separation.</p><div id="blsvTicDetails"></div><div class="scan-table-wrap"><table class="scan-table"><tbody>${metadata.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")}<tr><th>Input columns</th><td>${esc(parsed.timeColumn)} / ${esc(parsed.fluxColumn)}${parsed.qualityColumn?" / QUALITY":""}</td></tr><tr><th>Source file</th><td>${esc(fileName||"Local CSV/FITS conversion")}</td></tr></tbody></table></div><p>Stellar radius and CROWDSAP are not guessed from light-curve shape. Obtain target metadata and aperture contamination before converting transit depth into planet radius.</p></article>
       </section>`);
     drawEventPanels($("#blsEventCanvas"),points,top,stats);
     drawTransitModel($("#blsFoldCanvas"),top);
+    $("#blsvFetchTic")?.addEventListener("click",fetchTicMetadata);
+  }
+  async function fetchTicMetadata() {
+    const button=$("#blsvFetchTic"),status=$("#blsvTicStatus"),out=$("#blsvTicDetails");
+    if(!button||!status||!out)return;
+    const target=(($("#mastTarget")?.value||"").trim()||$("#lightCurveFile")?.files?.[0]?.name||"");
+    if(!target){status.textContent="Enter a target name or TIC identifier in Light Curve Lab first.";return;}
+    button.disabled=true;button.textContent="Querying MAST TIC…";status.textContent="Resolving target coordinates, then querying the public TESS Input Catalog…";
+    try{
+      const invoke=async payload=>{
+        const url="https://mast.stsci.edu/api/v0/invoke?request="+encodeURIComponent(JSON.stringify(payload));
+        const response=await fetch(url,{headers:{Accept:"application/json"}});
+        if(!response.ok)throw Error("MAST returned HTTP "+response.status);
+        const data=await response.json();
+        if(data.status&&data.status!=="COMPLETE")throw Error(data.msg||"MAST query did not complete.");
+        return data;
+      };
+      const lookup=await invoke({service:"Mast.Name.Lookup",params:{input:target,format:"json"}});
+      const coord=(lookup.resolvedCoordinate||[])[0];
+      if(!coord||!Number.isFinite(Number(coord.ra))||!Number.isFinite(Number(coord.decl)))throw Error("MAST could not resolve this target. Try its TIC identifier.");
+      const response=await invoke({service:"Mast.Catalogs.Tic.Cone",params:{ra:Number(coord.ra),dec:Number(coord.decl),radius:0.003},format:"json",pagesize:50,page:1});
+      const records=response.data||[];
+      if(!records.length)throw Error("No TIC sources were returned within 0.003 degrees of the resolved coordinate.");
+      const selected=records.slice().sort((a,b)=>(Number(a.distance)||Infinity)-(Number(b.distance)||Infinity))[0];
+      const fields=[["TIC ID",selected.ID!==undefined?"TIC "+selected.ID:"Unavailable"],["Separation",selected.distance!==undefined?String(selected.distance)+" (archive distance units)":"Not supplied"],["Stellar radius",selected.rad!==undefined&&selected.rad!==null?String(selected.rad)+" R☉":"Not supplied"],["Stellar mass",selected.mass!==undefined&&selected.mass!==null?String(selected.mass)+" M☉":"Not supplied"],["Effective temperature",selected.Teff!==undefined&&selected.Teff!==null?String(selected.Teff)+" K":"Not supplied"],["TESS magnitude",selected.Tmag!==undefined&&selected.Tmag!==null?String(selected.Tmag):"Not supplied"],["Gaia identifier",selected.GAIA!==undefined?String(selected.GAIA):"Not supplied"],["2MASS identifier",selected.TWOMASS!==undefined?String(selected.TWOMASS):"Not supplied"],["Object type",selected.objType||selected.type||"Not supplied"]];
+      out.innerHTML='<div class="scan-table-wrap"><table class="scan-table"><tbody>'+fields.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")+'</tbody></table></div>';
+      status.textContent="TIC query returned "+records.length+" nearby source(s). The closest row is shown, not automatically asserted to be the correct host star. Verify its identifier and separation.";
+      status.className="science-note";
+    }catch(error){status.textContent="TIC metadata unavailable: "+(error.message||"query failed")+". Existing light-curve diagnostics remain available.";status.className="science-note";}
+    finally{button.disabled=false;button.textContent="Fetch TIC stellar metadata ↗";}
   }
   function drawTransitModel(canvas,c) {
     if(!canvas||!c)return;
