@@ -79,11 +79,6 @@
     const half=Math.max(c.duration/(2*c.period),.003);
     return points.map(p=>({...p,y:p.y+(Math.abs(phaseOf(p.t,c))<=half?c.depth:0)}));
   }
-  function removeCandidateBox(points,c){
-    if(!c||!(c.period>0)||!(c.depth>0))return points.map(p=>({...p}));
-    const half=Math.max(c.duration/(2*c.period),.003);
-    return points.map(p=>({...p,y:p.y+(Math.abs(phaseOf(p.t,c))<=half?c.depth:0)}));
-  }
   function blockBootstrap(points,candidates,trials=199,blockSize=10){
     if(points.length<100||!candidates.length)return {n:0,exceed:0,p:null,observed:NaN,method:"unavailable"};
     const values=points.map(p=>p.y),top=candidates.slice(0,3),observed=scoreAtPeriods(points,values,top),primary=top[0];
@@ -226,7 +221,7 @@
       level.ci95=wilsonInterval(level.recovered,level.n);
       totalRecovered+=level.recovered;totalTrials+=level.n;
     }
-    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrials:Math.max(1,nullTrials),nullFalsePositives,falsePositiveRate:nullFalsePositives/Math.max(1,nullTrials),nullFalsePositiveCI95:wilsonInterval(nullFalsePositives,Math.max(1,nullTrials)),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes a no-injection null check and Wilson 95% intervals. It is not blind full-pipeline completeness or a global false-alarm probability."};
+    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrials:Math.max(1,nullTrials),nullFalsePositives,falsePositiveRate:nullFalsePositives/Math.max(1,nullTrials),nullFalsePositiveCI95:wilsonInterval(nullFalsePositives,Math.max(1,nullTrials)),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes block-shuffled no-injection null trials and Wilson 95% intervals. It is not blind full-pipeline completeness or a global false-alarm probability."};
   }
   return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,tessQualitySummary,TESS_QUALITY_MASK,quickSearch,removeCandidateBox};
 });
