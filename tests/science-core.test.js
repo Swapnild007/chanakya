@@ -29,6 +29,7 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
 {
   const p=synthetic(),candidate={period:2.5,epoch:1000.4,duration:.12,depth:.01};
   const injected=S.injectionRecovery(p,candidate,200);
+  assert.deepEqual(S.injectionRecovery(p,candidate,200),injected,"fixed-seed injection recovery must reproduce exactly");
   assert.equal(injected.n,200);
   assert.equal(injected.levels.reduce((n,x)=>n+x.n,0),200);
   assert.ok(injected.levels.every(x=>x.n>0));
