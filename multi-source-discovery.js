@@ -56,7 +56,7 @@
   function table(rows, maxRows=6) {
     const headers=rows[0], data=rows.slice(1,maxRows+1);
     if(!data.length)return "<p>No matching rows returned for this query.</p>";
-    return '<div class="msh-table-wrap"><table class="msh-table"><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+'</tr></thead><tbody>'+data.map(r=>"<tr>"+headers.map((_,i)=>"<td title=\\""+esc(r[i]||"")+"\\" >"+esc(r[i]||"")+"</td>").join("")+"</tr>").join("")+'</tbody></table></div><small>Showing '+data.length+' of '+Math.max(0,rows.length-1)+' returned rows.</small>';
+    return '<div class="msh-table-wrap"><table class="msh-table"><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+'</tr></thead><tbody>'+data.map(r=>"<tr>"+headers.map((_,i)=>"<td>"+esc(r[i]||"")+"</td>").join("")+"</tr>").join("")+'</tbody></table></div><small>Showing '+data.length+' of '+Math.max(0,rows.length-1)+' returned rows.</small>';
   }
   function adqlNum(n){return Number(n).toFixed(7);}
   async function run(e) {
