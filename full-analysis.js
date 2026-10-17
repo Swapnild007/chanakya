@@ -168,13 +168,15 @@
     const parityConsistent=Number.isFinite(phase?.oddEvenSigma)&&phase.oddN>=3&&phase.evenN>=3&&Math.abs(phase.oddEvenSigma)<3;
     const eventScatterConsistent=Number.isFinite(phase?.eventDepthScatter)&&Number.isFinite(best?.depth)&&phase.usableEvents>=4&&phase.eventDepthScatter<Math.max(best.depth*1.5,1e-5);
     const phaseContrastPresent=Number.isFinite(phase?.dip)&&phase.dip>0;
-    const phaseDipCredible=phaseContrastPresent&&processingAgreement.startsWith("Consistent")&&parityConsistent&&eventScatterConsistent;
+    const formalFapComputed=false;
+    const phaseDipCredible=phaseContrastPresent&&processingAgreement.startsWith("Consistent")&&parityConsistent&&eventScatterConsistent&&depthConsistency.consistent===true&&formalFapComputed;
     const phaseGateReasons=[];
-    phaseGateReasons.push("formal false-alarm significance not computed; no σ claim used");
+    if(!formalFapComputed)phaseGateReasons.push("formal false-alarm probability not computed");
     if(!processingAgreement.startsWith("Consistent"))phaseGateReasons.push("period shifts with processing");
     if(!parityConsistent)phaseGateReasons.push("odd/even consistency not established");
     if(!eventScatterConsistent)phaseGateReasons.push("event depths are too variable or too few are sampled");
-    const judgement="No credible periodic transit established by this run. The leading peaks remain screening hypotheses until a coherent, repeatable dip survives independent vetting.";
+    if(depthConsistency.consistent!==true)phaseGateReasons.push(depthConsistency.consistent===false?"per-event depths are inconsistent with one shared depth":"per-event depth consistency is not computable");
+    const judgement=phaseDipCredible?"The candidate passed the available screening gates, but remains unconfirmed pending independent vetting.":"No credible periodic transit established by this run. Blocking evidence gates: "+[...new Set(phaseGateReasons)].join("; ")+". This verdict is generated from the checklist results.";
     $("#faResults").innerHTML=`
       <div class="fa-verdict"><div><small>PRELIMINARY SCIENTIFIC VERDICT</small><strong>${esc(judgement)}</strong><p>Signal ranking uses a heuristic box-search score, not calibrated BLS power or formal false-alarm significance. A positive result is a follow-up hypothesis, not a planet confirmation.</p></div><button id="faExport" class="secondary">Export report JSON ↓</button></div>
       <div class="fa-columns"><article class="fa-card"><h3>01 · Original flux</h3><p>Median-normalized only, no added rolling baseline. This is the control analysis.</p><div class="fa-table-wrap"><table><thead><tr><th>#</th><th>Period</th><th>Duration</th><th>Depth</th><th>Heuristic score</th><th>Cycles</th></tr></thead><tbody>${rowsRaw||"<tr><td colspan='6'>No candidates returned</td></tr>"}</tbody></table></div></article>
