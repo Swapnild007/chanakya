@@ -17,8 +17,66 @@ $("#liveBtn").addEventListener("click",async()=>{const btn=$("#liveBtn");btn.dis
 $("#demoBtn").addEventListener("click",()=>{candidates=[...DEMO];loadedSource="DEMO · synthetic";$("#dataMode").textContent="Synthetic sample data";$(".stat-mode").textContent="DEMO";$("#sourceNote").textContent="Demo records are synthetic. They do not represent real celestial objects or telescope measurements.";activeFilter="all";document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.filter==="all"));render();setStatus("Showing synthetic demo records. No real telescope data is represented.");});
 $("#searchInput").addEventListener("input",render);document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{activeFilter=b.dataset.filter;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));render()}));$("#closeDialog").addEventListener("click",()=>$("#detailDialog").close());$("#detailDialog").addEventListener("click",e=>{if(e.target===$("#detailDialog"))$("#detailDialog").close()});
 document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("#searchInput").focus();$("#searchInput").select()}if(e.key==="Escape"&&$("#detailDialog").open)$("#detailDialog").close()});
-let selectedCSV=null;$("#lightCurveFile").addEventListener("change",e=>{selectedCSV=e.target.files[0]||null;$("#scanBtn").disabled=!selectedCSV;const isFits=selectedCSV&&/\.fits?$/i.test(selectedCSV.name);$("#scanBtn").textContent=isFits?"Convert & scan →":"Scan signal →";$("#scanStatus").textContent=selectedCSV?"Selected "+selectedCSV.name+" ("+Math.round(selectedCSV.size/1024)+" KB). "+(isFits?"FITS will be converted to CSV locally on this device.":"File stays in your browser."):"Choose a CSV with time and flux columns, or a TESS .fits light curve.";$("#scanResults").innerHTML=""});
+let selectedCSV=null;$("#lightCurveFile").addEventListener("change",e=>{selectedCSV=e.target.files[0]||null;$("#scanBtn").disabled=!selectedCSV;$("#blsBtn").disabled=!selectedCSV;$("#blsResults").innerHTML="";$("#blsStatus").textContent=selectedCSV?"Ready to search periodic transits in this file.":"Import a real light curve first.";const isFits=selectedCSV&&/\.fits?$/i.test(selectedCSV.name);$("#scanBtn").textContent=isFits?"Convert & scan →":"Scan signal →";$("#scanStatus").textContent=selectedCSV?"Selected "+selectedCSV.name+" ("+Math.round(selectedCSV.size/1024)+" KB). "+(isFits?"FITS will be converted to CSV locally on this device.":"File stays in your browser."):"Choose a CSV with time and flux columns, or a TESS .fits light curve.";$("#scanResults").innerHTML=""});
 $("#scanBtn").addEventListener("click",async()=>{if(!selectedCSV)return;const btn=$("#scanBtn");btn.disabled=true;$("#scanStatus").textContent="Reading and scanning locally…";try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds 25 MB limit for browser scanning.");let csvText;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());csvText=converted.csv;const csvName=selectedCSV.name.replace(/\.fits?$/i,"")+"_astrolens.csv";downloadTextFile(csvText,csvName);drawRealCurve(csvText);$("#scanStatus").textContent="Converted "+converted.count+" real measurements from "+selectedCSV.name+" ("+converted.fluxColumn+") to CSV. Scanning locally…";}else{csvText=await selectedCSV.text()}const result=scanLightCurve(parseCSV(csvText));$("#scanStatus").textContent="Scanned "+result.count+" valid measurements. Median flux "+result.median.toPrecision(7)+"; 3-MAD threshold "+result.threshold.toPrecision(7)+". These are outlier flags, not confirmed transits.";const events=result.events;$("#scanResults").innerHTML=events.length?"<p>Low-flux groups with at least 2 consecutive measurements:</p><table class='scan-table'><thead><tr><th>Start time</th><th>End time</th><th>Points</th><th>Dip vs median</th><th>CSV row</th></tr></thead><tbody>"+events.map(e=>"<tr><td>"+e.start.toFixed(6)+"</td><td>"+e.end.toFixed(6)+"</td><td>"+e.points+"</td><td>"+(e.depth===null?"n/a":e.depth.toFixed(5)+"%")+"</td><td>"+e.firstRow+"</td></tr>").join("")+"</tbody></table>":"<div class='empty'>No consecutive low-flux groups crossed the current threshold. This does not rule out a transit.</div>"}catch(e){$("#scanStatus").textContent="Scan failed: "+e.message}finally{btn.disabled=!selectedCSV}});
+
+
+// ── Periodic transit search: binned Box Least Squares (BLS) ────────────────
+// This is a transparent screening implementation, not the NASA SPOC pipeline.
+// Frequencies are sampled at 1/(baseline × oversampling); candidates need independent vetting.
+function runBLS(csvText){
+  const rows=parseCSV(csvText),headers=rows[0].map(v=>v.trim().toLowerCase());
+  const ti=colIndex(headers,["time","btjd","bjd","jd"]),fi=colIndex(headers,["flux","pdcsap_flux","sap_flux","relative_flux"]),qi=headers.findIndex(h=>h==="quality"),ei=headers.findIndex(h=>h==="flux_err"||h==="pdcsap_flux_err"||h==="sap_flux_err");
+  if(ti<0||fi<0)throw Error("Could not identify time and flux columns.");
+  let raw=rows.slice(1).map((r,index)=>({t:Number(r[ti]),f:Number(r[fi]),q:qi>=0?Number(r[qi]):0,e:ei>=0?Number(r[ei]):NaN,row:index+2}))
+    .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.f)&&p.f>0&&(!Number.isFinite(p.q)||p.q===0));
+  if(raw.length<100)throw Error("BLS needs at least 100 valid, quality-screened measurements; found "+raw.length+".");
+  raw.sort((a,b)=>a.t-b.t);
+  const baseline=raw[raw.length-1].t-raw[0].t;
+  if(!(baseline>1))throw Error("Time baseline is too short for a periodic search.");
+  const gaps=[];for(let k=1;k<raw.length;k++){const d=raw[k].t-raw[k-1].t;if(d>0&&Number.isFinite(d))gaps.push(d)}
+  const sortedGaps=[...gaps].sort((a,b)=>a-b),cadence=sortedGaps[Math.floor(sortedGaps.length*.5)]||.02;
+  const fluxSorted=raw.map(p=>p.f).sort((a,b)=>a-b),median=fluxSorted[Math.floor(fluxSorted.length/2)];
+  // Relative flux normalization. PDCSAP is preferred when available; no aggressive detrending is silently applied.
+  raw=raw.map(p=>({...p,y:p.f/median-1}));
+  const norm=raw.map(p=>p.y).sort((a,b)=>a-b),med=norm[Math.floor(norm.length/2)],absdev=norm.map(v=>Math.abs(v-med)).sort((a,b)=>a-b),scatter=Math.max(1.4826*absdev[Math.floor(absdev.length/2)],1e-7);
+  const minP=Math.max(cadence*3,.5),maxP=Math.min(13.0,baseline/2);
+  if(maxP<=minP)throw Error("This time baseline cannot support the configured period range.");
+  const fmin=1/maxP,fmax=1/minP,df=1/(baseline*10),periodCount=Math.min(2500,Math.max(40,Math.floor((fmax-fmin)/df)+1));
+  const bins=512,durations=[.02,.03,.045,.06,.08,.11,.15,.19],results=[];
+  for(let pi=0;pi<periodCount;pi++){
+    const freq=fmin+(fmax-fmin)*pi/(periodCount-1),period=1/freq;
+    const sums=new Float64Array(bins),counts=new Uint32Array(bins);
+    for(const p of raw){let phase=((p.t-raw[0].t)*freq)%1;if(phase<0)phase+=1;const b=Math.min(bins-1,Math.floor(phase*bins));sums[b]+=p.y;counts[b]++}
+    const ps=new Float64Array(bins*2+1),pc=new Float64Array(bins*2+1);
+    for(let b=0;b<bins*2;b++){const j=b%bins;ps[b+1]=ps[b]+sums[j];pc[b+1]=pc[b]+counts[j]}
+    for(const duration of durations){
+      const width=Math.max(2,Math.min(Math.floor(bins*.2),Math.round(bins*duration/period)));
+      if(width>=bins*.25)continue;
+      for(let start=0;start<bins;start++){
+        const nIn=pc[start+width]-pc[start];if(nIn<3)continue;
+        const sumIn=ps[start+width]-ps[start],nOut=raw.length-nIn;if(nOut<20)continue;
+        const depth=-(sumIn/nIn-(ps[bins]-ps[0])/raw.length);if(depth<=0)continue;
+        const snr=depth/scatter*Math.sqrt(nIn*nOut/raw.length);
+        // Epoch is the midpoint of the transit window in the original time system.
+        const epoch=raw[0].t+((start+width/2)/bins)/freq;
+        results.push({period,epoch,duration:width/bins*period,depth,snr,nIn,cycles:baseline/period,score:snr});
+      }
+    }
+  }
+  results.sort((a,b)=>b.score-a.score);
+  const unique=[];
+  for(const r of results){if(unique.every(x=>Math.abs(x.period-r.period)/r.period>.015)){unique.push(r);if(unique.length>=5)break}}
+  return {count:raw.length,rejected:rows.length-1-raw.length,baseline,cadence,median,scatter,minP,maxP,periodCount,unique,fluxColumn:headers[fi]};
+}
+function renderBLSResult(result){
+  const rows=result.unique.map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+r.period.toFixed(6)+' d</td><td>'+r.epoch.toFixed(6)+'</td><td>'+(r.duration*24).toFixed(2)+' h</td><td>'+(r.depth*1e6).toFixed(0)+' ppm</td><td>'+r.snr.toFixed(1)+'</td><td>'+r.cycles.toFixed(2)+'</td></tr>').join('');
+  $("#blsResults").innerHTML='<div class="bls-summary"><strong>Search diagnostics</strong><p>'+result.count.toLocaleString()+' measurements · '+result.baseline.toFixed(3)+' day baseline · '+(result.cadence*24*60).toFixed(2)+' min median cadence · '+result.periodCount+' trial periods.</p><p>Period range: '+result.minP.toFixed(3)+' to '+result.maxP.toFixed(3)+' days. Flux normalized by median; no additional detrending was applied.</p></div><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Rank</th><th>Period</th><th>Epoch (same time basis)</th><th>Duration</th><th>Depth</th><th>Approx. SNR</th><th>Cycles</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="science-note">BLS candidates are hypotheses, not planet detections. Approx. SNR assumes independent white noise and is not a formal false-alarm probability. Inspect the phase-folded curve, quality flags, stellar variability, aliases, odd/even events and known-object catalogues before interpreting a peak.</p>';
+}
+$("#blsBtn")?.addEventListener("click",async()=>{
+  const btn=$("#blsBtn");if(!selectedCSV)return;btn.disabled=true;$("#blsStatus").textContent="Searching trial periods and transit durations. This may take a little while on mobile…";
+  try{if(selectedCSV.size>25*1024*1024)throw Error("File exceeds the 25 MB browser analysis limit.");let textData;if(/\.fits?$/i.test(selectedCSV.name)){const converted=parseFitsLightCurve(await selectedCSV.arrayBuffer());textData=converted.csv}else textData=await selectedCSV.text();const result=runBLS(textData);renderBLSResult(result);$("#blsStatus").textContent="BLS screening completed. Top periodic hypotheses are listed below; none is confirmed.","success";}catch(e){$("#blsStatus").textContent="BLS search failed: "+e.message}finally{btn.disabled=!selectedCSV}
+});
 
 // ── NASA MAST real light-curve import ──────────────────────────────────────
 async function mastRequest(payload){
