@@ -140,7 +140,7 @@
     if(all.length<2){ctx.fillStyle="#8aa6c0";ctx.font="10px monospace";ctx.fillText("Spectrum unavailable",12,24);return;}
     const minF=Math.min(...all.map(p=>p.frequency)),maxF=Math.max(...all.map(p=>p.frequency)),maxS=Math.max(1,...all.map(p=>p.score)),left=38,right=10,top=12,bottom=25,plotW=w-left-right,plotH=h-top-bottom;
     ctx.strokeStyle="#20384d";ctx.fillStyle="#8aa6c0";ctx.font="9px monospace";
-    for(let i=0;i<5;i++){const y=top+plotH*i/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.fillText((maxS*(1-i/4)).toFixed(1),3,y+3);}
+    for(let i=0;i<5;i++){const y=top+plotH*i/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();}ctx.save();ctx.translate(11,top+plotH/2);ctx.rotate(-Math.PI/2);ctx.fillStyle="#8aa6c0";ctx.fillText("Heuristic score (uncalibrated)",0,0);ctx.restore();
     for(const item of series){const data=item.data.slice().filter(p=>Number.isFinite(p.frequency)&&Number.isFinite(p.score)).sort((a,b)=>a.frequency-b.frequency);ctx.strokeStyle=item.color;ctx.lineWidth=1.15;ctx.beginPath();let begun=false;for(const p of data){const x=left+(p.frequency-minF)/Math.max(maxF-minF,1e-12)*plotW,y=top+(1-p.score/maxS)*plotH;if(!begun){ctx.moveTo(x,y);begun=true;}else ctx.lineTo(x,y);}ctx.stroke();}
     ctx.fillStyle="#8aa6c0";ctx.fillText(minF.toFixed(2),left,h-7);ctx.fillText(maxF.toFixed(2)+" cycles/day",Math.max(left+30,w-115),h-7);
     ctx.fillStyle="#7bb8ff";ctx.fillRect(left,2,7,3);ctx.fillText("Original",left+11,7);ctx.fillStyle="#4ce0d2";ctx.fillRect(left+72,2,7,3);ctx.fillText("Transit-masked",left+83,7);
@@ -173,11 +173,13 @@
       ["Processing agreement",agreement(rawSearch.candidates,detSearch.candidates),"Cross-mode consistency"]
     ];
     $("#faSummary").innerHTML=summary.map(x=>`<article><small>${esc(x[0])}</small><strong>${esc(x[1])}</strong><span>${esc(x[2])}</span></article>`).join("");
-    const makeRows=(a)=>a.map((c,i)=>{const st=phaseStats(report.pointsForStats,c);const harm=harmonicNote(c.period,a);const km=knownMatches([c],target)[0];return `<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${(c.depth*1e6).toFixed(0)} ppm</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(km?.match?km.match[0]+" match":(km?.closest?"closest "+km.closest[0]+" ("+km.closest.delta.toFixed(1)+"%)":"Not checked"))}</td><td>${esc(harm)}</td></tr>`;}).join("");
-    const rowsRaw=rawSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${(c.depth*1e6).toFixed(0)} ppm</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td></tr>`).join("");
+    const depthConsistencyForDisplay=window.AstroLensScienceCore?.eventDepthConsistency?window.AstroLensScienceCore.eventDepthConsistency(phase):{consistent:null};
+     const depthText=c=>depthConsistencyForDisplay.consistent===true?(c.depth*1e6).toFixed(0)+" ppm":"WITHHELD · event depths inconsistent";
+     const makeRows=(a)=>a.map((c,i)=>{const st=phaseStats(report.pointsForStats,c);const harm=harmonicNote(c.period,a);const km=knownMatches([c],target)[0];return `<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${depthText(c)}</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(km?.match?km.match[0]+" match":(km?.closest?"closest "+km.closest[0]+" ("+km.closest.delta.toFixed(1)+"%)":"Not checked"))}</td><td>${esc(harm)}</td></tr>`;}).join("");
+    const rowsRaw=rawSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${depthText(c)}</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td></tr>`).join("");
     const rowsDet=detSearch.candidates.map((c,i)=>`<tr><td>${i+1}</td><td>${c.period.toFixed(6)} d</td><td>${(c.duration*24).toFixed(2)} h</td><td>${(c.depth*1e6).toFixed(0)} ppm</td><td>${c.snr.toFixed(1)}</td><td>${c.cycles.toFixed(1)}</td><td>${esc(harmonicNote(c.period,detSearch.candidates))}</td></tr>`).join("");
     const consistency=best&&phase?phase.dip:NaN;
-    const depthConsistency=window.AstroLensScienceCore?.eventDepthConsistency?window.AstroLensScienceCore.eventDepthConsistency(phase):{n:0,chiSquare:null,degreesFreedom:0,reducedChiSquare:null,consistent:null};
+    const depthConsistency=depthConsistencyForDisplay;
     const processingAgreement=agreement(rawSearch.candidates,detSearch.candidates);
     const parityConsistent=Number.isFinite(phase?.oddEvenSigma)&&phase.oddN>=3&&phase.evenN>=3&&Math.abs(phase.oddEvenSigma)<3;
     const eventScatterConsistent=Number.isFinite(phase?.eventDepthScatter)&&Number.isFinite(best?.depth)&&phase.usableEvents>=4&&phase.eventDepthScatter<Math.max(best.depth*1.5,1e-5);
