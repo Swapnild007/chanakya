@@ -2,6 +2,14 @@
    Diagnostics are deliberately labelled as screening tests, not planet confirmation. */
 (() => {
   const $ = s => document.querySelector(s);
+  const style=document.createElement("style");
+  style.textContent=`
+  .blsv-panel{margin-top:16px;padding:clamp(13px,2vw,20px);border:1px solid #8ad9f52b;border-radius:19px;background:linear-gradient(145deg,#102638c9,#081523ed 60%,#0a1422e8);box-shadow:inset 0 1px #ffffff16,0 16px 42px #0003;-webkit-backdrop-filter:blur(20px) saturate(135%);backdrop-filter:blur(20px) saturate(135%)}
+  .blsv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}.blsv-kicker{color:#76dce6;font:10px 'DM Mono',monospace;letter-spacing:.12em}.blsv-head h3{margin:7px 0;font-size:clamp(18px,2.4vw,24px);letter-spacing:-.03em;color:#e3f4ff}.blsv-head p,.blsv-card p{margin:5px 0 0;color:#91aabe;font-size:12px;line-height:1.6}.blsv-chip{flex:none;border:1px solid #65d8ce38;border-radius:999px;padding:7px 9px;color:#8ce4d7;font:9px 'DM Mono',monospace}
+  .blsv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.blsv-card{min-width:0;padding:13px;border-radius:14px;border:1px solid #a5dfff1b;background:linear-gradient(140deg,#c9f1ff0b,#ffffff03);box-shadow:inset 0 1px #ffffff0d}.blsv-card>small{display:block;color:#7e9eb5;font:9px 'DM Mono',monospace;letter-spacing:.08em}.blsv-card>strong{display:block;color:#dffaff;font-size:20px;margin-top:8px;overflow-wrap:anywhere}.blsv-card h4{margin:0 0 6px;color:#d7effc;font-size:14px}.blsv-wide{margin-top:10px}.blsv-card .scan-table-wrap{max-width:100%;overflow:auto;margin-top:10px}.blsv-card .scan-table{min-width:500px}.blsv-card canvas{max-width:100%}
+  @media(max-width:600px){.blsv-panel{padding:12px;border-radius:17px;margin-top:12px}.blsv-head{display:block}.blsv-chip{display:inline-block;margin-top:9px}.blsv-grid{gap:8px}.blsv-card{padding:10px}.blsv-card>strong{font-size:17px}.blsv-card p{font-size:11px}.blsv-card .scan-table{min-width:470px}}
+  `;
+  document.head.appendChild(style);
   const median = values => {
     if (!values.length) return NaN;
     const a = [...values].sort((x,y)=>x-y), m=Math.floor(a.length/2);
@@ -112,17 +120,17 @@
   }
   const known=[{name:"TRAPPIST-1 b",period:1.510826},{name:"TRAPPIST-1 c",period:2.421937},{name:"TRAPPIST-1 d",period:4.049219},{name:"TRAPPIST-1 e",period:6.101013},{name:"TRAPPIST-1 f",period:9.207540},{name:"TRAPPIST-1 g",period:12.352446},{name:"TRAPPIST-1 h",period:18.772866}];
   function aliasInfo(period) {
+    const exact=known.map(p=>({...p,error:Math.abs(period-p.period)/p.period})).sort((a,b)=>a.error-b.error)[0];
+    if(exact&&exact.error<=.01)return {type:"known",label:exact.name,error:exact.error,reference:exact.period,ratio:period/exact.period};
     let best={error:Infinity,label:"No near-integer alias",ratio:null,reference:null};
     for(const planet of known){
       const ratio=period/planet.period;
-      for(const target of [.5,1,1.5,2,3]){
+      for(const target of [.5,1.5,2,3]){
         const error=Math.abs(ratio-target)/target;
         if(error<best.error)best={error,label:planet.name+" × "+target,ratio,reference:planet.period};
       }
     }
     if(best.error<=.01)return {type:"alias",...best};
-    const exact=known.map(p=>({...p,error:Math.abs(period-p.period)/p.period})).sort((a,b)=>a.error-b.error)[0];
-    if(exact&&exact.error<=.01)return {type:"known",label:exact.name,error:exact.error,reference:exact.period,ratio:period/exact.period};
     return {type:"none",label:"No match within 1%",error:best.error,reference:best.reference,ratio:best.ratio};
   }
   function drawEventPanels(canvas,points,c,stats) {
@@ -141,7 +149,9 @@
     });
   }
   function render(result,csvText,fileName) {
+    window.__astrolensLastBLS=result;
     const host=$("#blsResults");if(!host||!result?.unique?.length)return;
+    host.querySelectorAll(".bls-summary").forEach(el=>{if(el.textContent.includes("Known-system period comparison"))el.remove();});
     let parsed;try{parsed=parse(csvText);}catch(e){host.insertAdjacentHTML("beforeend",'<p class="science-note">'+esc(e.message)+'</p>');return;}
     const points=result.points,top=result.unique[0],stats=foldMetrics(points,top),nullTest=permutationTest(points,result.unique);
     const modes=[.5,1,2].map(w=>{const p=detrend(parsed.good,w),m=foldMetrics(p,top);return {window:w,...m};});
