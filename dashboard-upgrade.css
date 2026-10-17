@@ -222,3 +222,6 @@ footer{border-top:1px solid #20364a}
 }
 @media(max-width:390px){body .mobile-dock{left:10px;right:10px;border-radius:22px}body .mobile-dock a{font-size:9px;min-height:54px}}
 @media(prefers-reduced-motion:reduce){body .mobile-dock .liquid-indicator,body .mobile-dock a,body .mobile-dock a span{transition:none!important}}
+
+/* Keep the evidence desk compact after removing the illustrative sky field. */
+.command-panels.command-reports{display:block;grid-template-columns:minmax(0,1fr)}
