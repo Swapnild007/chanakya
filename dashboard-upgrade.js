@@ -1,7 +1,7 @@
 /* Evidence report panel. No synthetic sky positions or decorative candidate imagery. */
 (() => {
   const $=s=>document.querySelector(s);
-  const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-5";document.head.appendChild(style);
+  const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-6";document.head.appendChild(style);
   const nav=document.querySelector(".sidebar");
   if(nav&&!document.querySelector('[data-nav-extra="reports"]')){
     const item=document.createElement("a");item.className="nav-link";item.href="#commandPanels";item.dataset.navExtra="reports";item.innerHTML="<span>▦</span> Reports & Validation";
