@@ -1,7 +1,7 @@
 /* Adds the sky-field and evidence/report widgets to the existing AstroLens workspace. */
 (() => {
  const $=s=>document.querySelector(s);
- const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-1";document.head.appendChild(style);
+ const style=document.createElement("link");style.rel="stylesheet";style.href="dashboard-upgrade.css?v=command-center-2";document.head.appendChild(style);
  const nav=document.querySelector(".sidebar");
  if(nav&&!document.querySelector('[data-nav-extra="reports"]')){
    const item=document.createElement("a");item.className="nav-link";item.href="#commandPanels";item.dataset.navExtra="reports";item.innerHTML="<span>⌗</span> Sky Map & Reports";
