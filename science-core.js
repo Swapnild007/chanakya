@@ -210,7 +210,7 @@
         const nullEpoch=t0+rand()*Math.max(span-c.period,0);
         const nullPhase=((nullEpoch-t0)/c.period)%1;
         const nullEpochError=nullBest?phaseDistance(nullBest.phase,nullPhase)*c.period:Infinity;
-        const falseMatch=!!nullBest&&nullBest.depth>=level.depth*.5&&nullBest.snr>=3&&nullEpochError<=Math.max(c.duration*.5,c.period/bins);
+        const falseMatch=!!nullBest&&nullBest.depth>=Math.max(500e-6,3*noise*Math.sqrt(1/Math.max(1,nullBest.nIn)+1/Math.max(1,ordered.length-nullBest.nIn)))&&nullBest.snr>=3&&nullEpochError<=Math.max(c.duration*.5,c.period/bins);
         if(falseMatch)level.nullFalsePositives++;
       }
     }
@@ -225,7 +225,7 @@
         });
         const found=bestAtFixedPeriod(values);
         const epochError=found?phaseDistance(found.phase,injectedPhase)*c.period:Infinity;
-        const recovered=!!found&&found.depth>=level.depth*.5&&found.snr>=3&&epochError<=Math.max(c.duration*.5,c.period/bins);
+        const recovered=!!found&&found.depth>=Math.max(500e-6,3*noise*Math.sqrt(1/Math.max(1,found.nIn)+1/Math.max(1,ordered.length-found.nIn)))&&found.snr>=3&&epochError<=Math.max(c.duration*.5,c.period/bins);
         level.n++;if(recovered)level.recovered++;
       }
       level.fraction=level.recovered/level.n;
@@ -233,7 +233,7 @@
       const nullRow=nullStats.find(n=>n.ppm===level.ppm);level.nullFalsePositives=nullRow.nullFalsePositives;level.nullTrials=nullRow.nullTrials;level.nullFalseMatchRate=level.nullFalsePositives/level.nullTrials;level.nullFalseMatchCI95=wilsonInterval(level.nullFalsePositives,level.nullTrials);level.excessRecoveryRate=Math.max(0,level.fraction-level.nullFalseMatchRate);level.aboveNull=level.ci95.low>level.nullFalseMatchCI95.high;
       totalRecovered+=level.recovered;totalTrials+=level.n;
     }
-    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrialsPerDepth:Math.max(1,nullTrials),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes block-shuffled no-injection trials evaluated with the same depth, score, and randomized-epoch matching rule at each depth; reports recovery and null-match Wilson 95% intervals. Sensitivity is not established where intervals overlap. This is not blind full-pipeline completeness or a global false-alarm probability."};
+    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrialsPerDepth:Math.max(1,nullTrials),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"fixed minimum recovered depth ≥ max(500 ppm, 3× approximate depth uncertainty), identical for every injection level and null trial",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes block-shuffled no-injection trials evaluated with the same fixed minimum depth, score, and randomized-epoch matching rule at every depth; reports recovery and null-match Wilson 95% intervals. Sensitivity is not established where intervals overlap. This is not blind full-pipeline completeness or a global false-alarm probability."};
   }
   return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,tessQualitySummary,TESS_QUALITY_MASK,quickSearch,removeCandidateBox};
 });
