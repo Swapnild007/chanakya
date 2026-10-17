@@ -43,3 +43,164 @@ body{background-color:#030813;background-image:radial-gradient(ellipse at 77% 0%
 @media(max-width:1250px){.app-shell{grid-template-columns:178px minmax(0,1fr)}.analysis-grid{grid-template-columns:minmax(0,1.1fr) minmax(250px,.9fr)}.analysis-grid>.command-panel{grid-column:1/-1}.sky-map{height:210px}.report-list{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr .65fr}.hero-art{transform:scale(.8);margin-left:-55px}.candidate-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.app-shell{display:block;padding:0 8px}.hero{padding:24px 14px 16px}.hero h1{font-size:36px}.hero-art{right:-92px;top:0;opacity:.32}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.candidate-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.candidate{padding-bottom:10px}.candidate-thumb{height:80px}.candidate-thumb:before{width:62px;height:62px;right:12px;top:10px}.candidate-thumb:after{width:105px;height:40px;top:22px}.candidate .candidate-top{display:block}.candidate .candidate-top .pill{display:inline-flex;margin-top:5px}.candidate h3{font-size:11px;min-height:0}.candidate-meta{grid-template-columns:1fr}.reason{font-size:9px}.analysis-grid{display:grid;grid-template-columns:1fr;gap:9px}.analysis-grid>.command-panel{grid-column:auto}.curve-visual canvas{height:175px}.dossier-orb{height:150px}.command-panels.command-reports{margin-top:10px}.report-list{grid-template-columns:1fr}.report-row{align-items:center}.sky-map{height:210px}.method{padding:14px}.method-cards{grid-template-columns:1fr}.workspace-actions{align-items:flex-start}.filter-pills{flex-wrap:wrap}.sort-note{display:none}}
 @media(max-width:390px){.candidate-list{grid-template-columns:1fr}.candidate-thumb{height:90px}.candidate-meta{grid-template-columns:1fr 1fr}.hero h1{font-size:33px}.hero-actions{align-items:stretch}.hero-actions>*{flex:1}.brand-name{font-size:14px}.metric-card{padding:9px}.metric-card>strong{font-size:22px}}
+
+
+/* Observatory finish pass: unified visual rhythm, real NASA artwork, and mobile ergonomics */
+:root{--obs-panel:#081626;--obs-panel-2:#0a1d30;--obs-border:#243f58;--obs-cyan:#73d8ff;--obs-mint:#83efd9;--obs-muted:#91a8bf}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{background:radial-gradient(ellipse at 72% 4%,#123d6026,transparent 35%),radial-gradient(ellipse at 8% 30%,#0d4c4920,transparent 30%),#030813}
+.topbar{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 1px 0 #b5d9ff05;z-index:30}
+.top-search{transition:border-color .2s,background .2s, width .2s}
+.top-search:focus-within{border-color:#4c9fc5;background:#0b2034;box-shadow:0 0 0 3px #58c6ff10}
+.hero{position:relative;isolation:isolate;background:linear-gradient(105deg,#061321fa 0%,#061321ed 42%,#0716269c 100%);box-shadow:0 22px 55px #00000016}
+.hero:after{content:"";position:absolute;inset:auto 0 0;height:1px;background:linear-gradient(90deg,transparent,#67d7ff55,#86eddb22,transparent);z-index:-1}
+.hero-art{border:1px solid #86cfff24;border-radius:12px;background-image:linear-gradient(90deg,#04101c24,#04101c12),url("https://assets.science.nasa.gov/content/dam/science/psd/photojournal/pia/pia26/pia26601/PIA26601.jpg");background-size:cover;background-position:center 44%;box-shadow:inset 0 0 70px #0208148c,0 18px 55px #0005;overflow:hidden}
+.hero-art:before{content:"";position:absolute;inset:0;width:auto;height:auto;border-radius:0;background:linear-gradient(90deg,#0613216b,transparent 45%,#06132115),linear-gradient(0deg,#030813d9,transparent 34%,#03081344);filter:none;z-index:-1}
+.hero-art .planet,.hero-art .planet-halo,.hero-art .orbit,.hero-art .planet-moon,.hero-art .orbit-point,.hero-art .planet-callout{display:none}
+.hero-art .art-label{left:14px;right:14px;z-index:2;color:#d6eaff}
+.hero-art .art-label-top{top:14px}
+.hero-art .art-label-bottom{bottom:14px}
+.hero-art .art-label span{padding:6px 8px;border:1px solid #b7dfff24;background:#06132188;border-radius:4px;backdrop-filter:blur(8px)}
+.sidebar{background:linear-gradient(180deg,#050d19,#040a13);border-right-color:#21364b}
+.nav-link{transition:background .18s,border-color .18s,color .18s;min-height:39px}
+.nav-link.active{box-shadow:inset 2px 0 #70dfff}
+.metric-card,.candidate,.panel,.command-panels.command-reports>.command-panel,.method{box-shadow:0 12px 35px #00000015,inset 0 1px #ffffff04}
+.metric-card{transition:transform .18s,border-color .18s}
+.metric-card:hover{transform:translateY(-2px);border-color:#365b77}
+.metric-card .metric-icon{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;background:#123047;color:#80dfff}
+.metric-protocol .metric-icon{background:#21213c}
+.section-head{align-items:flex-end}
+.section-head h2{letter-spacing:-.055em}
+.candidate-list{align-items:stretch}
+.candidate{display:flex;flex-direction:column;min-height:100%;padding:0 0 13px;overflow:hidden;border-color:#213950;background:linear-gradient(155deg,#0a1b2c,#050e19)}
+.candidate-thumb{height:116px;position:relative;isolation:isolate;overflow:hidden;background:#071525;border-bottom:1px solid #29445a}
+.candidate-thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 43%;filter:saturate(.82) contrast(1.05);transition:transform .45s,filter .45s}
+.candidate:hover .candidate-thumb img{transform:scale(1.045);filter:saturate(1.02) contrast(1.06)}
+.candidate-thumb:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,#06101dec,transparent 70%),linear-gradient(90deg,#06101c55,transparent 65%);pointer-events:none}
+.candidate-thumb:after{content:none}
+.candidate-thumb-label{position:absolute;z-index:2;left:10px;bottom:9px;font:7px var(--mono);letter-spacing:.11em;color:#e1f4ff;background:#061321a8;border:1px solid #9bc9e33b;border-radius:4px;padding:5px 6px;backdrop-filter:blur(8px)}
+.candidate-top,.candidate .score-row,.candidate-meta,.candidate .reason{margin-left:13px;margin-right:13px}
+.candidate-top{margin-top:12px;align-items:flex-start}
+.candidate h3{font-size:13px;line-height:1.4;letter-spacing:-.02em}
+.candidate .score-row{margin-top:12px}
+.candidate .meter{background:#162b3e}
+.candidate .meter i{background:linear-gradient(90deg,#4aa7d3,#7cebd7)}
+.candidate-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.candidate-meta span{padding:5px 6px;border:1px solid #1d354a;border-radius:4px;background:#071321;color:#9cb2c8;font-size:8px}
+.candidate .reason{margin-top:11px;color:#a7bbce;font-size:10px;line-height:1.65}
+.candidate .pill{white-space:nowrap}
+.disclaimer{border:1px solid #263e53;background:#081625;border-radius:7px;padding:10px 12px}
+.analysis-grid{align-items:stretch;gap:12px}
+.analysis-grid>.panel,.analysis-grid>.command-panel{min-width:0}
+.analysis-grid .panel-head{min-height:74px}
+.analysis-grid .panel-head h2{letter-spacing:-.045em}
+.curve-visual{box-shadow:inset 0 0 25px #0003}
+.mast-import{border-radius:9px}
+.mast-import-controls .primary{white-space:nowrap}
+.detail-panel{position:relative;overflow:hidden}
+.detail-panel:before{content:"OBJECT PROFILE";position:absolute;right:14px;top:14px;font:7px var(--mono);letter-spacing:.12em;color:#5f7f99}
+.detail-grid strong{line-height:1.5}
+.dossier-orb{background-image:linear-gradient(0deg,#02081333,#02081333),url("https://images-assets.nasa.gov/image/PIA17043/PIA17043~medium.jpg");background-position:center;background-size:cover}
+.dossier-planet,.dossier-orbit{display:none}
+.command-panels.command-reports{margin-top:14px}
+.command-panels.command-reports>.command-panel{border-radius:10px}
+.command-panel-head{margin-bottom:12px}
+.report-row{transition:border-color .2s,background .2s}
+.report-row:hover{border-color:#355671;background:#08192a}
+.report-row .report-status{padding:5px 6px;border:1px solid #3c5364;border-radius:4px;background:#091827}
+.command-actions button{min-height:34px}
+.method{margin-top:28px}
+.method-cards article{border-radius:8px;transition:transform .2s,border-color .2s}
+.method-cards article:hover{transform:translateY(-2px);border-color:#365773}
+.source-links a{border-bottom:1px solid #3d8197;padding-bottom:3px}
+footer{border-top:1px solid #20364a}
+.mobile-dock{display:none}
+.search-open.top-search{position:relative;width:min(420px,55vw);border:1px solid #4c9fc5;background:#0a1c2e}
+.search-open.top-search input{display:block;position:absolute;inset:0;width:100%;padding:0 30px;background:#0a1c2e;border-radius:8px;z-index:2}
+.search-open.top-search>span{display:none}
+@media(max-width:1250px){
+ .hero{grid-template-columns:1.05fr .8fr}
+ .hero-art{transform:none;margin-left:0;height:260px}
+ .analysis-grid{grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr)}
+ .analysis-grid>.command-panel{grid-column:1/-1}
+ .analysis-grid>.command-panel .sky-map{height:200px}
+ .candidate-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ html{scroll-padding-top:70px}
+ body{padding-bottom:72px}
+ .topbar{position:sticky;top:0;padding:0 10px;gap:7px}
+ .topbar .brand-name small{letter-spacing:.08em}
+ .topbar-right{gap:4px}
+ .top-search{width:34px;height:36px;position:relative;overflow:visible;padding:5px;cursor:pointer}
+ .top-search input{display:none}
+ .top-search.search-open{width:42px;flex:0 0 42px;padding:5px}
+ .top-search.search-open input{display:block;position:fixed;left:10px;right:10px;top:66px;width:calc(100vw - 20px);height:43px;padding:0 12px;border:1px solid #3d7897;box-shadow:0 12px 32px #0008;z-index:45}
+ .top-search kbd{display:none}
+ .archive-button{display:none}
+ .app-shell{padding:0 8px}
+ .hero{padding:23px 14px 15px;min-height:0;overflow:hidden}
+ .hero-copy{position:relative;z-index:3;max-width:100%}
+ .hero h1{font-size:clamp(33px,9vw,40px);max-width:360px}
+ .hero-description{max-width:320px}
+ .hero-art{right:-35px;top:0;width:52%;height:100%;min-height:230px;opacity:.5;border:0;border-left:1px solid #75c9ee22;border-radius:0 0 10px 0;background-position:55% center}
+ .hero-art:before{z-index:0}
+ .hero-proof{position:relative;z-index:3;max-width:300px}
+ .metrics{gap:8px;margin:10px 0 25px}
+ .metric-card{min-height:100px;padding:11px}
+ .metric-card .metric-head{gap:6px}
+ .metric-label{line-height:1.4}
+ .section-head{margin-bottom:13px}
+ .section-head h2{font-size:27px}
+ .workspace-actions{gap:8px}
+ .filter-pills{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+ .filter{padding:8px 3px;font-size:9px}
+ .candidate-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .candidate{padding-bottom:11px}
+ .candidate-thumb{height:90px}
+ .candidate-thumb-label{left:6px;bottom:6px;font-size:6px;padding:4px}
+ .candidate-top,.candidate .score-row,.candidate-meta,.candidate .reason{margin-left:9px;margin-right:9px}
+ .candidate-top{margin-top:9px;display:block}
+ .candidate-top .pill{display:inline-flex;margin-top:6px}
+ .candidate h3{font-size:11px;min-height:31px}
+ .candidate .score-row{margin-top:8px}
+ .candidate .score{font-size:17px}
+ .candidate-meta{display:grid;grid-template-columns:1fr;gap:4px}
+ .candidate-meta span{font-size:7px;padding:4px}
+ .candidate .reason{font-size:9px;line-height:1.5;margin-top:8px}
+ .analysis-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+ .analysis-grid>.command-panel{grid-column:auto}
+ .panel{margin:0;padding:12px}
+ .panel-head h2{font-size:21px}
+ .panel-head p{line-height:1.6}
+ .curve-visual canvas{height:170px}
+ .dossier-orb{height:140px}
+ .command-panels.command-reports{margin:10px 0 18px}
+ .command-panel{padding:12px}
+ .report-list{grid-template-columns:1fr}
+ .report-row{align-items:center}
+ .sky-map{height:195px}
+ .method{margin-top:15px;padding:14px}
+ .method-cards{grid-template-columns:1fr}
+ .mobile-dock{position:fixed;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:35;padding:7px;border:1px solid #2a455c;border-radius:13px;background:#061321ed;box-shadow:0 12px 40px #0009;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+ .mobile-dock a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:45px;text-decoration:none;color:#8fa9c1;border-radius:8px;font-size:8px}
+ .mobile-dock a span{font-size:17px;line-height:1}
+ .mobile-dock a.active{background:#123147;color:#83e1ff}
+ .sidebar{z-index:40}
+}
+@media(max-width:390px){
+ .brand-name{font-size:13px}
+ .hero h1{font-size:32px}
+ .hero-actions{display:grid;grid-template-columns:1fr}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .candidate-list{grid-template-columns:1fr}
+ .candidate-thumb{height:120px}
+ .candidate-top{display:flex}
+ .candidate h3{min-height:0;font-size:12px}
+ .candidate-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .candidate .reason{font-size:10px}
+ .filter-pills{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

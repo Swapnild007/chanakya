@@ -46,3 +46,81 @@
  decorateCandidates();
 
 })();
+
+/* Final interaction pass: mobile search, compact dock, accessible nav state, and image fallbacks. */
+(() => {
+ const $ = s => document.querySelector(s);
+ const menu = $("#mobileMenu"), sidebar = $("#sidebar");
+ if (menu && sidebar) {
+   const syncMenu = () => menu.setAttribute("aria-expanded", String(sidebar.classList.contains("open")));
+   syncMenu();
+   menu.addEventListener("click", syncMenu);
+   document.querySelectorAll(".sidebar .nav-link").forEach(link => link.addEventListener("click", () => {
+     sidebar.classList.remove("open"); syncMenu();
+   }));
+   document.addEventListener("click", e => {
+     if (window.innerWidth <= 760 && sidebar.classList.contains("open") && !sidebar.contains(e.target) && !menu.contains(e.target)) {
+       sidebar.classList.remove("open"); syncMenu();
+     }
+   });
+ }
+ const search = $(".top-search"), input = $("#searchInput");
+ if (search && input) {
+   search.addEventListener("click", e => {
+     if (window.innerWidth > 760 || e.target === input) return;
+     e.preventDefault();
+     search.classList.add("search-open");
+     input.style.display = "block";
+     input.focus();
+   });
+   input.addEventListener("blur", () => {
+     if (window.innerWidth <= 760 && !input.value.trim()) {
+       search.classList.remove("search-open");
+       input.style.display = "";
+     }
+   });
+   document.addEventListener("keydown", e => {
+     if (e.key === "Escape") {
+       search.classList.remove("search-open");
+       input.style.display = "";
+       input.blur();
+     }
+   });
+ }
+ const main = $(".main-content");
+ if (main && !$(".mobile-dock")) {
+   const dock = document.createElement("nav");
+   dock.className = "mobile-dock";
+   dock.setAttribute("aria-label", "Quick navigation");
+   dock.innerHTML = '<a href="#overview" class="active"><span>⌂</span>Home</a><a href="#explorer"><span>◎</span>Discover</a><a href="#dataLab"><span>⌁</span>Light curve</a><a href="#commandPanels"><span>▦</span>Reports</a>';
+   document.body.appendChild(dock);
+   dock.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
+     dock.querySelectorAll("a").forEach(item => item.classList.toggle("active", item === link));
+   }));
+ }
+ const artwork = [
+  {url:"https://assets.science.nasa.gov/content/dam/science/psd/photojournal/pia/pia26/pia26601/PIA26601.jpg",alt:"NASA artist concept of a young exoplanet and warped debris disk"},
+  {url:"https://photojournal.jpl.nasa.gov/jpeg/PIA22069.jpg",alt:"NASA artist concept of the rocky exoplanet 55 Cancri e"},
+  {url:"https://images-assets.nasa.gov/image/PIA17043/PIA17043~medium.jpg",alt:"NASA artist concept of Europa's icy surface"}
+ ];
+ function decorate() {
+   document.querySelectorAll("#candidateList .candidate").forEach((card,i) => {
+     const thumb=card.querySelector(".candidate-thumb");
+     if(!thumb)return;
+     let img=thumb.querySelector("img");
+     if(!img){
+       img=document.createElement("img");
+       img.loading="lazy";img.decoding="async";
+       img.src=artwork[i%artwork.length].url;
+       img.alt=artwork[i%artwork.length].alt;
+       img.addEventListener("error",()=>{img.remove();thumb.classList.add("artwork-fallback")},{once:true});
+       thumb.prepend(img);
+     }
+     const label=thumb.querySelector(".candidate-thumb-label");
+     if(label)label.textContent="NASA ARTWORK · ILLUSTRATIVE";
+   });
+ }
+ const list=$("#candidateList");
+ if(list && typeof MutationObserver!=="undefined")new MutationObserver(decorate).observe(list,{childList:true,subtree:false});
+ decorate();
+})();
