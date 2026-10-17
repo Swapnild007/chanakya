@@ -10,6 +10,10 @@ AstroLens already has a substantial browser-based foundation: catalogue access, 
 
 The next milestone should be **evidence-backed validation of the existing pipeline**, not feature expansion. Unit tests on synthetic data establish repeatability for selected functions; they do not establish scientific performance on real observations.
 
+## Latest audit artifact
+
+The supplied CSV's structural integrity and sampling profile are recorded in [`TESS_SECTOR70_INPUT_AUDIT.md`](./TESS_SECTOR70_INPUT_AUDIT.md). Its SHA-256 is `177eceb34c8cbf6220385f3f279f444766ed2abc335067036021bcaa3181e1be`. This confirms input structure, not candidate validity. The end-to-end pipeline regression remains open because the next gate requires capturing the actual pipeline outputs on this exact input and comparing them with a reproducible run.
+
 ## Current implementation observed in the repository
 
 - `science-core.js` centralizes residual summaries, event statistics, event-depth consistency, TESS quality handling, candidate depth summaries, injection-recovery, and block-resampled diagnostics.
