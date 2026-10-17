@@ -41,6 +41,15 @@
     const eventDepthScatter=robustSigma(usable.map(e=>e.depth));
     return {events,oddDepth,evenDepth,oddN:odd.length,evenN:even.length,oddErr,evenErr,oddEvenSigma,oddEvenRatio:ratio,primaryDepth:depthFor(primary),primarySigma:depthFor(primary)/Math.max(errFor(primary),1e-12),primaryN:primary.length,secondaryDepth,secondarySigma,secondaryN:secondary.length,baseline,noise,eventDepthScatter,usableEvents:usable.length,totalExpectedEvents:cycles.length};
   }
+  function residualSummary(points){
+    const values=(points||[]).filter(p=>Number.isFinite(p.y)).map(p=>p.y);
+    return {count:values.length,meanPpm:values.length?values.reduce((a,b)=>a+b,0)/values.length*1e6:null,medianPpm:values.length?median(values)*1e6:null};
+  }
+  function candidateDepthSummary(points,c){
+    const stats=eventStats(points,c),consistency=eventDepthConsistency(stats);
+    const ratio=Number.isFinite(c?.depth)&&Number.isFinite(consistency.weightedMeanDepth)&&Math.abs(consistency.weightedMeanDepth)>1e-12?Math.abs(c.depth/consistency.weightedMeanDepth):null;
+    return {stats,consistency,searchToEventMeanRatio:ratio,residual:residualSummary(points)};
+  }
   function aliasInfo(period,target){
     if(!/trappist\s*[- ]?1|tic\s*278892590/i.test(String(target||"")))return {type:"not-run",label:"Target not identified as TRAPPIST-1",error:null,reference:null};
     const exact=KNOWN.map(p=>({...p,error:Math.abs(period-p.period)/p.period})).sort((a,b)=>a.error-b.error)[0];
@@ -200,18 +209,19 @@
     let totalRecovered=0,totalTrials=0;
     const blockSize=10,blocks=[];
     for(let i=0;i<residual.length;i+=blockSize)blocks.push(residual.slice(i,i+blockSize).map(p=>p.y));
-    let nullFalsePositives=0;
-    for(let k=0;k<Math.max(1,nullTrials);k++){
-      const order=blocks.slice();
-      for(let i=order.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
-      const nullValues=order.flat().slice(0,ordered.length),nullBest=bestAtFixedPeriod(nullValues);
-      const nullEpoch=t0+rand()*Math.max(span-c.period,0),nullPhase=((nullEpoch-t0)/c.period)%1;
-      const nullEpochError=nullBest?phaseDistance(nullBest.phase,nullPhase)*c.period:Infinity;
-      const fixedDepthFloor=Math.max(500e-6,3*noise*Math.sqrt(1/Math.max(1,nullBest?.nIn||1)+1/Math.max(1,ordered.length-(nullBest?.nIn||1))));
-      const falseMatch=!!nullBest&&nullBest.depth>=fixedDepthFloor&&nullBest.snr>=3&&nullEpochError<=Math.max(c.duration*.5,c.period/bins);
-      if(falseMatch)nullFalsePositives++;
-    }
+    const nNull=Math.max(1,nullTrials),nInRef=Math.max(3,Math.min(ordered.length-20,Math.round(ordered.length*(2*width/c.period))));
+    const fixedDepthFloor=Math.max(500e-6,3*noise*Math.sqrt(1/nInRef+1/(ordered.length-nInRef)));
     for(const level of levels){
+      let nullFalsePositives=0;
+      for(let k=0;k<nNull;k++){
+        const order=blocks.slice();
+        for(let i=order.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
+        const nullValues=order.flat().slice(0,ordered.length),nullBest=bestAtFixedPeriod(nullValues);
+        const nullEpoch=t0+rand()*Math.max(span-c.period,0),nullPhase=((nullEpoch-t0)/c.period)%1;
+        const nullEpochError=nullBest?phaseDistance(nullBest.phase,nullPhase)*c.period:Infinity;
+        const nullMatch=!!nullBest&&nullBest.depth>=fixedDepthFloor&&nullBest.snr>=3&&nullEpochError<=Math.max(c.duration*.5,c.period/bins);
+        if(nullMatch)nullFalsePositives++;
+      }
       for(let k=0;k<Math.max(1,trialsPerDepth);k++){
         const epoch=t0+rand()*Math.max(span-c.period,0);
         const injectedPhase=((epoch-t0)/c.period)%1;
@@ -222,15 +232,15 @@
         });
         const found=bestAtFixedPeriod(values);
         const epochError=found?phaseDistance(found.phase,injectedPhase)*c.period:Infinity;
-        const recovered=!!found&&found.depth>=Math.max(500e-6,3*noise*Math.sqrt(1/Math.max(1,found.nIn)+1/Math.max(1,ordered.length-found.nIn)))&&found.snr>=3&&epochError<=Math.max(c.duration*.5,c.period/bins);
+        const recovered=!!found&&found.depth>=fixedDepthFloor&&found.snr>=3&&epochError<=Math.max(c.duration*.5,c.period/bins);
         level.n++;if(recovered)level.recovered++;
       }
       level.fraction=level.recovered/level.n;
       level.ci95=wilsonInterval(level.recovered,level.n);
-      level.nullFalsePositives=nullFalsePositives;level.nullTrials=Math.max(1,nullTrials);level.nullFalseMatchRate=level.nullFalsePositives/level.nullTrials;level.nullFalseMatchCI95=wilsonInterval(level.nullFalsePositives,level.nullTrials);level.excessRecoveryRate=Math.max(0,level.fraction-level.nullFalseMatchRate);level.aboveNull=level.ci95.low>level.nullFalseMatchCI95.high;
+      level.nullFalsePositives=nullFalsePositives;level.nullTrials=nNull;level.nullFalseMatchRate=nullFalsePositives/nNull;level.nullFalseMatchCI95=wilsonInterval(nullFalsePositives,nNull);level.excessRecoveryRate=Math.max(0,level.fraction-level.nullFalseMatchRate);level.aboveNull=level.ci95.low>level.nullFalseMatchCI95.high;
       totalRecovered+=level.recovered;totalTrials+=level.n;
     }
-    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrialsPerDepth:Math.max(1,nullTrials),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"fixed minimum recovered depth ≥ max(500 ppm, 3× approximate depth uncertainty), identical for every injection level and null trial",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes one shared set of block-shuffled no-injection trials and randomized epochs reused at every depth, with the same fixed minimum depth and score rule; reports recovery and null-match Wilson 95% intervals. Null-match rate is therefore constant across rows by design. Sensitivity is not established where intervals overlap. This is not blind full-pipeline completeness or a global false-alarm probability."};
+    return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrialsPerDepth:Math.max(1,nullTrials),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"one fixed absolute minimum recovered depth, computed once from the original candidate-excluded residuals and applied unchanged to injections and null trials at every depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Runs a fresh block-shuffled no-injection null set at each depth, using the same fixed absolute depth floor and score rule as injected trials; reports recovery and null-match Wilson 95% intervals. Null-match rates should be broadly comparable, with finite-sample variation. Sensitivity is not established where intervals overlap. This is not blind full-pipeline completeness or a global false-alarm probability."};
   }
-  return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,tessQualitySummary,TESS_QUALITY_MASK,quickSearch,removeCandidateBox};
+  return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,tessQualitySummary,TESS_QUALITY_MASK,quickSearch,removeCandidateBox,residualSummary,candidateDepthSummary};
 });
