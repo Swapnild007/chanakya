@@ -20,7 +20,7 @@ function synthetic(period=2.5, depth=.01, duration=.12, baseline=40, cadence=.02
   assert.ok(stats.events.every(e=>e.n>0),"each expected event has points");
   const quality=S.tessQualitySummary([0,1,2,4,8,16,32,64,128,175,256,NaN]);
   assert.equal(quality.mask,175);
-  assert.equal(quality.rejected,8,"default mask excludes values sharing one or more masked TESS bits");
+  assert.equal(quality.rejected,7,"default mask excludes values sharing one or more masked TESS bits");
   assert.equal(quality.missing,1);
   assert.ok(quality.bits.some(b=>b.name==="Manual exclude"&&b.count>=2));
 }
