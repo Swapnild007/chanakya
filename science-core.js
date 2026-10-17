@@ -52,6 +52,22 @@
     }
     return best.error<=.01?{type:"alias",...best}:{type:"none",...best,label:"No match within 1%"};
   }
+  const TESS_QUALITY_MASK=175;
+  const TESS_QUALITY_BITS=[
+    {bit:1,name:"Attitude tweak"},{bit:2,name:"Safe mode"},{bit:4,name:"Coarse point"},{bit:8,name:"Earth point"},
+    {bit:16,name:"Argabrightening"},{bit:32,name:"Desaturation"},{bit:64,name:"Cosmic ray in aperture"},
+    {bit:128,name:"Manual exclude"},{bit:256,name:"Discontinuity"},{bit:512,name:"Stray light"},
+    {bit:1024,name:"Low sky level"},{bit:2048,name:"Rolling band 1"},{bit:4096,name:"Rolling band 2"},
+    {bit:8192,name:"Rolling band 3"},{bit:16384,name:"Rolling band 4"},{bit:32768,name:"Rolling band 5"}
+  ];
+  function tessQualitySummary(values,mask=TESS_QUALITY_MASK){
+    const valid=values.filter(v=>Number.isFinite(Number(v))).map(v=>Number(v)>>>0);
+    const missing=values.length-valid.length;
+    const rejected=valid.filter(v=>(v&mask)!==0).length;
+    const retained=valid.length-rejected;
+    const bits=TESS_QUALITY_BITS.map(b=>({...b,count:valid.filter(v=>(v&b.bit)!==0).length,excludedByDefaultMask:(mask&b.bit)!==0})).filter(b=>b.count>0);
+    return {mask,valid:valid.length,missing,rejected,retained,bits,policy:"TESS default quality bitmask 175; excluded if (QUALITY & 175) !== 0. Per-bit counts overlap and must not be summed."};
+  }
   function qualitySummary(rows,headers){
     const h=headers.map(x=>String(x).trim().toLowerCase()),qi=h.findIndex(x=>x==="quality");
     let finite=0,flagged=0,missingQuality=0;
@@ -212,5 +228,5 @@
     }
     return {n:totalTrials,recovered:totalRecovered,fraction:totalRecovered/totalTrials,levels,nullTrials:Math.max(1,nullTrials),nullFalsePositives,falsePositiveRate:nullFalsePositives/Math.max(1,nullTrials),nullFalsePositiveCI95:wilsonInterval(nullFalsePositives,Math.max(1,nullTrials)),matchingRule:{period:"held fixed at the leading candidate period; not re-searched",epoch:"recovered epoch must be within half the assumed duration (or one phase bin)",depth:"recovered depth ≥ 50% of injected depth",snr:"fixed-period box score ≥ 3",noise:"robust scatter estimated from candidate-box-subtracted residuals"},method:"Seeded fixed-period, fixed-duration epoch-search sensitivity test; 30 absolute depth levels from 100 to 3000 ppm, each searched over phase bins. Includes a no-injection null check and Wilson 95% intervals. It is not blind full-pipeline completeness or a global false-alarm probability."};
   }
-  return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,quickSearch,removeCandidateBox};
+  return {KNOWN,median,robustSigma,phaseOf,eventStats,eventDepthConsistency,denseRefine,aliasInfo,blockBootstrap,injectionRecovery,qualitySummary,tessQualitySummary,TESS_QUALITY_MASK,quickSearch,removeCandidateBox};
 });
