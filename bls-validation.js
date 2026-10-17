@@ -205,11 +205,17 @@
       const lookup=await invoke({service:"Mast.Name.Lookup",params:{input:target,format:"json"}});
       const coord=(lookup.resolvedCoordinate||[])[0];
       if(!coord||!Number.isFinite(Number(coord.ra))||!Number.isFinite(Number(coord.decl)))throw Error("MAST could not resolve this target. Try its TIC identifier.");
+      window.__astrolensResolvedCoordinate={ra:Number(coord.ra),dec:Number(coord.decl),name:coord.canonicalName||target};
       const response=await invoke({service:"Mast.Catalogs.Tic.Cone",params:{ra:Number(coord.ra),dec:Number(coord.decl),radius:0.003},format:"json",pagesize:50,page:1});
       const records=response.data||[];
       if(!records.length)throw Error("No TIC sources were returned within 0.003 degrees of the resolved coordinate.");
       const expectedTic=(target.match(/tic\s*[-_ ]?(\d+)/i)||[])[1]||null;
       const exact=expectedTic?records.find(r=>String(r.ID)===expectedTic):null;
+      const fits=window.__astrolensFitsMeta||{},headerTic=fits.ticId!==null&&fits.ticId!==undefined?String(fits.ticId).replace(/^0+/,""):null;
+      const headerRa=Number(fits.ra),headerDec=Number(fits.dec),resolvedRa=Number(coord.ra),resolvedDec=Number(coord.decl);
+      let headerSeparationArcsec=null;
+      if(fits.ra!==null&&fits.ra!==undefined&&fits.dec!==null&&fits.dec!==undefined&&[headerRa,headerDec,resolvedRa,resolvedDec].every(Number.isFinite)){const rad=Math.PI/180,cos=Math.sin(headerDec*rad)*Math.sin(resolvedDec*rad)+Math.cos(headerDec*rad)*Math.cos(resolvedDec*rad)*Math.cos((headerRa-resolvedRa)*rad);headerSeparationArcsec=Math.acos(Math.max(-1,Math.min(1,cos)))/rad*3600;}
+      const identityOk=!!expectedTic&&!!exact&&!!headerTic&&headerTic===expectedTic&&Number.isFinite(headerSeparationArcsec)&&headerSeparationArcsec<=5;
       const selected=exact||(!expectedTic?records.slice().sort((a,b)=>(Number(a.distance)||Infinity)-(Number(b.distance)||Infinity))[0]:null);
       if(!selected){
         out.innerHTML='<p class="science-note">No exact TIC '+esc(expectedTic)+' row was returned. Nearby catalogue sources are not substituted as the host star.</p>';
@@ -217,11 +223,10 @@
         status.className="science-note";
         return;
       }
-      const separation=selected.distance!==undefined&&selected.distance!==null&&Number.isFinite(Number(selected.distance))?String(selected.distance)+" (MAST distance field; verify units in target page)":"Not supplied; separation unverified";
-      const fields=[["TIC ID",selected.ID!==undefined?"TIC "+selected.ID:"Unavailable"],["Identity check",expectedTic?(exact?"Exact requested TIC ID match":"Not verified"):"Nearest cone source only; target identity not verified"],["Separation",separation],["Stellar radius",selected.rad!==undefined&&selected.rad!==null?String(selected.rad)+" R☉":"Not supplied"],["Stellar mass",selected.mass!==undefined&&selected.mass!==null?String(selected.mass)+" M☉":"Not supplied"],["Effective temperature",selected.Teff!==undefined&&selected.Teff!==null?String(selected.Teff)+" K":"Not supplied"],["TESS magnitude",selected.Tmag!==undefined&&selected.Tmag!==null?String(selected.Tmag):"Not supplied"],["Gaia identifier",selected.GAIA!==undefined?String(selected.GAIA):"Not supplied"],["2MASS identifier",selected.TWOMASS!==undefined?String(selected.TWOMASS):"Not supplied"],["Object type",selected.objType||selected.type||"Not supplied"]];
+      const separation=Number.isFinite(headerSeparationArcsec)?headerSeparationArcsec.toFixed(2)+" arcsec from FITS header coordinates":"Not computed; FITS header coordinates unavailable";
+      const fields=[["TIC ID",selected.ID!==undefined?"TIC "+selected.ID:"Unavailable"],["Identity check",expectedTic?(exact?"Exact requested TIC ID match":"Not verified"):"Nearest cone source only; target identity not verified"],["Separation",separation],["Stellar radius",identityOk&&selected.rad!==undefined&&selected.rad!==null?String(selected.rad)+" R☉":identityOk?"Not supplied":"WITHHELD: TIC/header coordinates not verified"],["Stellar mass",identityOk&&selected.mass!==undefined&&selected.mass!==null?String(selected.mass)+" M☉":identityOk?"Not supplied":"WITHHELD: TIC/header coordinates not verified"],["Effective temperature",identityOk&&selected.Teff!==undefined&&selected.Teff!==null?String(selected.Teff)+" K":identityOk?"Not supplied":"WITHHELD: TIC/header coordinates not verified"],["TESS magnitude",identityOk&&selected.Tmag!==undefined&&selected.Tmag!==null?String(selected.Tmag):identityOk?"Not supplied":"WITHHELD: TIC/header coordinates not verified"],["Gaia identifier",selected.GAIA!==undefined?String(selected.GAIA):"Not supplied"],["2MASS identifier",selected.TWOMASS!==undefined?String(selected.TWOMASS):"Not supplied"],["Object type",selected.objType||selected.type||"Not supplied"]];
       out.innerHTML='<div class="scan-table-wrap"><table class="scan-table"><tbody>'+fields.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")+'</tbody></table></div>';
-      const sepOk=selected.distance!==undefined&&selected.distance!==null&&Number.isFinite(Number(selected.distance));
-      status.textContent=expectedTic?(exact&&sepOk?"Exact TIC ID match returned by MAST and a separation field is present. Verify the separation on the MAST target page before using stellar parameters.":"TIC identity/separation is not fully verified. Do not use these stellar parameters to infer planet radius yet."):"MAST returned "+records.length+" nearby source(s). The nearest is displayed for inspection only; its identity as the host star is not verified.";
+      status.textContent=identityOk?"TIC ID matches the requested ID and FITS header TICID; computed header-to-resolved-coordinate separation is "+headerSeparationArcsec.toFixed(2)+" arcsec (≤ 5 arcsec). Stellar parameters may be inspected with the source provenance.": "TIC identity is unverified: exact requested TIC, FITS header TICID, and ≤ 5 arcsec header-coordinate agreement are all required. Stellar parameters remain withheld.";
       status.className="science-note";
       status.className="science-note";
     }catch(error){status.textContent="TIC metadata unavailable: "+(error.message||"query failed")+". Existing light-curve diagnostics remain available.";status.className="science-note";}
