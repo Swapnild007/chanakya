@@ -165,7 +165,7 @@
   async function fetchTicMetadata(targetOverride) {
     const button=$("#blsvFetchTic"),status=$("#blsvTicStatus"),out=$("#blsvTicDetails");
     if(!button||!status||!out)return;
-    const target=(($("#mastTarget")?.value||"").trim()||$("#lightCurveFile")?.files?.[0]?.name||"");
+    const target=(targetOverride||($("#mastTarget")?.value||"").trim()||$("#lightCurveFile")?.files?.[0]?.name||"");
     if(!target){status.textContent="Enter a target name or TIC identifier in Light Curve Lab first.";return;}
     button.disabled=true;button.textContent="Querying MAST TIC…";status.textContent="Resolving target coordinates, then querying the public TESS Input Catalog…";
     try{
