@@ -124,7 +124,7 @@
     const depthConsistency=window.AstroLensScienceCore?.eventDepthConsistency?window.AstroLensScienceCore.eventDepthConsistency(stats):{n:0,chiSquare:null,degreesFreedom:0,reducedChiSquare:null,consistent:null};
     const core=window.AstroLensScienceCore;
     const nullTest=core?core.blockBootstrap(points,result.unique,199,10):{p:null,n:0,exceed:0};
-    const injection=core?core.injectionRecovery(points,top,600):{n:0,levels:[],fraction:null};
+    const injection=core?core.injectionRecovery(points,top,50,100):{n:0,levels:[],fraction:null};
     const modes=[.5,1,2].map(w=>{const p=detrend(parsed.good,w),search=core?core.quickSearch(p,result.minP,result.maxP,result.baseline,300):{candidates:[],trialCount:0};if(core?.denseRefine&&search.candidates.length)search.candidates=core.denseRefine(p,search.candidates.slice(0,1),result.baseline,.02,201);const lead=search.candidates[0]||null;return {window:w,points:p,search,lead,depth:lead?.depth??NaN,snr:lead?.snr??NaN,period:lead?.period??NaN,agrees:!!lead&&Math.abs(lead.period-top.period)/top.period<=.02};});
     const target=(($("#mastTarget")?.value||"")+" "+(fileName||"")).toLowerCase();
     const hasTrappist=/trappist\s*[- ]?1|tic\s*278892590/.test(target);
@@ -161,7 +161,7 @@
     const eventRows=stats.events.map(e=>"<tr><td>"+e.cycle+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(Number.isFinite(e.depth)?(e.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(e.uncertainty)?(e.uncertainty*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+e.status+"</td></tr>").join("");
     const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenSigma)&&Math.abs(stats.oddEvenSigma)<3;
     const secondaryFlag=Number.isFinite(stats.secondaryDepth)&&stats.secondaryDepth>0&&stats.secondarySnr>=3;
-    const pText=nullTest.p===null?"Unavailable":nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" block-resampled maxima)";
+    const pText=nullTest.p===null?"Not computed":nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" restricted block-resampled maxima; not a global FAP)";
     const modeRows=modes.map(m=>"<tr><td>"+m.window.toFixed(1)+" d</td><td>"+(Number.isFinite(m.period)?m.period.toFixed(5)+" d":"No peak")+"</td><td>"+(Number.isFinite(m.depth)?(m.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(m.snr)?m.snr.toFixed(1):"—")+"</td><td>"+m.search.trialCount+"</td><td>"+(m.agrees?"Within 2% of leading period":"Period shifted / no match")+"</td></tr>").join("");
     const injectionRows=injection.levels.map(x=>"<tr><td>"+x.ppm+" ppm</td><td>"+x.recovered+"/"+x.n+"</td><td>"+(Number.isFinite(x.fraction)?(x.fraction*100).toFixed(1)+"%":"—")+"</td><td>"+(Number.isFinite(x.ci95?.low)?(x.ci95.low*100).toFixed(1)+"–"+(x.ci95.high*100).toFixed(1)+"%":"—")+"</td></tr>").join("");
     host.insertAdjacentHTML("beforeend",`
