@@ -60,29 +60,9 @@
   }
   function phaseOf(t,c) { return (((t-c.epoch+c.period/2)/c.period)%1+1)%1-.5; }
   function foldMetrics(points,c) {
-    const half=Math.max(c.duration/(2*c.period),.003);
-    const primary=points.filter(p=>Math.abs(phaseOf(p.t,c))<=half);
-    const secondary=points.filter(p=>Math.abs(Math.abs(phaseOf(p.t,c))-.5)<=half);
-    const outside=points.filter(p=>Math.abs(phaseOf(p.t,c))>Math.max(half*2,.04)&&Math.abs(Math.abs(phaseOf(p.t,c))-.5)>Math.max(half*2,.04)).map(p=>p.y);
-    const level=median(outside),primaryDepth=primary.length&&outside.length?level-median(primary.map(p=>p.y)):NaN;
-    const secondaryDepth=secondary.length&&outside.length?level-median(secondary.map(p=>p.y)):NaN;
-    const sigma=Math.max(robustSigma(outside),1e-7);
-    const cycles=new Map();
-    for(const p of points){
-      const cycle=Math.round((p.t-c.epoch)/c.period);
-      const center=c.epoch+cycle*c.period;
-      if(Math.abs(p.t-center)>Math.max(c.duration*.75,c.period*.003))continue;
-      if(!cycles.has(cycle))cycles.set(cycle,[]);
-      cycles.get(cycle).push(p.y);
-    }
-    const events=[...cycles.entries()].map(([cycle,ys])=>({cycle,epoch:c.epoch+cycle*c.period,n:ys.length,depth:level-median(ys)}))
-      .filter(e=>e.n>=2&&Number.isFinite(e.depth)).sort((a,b)=>a.epoch-b.epoch);
-    const enough=events.filter(e=>e.n>=3);
-    const odd=enough.filter(e=>Math.abs(e.cycle%2)===1).map(e=>e.depth);
-    const even=enough.filter(e=>Math.abs(e.cycle%2)===0).map(e=>e.depth);
-    const oddDepth=median(odd),evenDepth=median(even);
-    const ratio=Number.isFinite(oddDepth)&&Number.isFinite(evenDepth)&&Math.max(oddDepth,evenDepth)>0?Math.min(oddDepth,evenDepth)/Math.max(oddDepth,evenDepth):NaN;
-    return {primaryN:primary.length,secondaryN:secondary.length,primaryDepth,secondaryDepth,secondarySnr:secondaryDepth/(sigma/Math.sqrt(Math.max(1,secondary.length))),oddDepth,evenDepth,oddN:odd.length,evenN:even.length,oddEvenRatio:ratio,events,level,sigma};
+    const shared=window.AstroLensScienceCore?.eventStats(points,c);
+    if(!shared)return {events:[],primaryN:0,secondaryN:0,primaryDepth:NaN,secondaryDepth:NaN,secondarySnr:NaN,oddDepth:NaN,evenDepth:NaN,oddN:0,evenN:0,oddEvenRatio:NaN,oddEvenSigma:NaN,level:NaN,sigma:NaN};
+    return {...shared,secondarySnr:shared.secondarySigma,level:shared.baseline,sigma:shared.noise};
   }
   function scoreAtPeriods(points,values,candidates) {
     const nBins=128,scatter=Math.max(robustSigma(values),1e-7);
@@ -107,17 +87,6 @@
     }
     return best;
   }
-  function permutationTest(points,candidates) {
-    if(points.length<100||!candidates.length)return {observed:NaN,p:null,n:0,exceed:0};
-    const top=candidates.slice(0,3),values=points.map(p=>p.y),observed=scoreAtPeriods(points,values,top),trial=values.slice();
-    let seed=1729,exceed=0;const permutations=24;
-    const random=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
-    for(let k=0;k<permutations;k++){
-      for(let i=trial.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[trial[i],trial[j]]=[trial[j],trial[i]];}
-      if(scoreAtPeriods(points,trial,top)>=observed)exceed++;
-    }
-    return {observed,p:(1+exceed)/(permutations+1),n:permutations,exceed};
-  }
   const known=[{name:"TRAPPIST-1 b",period:1.510826},{name:"TRAPPIST-1 c",period:2.421937},{name:"TRAPPIST-1 d",period:4.049219},{name:"TRAPPIST-1 e",period:6.101013},{name:"TRAPPIST-1 f",period:9.207540},{name:"TRAPPIST-1 g",period:12.352446},{name:"TRAPPIST-1 h",period:18.772866}];
   function aliasInfo(period) {
     const exact=known.map(p=>({...p,error:Math.abs(period-p.period)/p.period})).sort((a,b)=>a.error-b.error)[0];
@@ -134,11 +103,11 @@
     return {type:"none",label:"No match within 1%",error:best.error,reference:best.reference,ratio:best.ratio};
   }
   function drawEventPanels(canvas,points,c,stats) {
-    if(!canvas||!stats.events.length)return;
-    const box=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.max(300,box.width||600),cols=2,cellW=(w-30)/cols,cellH=92,rows=Math.ceil(Math.min(8,stats.events.length)/cols),h=rows*cellH+8;
+    const plotted=stats.events.filter(e=>e.n>0).slice(0,8);if(!canvas||!plotted.length)return;
+    const box=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.max(300,box.width||600),cols=2,cellW=(w-30)/cols,cellH=92,rows=Math.ceil(plotted.length/cols),h=rows*cellH+8;
     canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
     const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-    stats.events.slice(0,8).forEach((event,i)=>{
+    plotted.forEach((event,i)=>{
       const x=10+(i%cols)*cellW,y=8+Math.floor(i/cols)*cellH;
       ctx.strokeStyle="#243b50";ctx.strokeRect(x,y,cellW-8,cellH-12);
       ctx.fillStyle="#9fc4d6";ctx.font="10px monospace";ctx.fillText("Transit "+(event.cycle+1)+" · "+event.epoch.toFixed(3),x+7,y+14);
@@ -153,8 +122,11 @@
     const host=$("#blsResults");if(!host||!result?.unique?.length)return;
     host.querySelectorAll(".bls-summary").forEach(el=>{if(el.textContent.includes("Known-system period comparison"))el.remove();});
     let parsed;try{parsed=parse(csvText);}catch(e){host.insertAdjacentHTML("beforeend",'<p class="science-note">'+esc(e.message)+'</p>');return;}
-    const points=result.points,top=result.unique[0],stats=foldMetrics(points,top),nullTest=permutationTest(points,result.unique);
-    const modes=[.5,1,2].map(w=>{const p=detrend(parsed.good,w),m=foldMetrics(p,top);return {window:w,...m};});
+    const points=result.points,top=result.unique[0],stats=foldMetrics(points,top);
+    const core=window.AstroLensScienceCore;
+    const nullTest=core?core.blockBootstrap(points,result.unique,199,10):{p:null,n:0,exceed:0};
+    const injection=core?core.injectionRecovery(points,top,200):{n:0,levels:[],fraction:null};
+    const modes=[.5,1,2].map(w=>{const p=detrend(parsed.good,w),search=core?core.quickSearch(p,result.minP,result.maxP,result.baseline,300):{candidates:[],trialCount:0};const lead=search.candidates[0]||null;return {window:w,points:p,search,lead,depth:lead?.depth??NaN,snr:lead?.snr??NaN,period:lead?.period??NaN,agrees:!!lead&&Math.abs(lead.period-top.period)/top.period<=.02};});
     const target=(($("#mastTarget")?.value||"")+" "+(fileName||"")).toLowerCase();
     const hasTrappist=/trappist\s*[- ]?1|tic\s*278892590/.test(target);
     const quality=parsed.qualityColumn?"QUALITY flags applied: "+parsed.badQuality.toLocaleString()+" rejected, "+parsed.good.length.toLocaleString()+" retained.":"No QUALITY column found. No flagged points could be excluded.";
@@ -164,30 +136,34 @@
     const sectors=[...new Set([...(fileName||"").matchAll(/s(\d{4})/gi)].map(m=>Number(m[1])))];
     metadata.push(["TESS sector(s)",sectors.length?sectors.map(n=>String(n).padStart(4,"0")).join(", "):"Not embedded in CSV filename"]);
     const fitsMeta=window.__astrolensFitsMeta||{};
-    metadata.push(["CROWDSAP",fitsMeta.crowdsap!==null&&fitsMeta.crowdsap!==undefined?String(fitsMeta.crowdsap):"Not present in FITS headers"]);
-    metadata.push(["Stellar radius",fitsMeta.stellarRadius!==null&&fitsMeta.stellarRadius!==undefined?String(fitsMeta.stellarRadius)+" (source header units)": "Not present in FITS headers"]);
-    metadata.push(["Stellar effective temperature",fitsMeta.teff!==null&&fitsMeta.teff!==undefined?String(fitsMeta.teff)+" K":"Not present in FITS headers"]);
+    const metaOrigin=fitsMeta&&Object.keys(fitsMeta).length?"Original FITS metadata retained with this dataset":"CSV input; FITS headers were not read";
+    metadata.push(["Metadata provenance",metaOrigin]);
+    metadata.push(["CROWDSAP",fitsMeta.crowdsap!==null&&fitsMeta.crowdsap!==undefined?String(fitsMeta.crowdsap):"Unavailable from this input"]);
+    metadata.push(["Stellar radius",fitsMeta.stellarRadius!==null&&fitsMeta.stellarRadius!==undefined?String(fitsMeta.stellarRadius)+" (source header units)": "Unavailable from this input"]);
+    metadata.push(["Stellar effective temperature",fitsMeta.teff!==null&&fitsMeta.teff!==undefined?String(fitsMeta.teff)+" K":"Unavailable from this input"]);
     if(fitsMeta.sector!==null&&fitsMeta.sector!==undefined)metadata[1]=["TESS sector(s)",String(fitsMeta.sector)];
     if(fitsMeta.ticId!==null&&fitsMeta.ticId!==undefined&&!tic)metadata[0]=["TIC identifier","TIC "+fitsMeta.ticId];
     const aliasRows=result.unique.map(c=>{const a=aliasInfo(c.period);return "<tr><td>"+c.period.toFixed(6)+" d</td><td>"+esc(a.label)+"</td><td>"+(a.reference?a.reference.toFixed(6)+" d":"—")+"</td><td>"+(a.error<=.01?(a.error*100).toFixed(2)+"%":"—")+"</td><td>"+(a.type==="known"?"Known-period proximity":a.type==="alias"?"Possible harmonic/half-period alias":"No close ratio")+"</td></tr>";}).join("");
-    const eventRows=stats.events.slice(0,12).map(e=>"<tr><td>"+(e.cycle+1)+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(e.depth*1e6).toFixed(0)+" ppm</td></tr>").join("");
-    const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenRatio)&&stats.oddEvenRatio>=.5;
+    const eventRows=stats.events.slice(0,24).map(e=>"<tr><td>"+e.cycle+"</td><td>"+e.epoch.toFixed(6)+"</td><td>"+e.n+"</td><td>"+(Number.isFinite(e.depth)?(e.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(e.uncertainty)?(e.uncertainty*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+e.status+"</td></tr>").join("");
+    const oddPass=stats.oddN>=3&&stats.evenN>=3&&Number.isFinite(stats.oddEvenSigma)&&Math.abs(stats.oddEvenSigma)<3;
     const secondaryFlag=Number.isFinite(stats.secondaryDepth)&&stats.secondaryDepth>0&&stats.secondarySnr>=3;
-    const pText=nullTest.p===null?"Unavailable":nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" shuffled maxima)";
-    const modeRows=modes.map(m=>"<tr><td>"+m.window.toFixed(1)+" d</td><td>"+(m.primaryDepth*1e6).toFixed(0)+" ppm</td><td>"+(m.primaryN||0)+"</td><td>"+(Number.isFinite(m.primaryDepth)&&m.primaryDepth>0?"Signal-like dip at fixed period":"No positive dip at fixed period")+"</td></tr>").join("");
+    const pText=nullTest.p===null?"Unavailable":nullTest.p.toFixed(3)+" ("+nullTest.exceed+"/"+nullTest.n+" block-resampled maxima)";
+    const modeRows=modes.map(m=>"<tr><td>"+m.window.toFixed(1)+" d</td><td>"+(Number.isFinite(m.period)?m.period.toFixed(5)+" d":"No peak")+"</td><td>"+(Number.isFinite(m.depth)?(m.depth*1e6).toFixed(0)+" ppm":"—")+"</td><td>"+(Number.isFinite(m.snr)?m.snr.toFixed(1):"—")+"</td><td>"+m.search.trialCount+"</td><td>"+(m.agrees?"Within 2% of leading period":"Period shifted / no match")+"</td></tr>").join("");
+    const injectionRows=injection.levels.map(x=>"<tr><td>"+x.mult.toFixed(1)+"×</td><td>"+(x.depth*1e6).toFixed(0)+" ppm</td><td>"+x.recovered+"/"+x.n+"</td><td>"+(Number.isFinite(x.fraction)?(x.fraction*100).toFixed(1)+"%":"—")+"</td></tr>").join("");
     host.insertAdjacentHTML("beforeend",`
       <section class="blsv-panel" id="blsValidationPanel">
         <div class="blsv-head"><div><div class="blsv-kicker">VALIDATION SUITE · BLS / 02</div><h3>Candidate vetting, not just peak ranking</h3><p>Diagnostics below evaluate the leading period against repeatability, secondary events, aliases and alternate detrending. None independently confirms a planet.</p></div><span class="blsv-chip">EVIDENCE CHECKS</span></div>
         <div class="blsv-grid">
           <article class="blsv-card"><small>QUALITY FLAGS</small><strong>${parsed.qualityColumn?parsed.badQuality.toLocaleString()+" removed":"Not supplied"}</strong><p>${esc(quality)}</p></article>
-          <article class="blsv-card"><small>ODD / EVEN DEPTH</small><strong>${Number.isFinite(stats.oddEvenRatio)?stats.oddEvenRatio.toFixed(2):"Insufficient data"}</strong><p>Odd ${Number.isFinite(stats.oddDepth)?(stats.oddDepth*1e6).toFixed(0)+" ppm":"n/a"} (${stats.oddN} events), even ${Number.isFinite(stats.evenDepth)?(stats.evenDepth*1e6).toFixed(0)+" ppm":"n/a"} (${stats.evenN} events). ${oddPass?"Depths are broadly similar; this does not rule out an eclipsing binary.":"No reliable parity conclusion; inspect individual events."}</p></article>
+          <article class="blsv-card"><small>ODD / EVEN DEPTH</small><strong>${Number.isFinite(stats.oddEvenSigma)?Math.abs(stats.oddEvenSigma).toFixed(1)+"σ difference":"Insufficient data"}</strong><p>Odd ${Number.isFinite(stats.oddDepth)?(stats.oddDepth*1e6).toFixed(0)+" ± "+(stats.oddErr*1e6).toFixed(0)+" ppm":"n/a"} (${stats.oddN} events), even ${Number.isFinite(stats.evenDepth)?(stats.evenDepth*1e6).toFixed(0)+" ± "+(stats.evenErr*1e6).toFixed(0)+" ppm":"n/a"} (${stats.evenN} events); depth ratio ${Number.isFinite(stats.oddEvenRatio)?stats.oddEvenRatio.toFixed(2):"n/a"}. ${oddPass?"Difference is below 3σ under this approximate uncertainty model; not a planet confirmation.":"Depth difference or coverage is concerning / inconclusive."}</p></article>
           <article class="blsv-card"><small>SECONDARY ECLIPSE · PHASE 0.5</small><strong>${Number.isFinite(stats.secondaryDepth)?(stats.secondaryDepth*1e6).toFixed(0)+" ppm":"Not measurable"}</strong><p>${stats.secondaryN} points near phase 0.5 · approx S/N ${Number.isFinite(stats.secondarySnr)?stats.secondarySnr.toFixed(1):"n/a"}. ${secondaryFlag?"A secondary-like dip is present and warrants false-positive review.":"No significant secondary-like dip under this simple test; absence is not proof of a planet."}</p></article>
-          <article class="blsv-card"><small>PERMUTATION NULL TEST</small><strong>${pText}</strong><p>24 shuffled-flux trials against the top three periods. This is a restricted white-noise permutation tail estimate, not a global or red-noise-safe false-alarm probability.</p></article>
+          <article class="blsv-card"><small>PERMUTATION NULL TEST</small><strong>${pText}</strong><p>${nullTest.n} block-resampled trials against only the top three periods. This is a restricted, approximate conditional null score, not a global false-alarm probability and not fully red-noise-safe.</p></article>
         </div>
         <article class="blsv-card blsv-wide"><h4>Known-system ratios · tight 1% tolerance</h4><p>Compares every top peak against all seven published TRAPPIST-1 periods. Only exact-period proximity or half/integer ratios within 1% are flagged.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>BLS period</th><th>Nearest relationship</th><th>Reference period</th><th>Deviation</th><th>Interpretation</th></tr></thead><tbody>${hasTrappist?aliasRows:result.unique.map(c=>"<tr><td>"+c.period.toFixed(6)+" d</td><td>Target not recognized as TRAPPIST-1</td><td>—</td><td>—</td><td>Known-system comparison not run</td></tr>").join("")}</tbody></table></div></article>
-        <article class="blsv-card blsv-wide"><h4>Detrending sensitivity · fixed candidate periods</h4><p>Depth is re-measured at the same top period after 0.5, 1.0 and 2.0-day rolling-median windows. This tests sensitivity, not a full BLS re-search at every window.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Window</th><th>Primary depth</th><th>In-window points</th><th>Screening result</th></tr></thead><tbody>${modeRows}</tbody></table></div></article>
-        <article class="blsv-card blsv-wide"><h4>Individual transit inspection</h4><p>Each small panel shows points around a separate predicted event. Missing coverage, single-event outliers and inconsistent depths should be treated as warning signs.</p><canvas id="blsEventCanvas" style="display:block;width:100%;height:auto" aria-label="Individual transit event panels"></canvas><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Cycle</th><th>Predicted epoch</th><th>Points</th><th>Estimated depth</th></tr></thead><tbody>${eventRows||"<tr><td colspan='4'>No well-sampled individual events at this period.</td></tr>"}</tbody></table></div></article>
-        <article class="blsv-card blsv-wide"><h4>Target metadata & provenance</h4><p>Read from the observation FITS header where available, plus optional TIC catalogue lookup.</p><button id="blsvFetchTic" type="button">Fetch TIC stellar metadata ↗</button><p id="blsvTicStatus" class="science-note">TIC lookup is on demand. It may return multiple nearby stars; verify the identifier and separation.</p><div id="blsvTicDetails"></div><div class="scan-table-wrap"><table class="scan-table"><tbody>${metadata.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")}<tr><th>Input columns</th><td>${esc(parsed.timeColumn)} / ${esc(parsed.fluxColumn)}${parsed.qualityColumn?" / QUALITY":""}</td></tr><tr><th>Source file</th><td>${esc(fileName||"Local CSV/FITS conversion")}</td></tr></tbody></table></div><p>Stellar radius and CROWDSAP are not guessed from light-curve shape. Obtain target metadata and aperture contamination before converting transit depth into planet radius.</p></article>
+        <article class="blsv-card blsv-wide"><h4>Independent re-search by detrending window</h4><p>Each window runs a separate coarse BLS grid over the same period range. This is an independent screening re-search with 300 trial frequencies per window, not the full-resolution primary grid.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Window</th><th>Leading period</th><th>Depth</th><th>Approx SNR</th><th>Trials</th><th>Comparison</th></tr></thead><tbody>${modeRows}</tbody></table></div></article>
+        <article class="blsv-card blsv-wide"><h4>Individual transit inspection</h4><p>All predicted cycles are listed, including missing coverage. Event depths can be negative and should not be hidden. The panel grid only plots covered events.</p><canvas id="blsEventCanvas" style="display:block;width:100%;height:auto" aria-label="Individual transit event panels"></canvas><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Cycle</th><th>Predicted epoch</th><th>Points</th><th>Estimated depth</th><th>Approx. error</th><th>Coverage</th></tr></thead><tbody>${eventRows||"<tr><td colspan='6'>No predicted events.</td></tr>"}</tbody></table></div></article>
+        <article class="blsv-card blsv-wide"><h4>Injection-recovery · fixed-period diagnostic</h4><p>${injection.n} randomized-epoch box signals were injected into residuals after subtracting the current candidate box. This measures fixed-period recoverability at three depths, not blind-search completeness or false-alarm probability.</p><div class="scan-table-wrap"><table class="scan-table"><thead><tr><th>Injected depth</th><th>Depth</th><th>Recovered</th><th>Recovery rate</th></tr></thead><tbody>${injectionRows}</tbody></table></div></article>
+        <article class="blsv-card blsv-wide"><h4>Target metadata & provenance</h4><p>FITS metadata is shown only when the original FITS file or its retained metadata is available. A CSV by itself cannot supply FITS headers. TIC values are a separate catalogue query.</p><button id="blsvFetchTic" type="button">Fetch TIC stellar metadata ↗</button><p id="blsvTicStatus" class="science-note">TIC lookup is on demand. It may return multiple nearby stars; verify the identifier and separation.</p><div id="blsvTicDetails"></div><div class="scan-table-wrap"><table class="scan-table"><tbody>${metadata.map(x=>"<tr><th>"+esc(x[0])+"</th><td>"+esc(x[1])+"</td></tr>").join("")}<tr><th>Input columns</th><td>${esc(parsed.timeColumn)} / ${esc(parsed.fluxColumn)}${parsed.qualityColumn?" / QUALITY":""}</td></tr><tr><th>Invalid time/flux rows</th><td>${parsed.invalidRows}</td></tr><tr><th>Source file</th><td>${esc(fileName||"Local CSV/FITS conversion")}</td></tr></tbody></table></div><p>Stellar radius and CROWDSAP are not guessed from light-curve shape. Obtain target metadata and aperture contamination before converting transit depth into planet radius.</p></article>
       </section>`);
     drawEventPanels($("#blsEventCanvas"),points,top,stats);
     drawTransitModel($("#blsFoldCanvas"),top);
