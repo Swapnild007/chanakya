@@ -173,7 +173,7 @@ function downloadTextFile(text,filename,type="text/csv"){const url=URL.createObj
 async function searchMastTarget(target){
   const resolved=await mastRequest({service:"Mast.Name.Lookup",params:{input:target,format:"json"}});
   const coords=resolved.resolvedCoordinate||[];if(!coords.length)throw Error("MAST could not resolve that target name. Try a TIC number or a common star name.");
-  const obj=coords[0];window.__astrolensResolvedCoordinate={ra:Number(obj.ra),dec:Number(obj.decl),name:obj.canonicalName||target};
+  const obj=coords[0];window.__astrolensResolvedCoordinate={ra:Number(obj.ra),dec:Number(obj.decl),name:obj.canonicalName||target};window.__astrolensResolvedCoordinate={ra:Number(obj.ra),dec:Number(obj.decl),name:obj.canonicalName||target};
   const found=await mastRequest({service:"Mast.Caom.Cone",params:{ra:obj.ra,dec:obj.decl,radius:0.02},format:"json",pagesize:500,page:1,removenullcolumns:true});
   const obs=(found.data||[]).filter(o=>String(o.obs_collection||"").toUpperCase()==="TESS"&&String(o.dataproduct_type||"").toLowerCase()==="timeseries"&&o.obsid!=null).sort((a,b)=>(Number(a.distance)||0)-(Number(b.distance)||0));
   if(!obs.length)throw Error("MAST resolved "+(obj.canonicalName||target)+" but no TESS time-series observations were found within 0.02°. Try a TIC identifier.");
