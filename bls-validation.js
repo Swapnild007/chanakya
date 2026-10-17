@@ -119,9 +119,10 @@
     const hasTrappist=/trappist\s*[- ]?1|tic\s*278892590/.test(target);
     const quality=parsed.qualityColumn?"QUALITY flags applied: "+parsed.badQuality.toLocaleString()+" rejected, "+parsed.good.length.toLocaleString()+" retained.":"No QUALITY column found. No flagged points could be excluded.";
     const metadata=[];
-    const tic=(target.match(/tic\s*[-_ ]?(\d+)/i)||fileName?.match(/tic(\d+)/i)||[])[1];
+    const filenameTic=(fileName||"").match(/-s\d{4}-(\d{16})-/i);
+    const tic=(target.match(/tic\s*[-_ ]?(\d+)/i)||fileName?.match(/tic(\d+)/i)||(filenameTic?[filenameTic[0],filenameTic[1].replace(/^0+/,"")]:[]))[1];
     if(tic)metadata.push(["TIC identifier","TIC "+tic]);
-    const sectors=[...new Set([...(fileName||"").matchAll(/s(\d{4})/gi)].map(m=>Number(m[1])))];
+    const sectors=[...new Set([...(fileName||"").matchAll(/-s(\d{4})-/gi)].map(m=>Number(m[1])))];
     metadata.push(["TESS sector(s)",sectors.length?sectors.map(n=>String(n).padStart(4,"0")).join(", "):"Not embedded in CSV filename"]);
     const fitsMeta=window.__astrolensFitsMeta||{};
     const metaOrigin=fitsMeta&&Object.keys(fitsMeta).length?"Original FITS metadata retained with this dataset":"CSV input; FITS headers were not read";
@@ -156,10 +157,12 @@
       </section>`);
     drawEventPanels($("#blsEventCanvas"),points,top,stats);
     drawTransitModel($("#blsFoldCanvas"),top);
-    $("#blsvFetchTic")?.addEventListener("click",fetchTicMetadata);
+    $("#blsvFetchTic")?.addEventListener("click",()=>fetchTicMetadata());
+    const autoTic=fitsMeta.ticId??(filenameTic?filenameTic[1].replace(/^0+/,""):null);
+    if(autoTic)fetchTicMetadata("TIC "+autoTic);
     $("#blsvExport")?.addEventListener("click",()=>downloadTextFile(JSON.stringify(validationReport,null,2),"astrolens-validation-"+new Date().toISOString().slice(0,10)+".json","application/json"));
   }
-  async function fetchTicMetadata() {
+  async function fetchTicMetadata(targetOverride) {
     const button=$("#blsvFetchTic"),status=$("#blsvTicStatus"),out=$("#blsvTicDetails");
     if(!button||!status||!out)return;
     const target=(($("#mastTarget")?.value||"").trim()||$("#lightCurveFile")?.files?.[0]?.name||"");
