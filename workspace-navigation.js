@@ -65,19 +65,32 @@
       a.classList.toggle("active",k===key);
       if(k===key)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
     });
-    $$(".mobile-dock a").forEach(a=>{
+    $(".mobile-dock a").forEach(a=>{
       const k=a.dataset.workspaceView||infer(a.textContent);
       a.classList.toggle("active",k===key);
     });
+    requestAnimationFrame(positionLiquid);
     const title=$("#workspaceViewTitle");if(title)title.textContent=cfg.title;
     if(updateHash)history.replaceState(null,"","#"+key);
     const side=$("#sidebar"),menu=$("#mobileMenu");
     side?.classList.remove("open");if(menu)menu.setAttribute("aria-expanded","false");
     window.scrollTo({top:0,behavior:"auto"});
   }
+  function positionLiquid(){
+    const dock=$(".mobile-dock"), indicator=$(".mobile-dock .liquid-indicator");
+    if(!dock||!indicator)return;
+    const active=$(".mobile-dock a.active",dock);
+    if(!active)return;
+    const dr=dock.getBoundingClientRect(), ar=active.getBoundingClientRect();
+    indicator.style.width=ar.width+"px";
+    indicator.style.transform="translateX("+(ar.left-dr.left-6)+"px)";
+    dock.classList.add("ready");
+  }
   function bindNav(){
-    $$(".sidebar .nav-link, .mobile-dock a").forEach(a=>{
-      const key=infer(a.textContent);a.dataset.workspaceView=key;a.href="#"+key;
+    $(".sidebar .nav-link, .mobile-dock a").forEach(a=>{
+      if(a.dataset.navBound==="true")return;
+      a.dataset.navBound="true";
+      const key=a.dataset.workspaceView||infer(a.textContent);a.dataset.workspaceView=key;a.href="#"+key;
       a.addEventListener("click",e=>{e.preventDefault();setView(key)});
     });
     const brand=$(".brand");if(brand)brand.addEventListener("click",e=>{e.preventDefault();setView("overview")});
@@ -91,7 +104,10 @@
     bindNav();
     const hash=location.hash.slice(1);setView(views[hash]?hash:"overview",false);
     const observer=new MutationObserver(()=>{if(current==="analysis"&&$("#fullAnalysis"))setView("analysis",false)});
-    observer.observe(main,{childList:true,subtree:true});
+    observer.observe(document.body,{childList:true,subtree:true});
+    window.addEventListener("resize",positionLiquid);
+    const dockObserver=new MutationObserver(()=>{bindNav();positionLiquid()});
+    dockObserver.observe(document.body,{childList:true,subtree:true});
     window.addEventListener("hashchange",()=>{const key=location.hash.slice(1);if(views[key])setView(key,false)});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
