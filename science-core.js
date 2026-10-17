@@ -170,7 +170,7 @@
     const half=z*Math.sqrt(p*(1-p)/total+z2/(4*total*total))/den;
     return {low:Math.max(0,center-half),high:Math.min(1,center+half)};
   }
-  function injectionRecovery(points,c,trialsPerDepth=50,nullTrials=100){
+  function injectionRecovery(points,c,trialsPerDepth=150,nullTrials=300){
     if(!points?.length||points.length<100||!c||!(c.period>0)||!(c.duration>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
     const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t);
     const times=ordered.map(p=>p.t),t0=times[0],span=times[times.length-1]-t0;
