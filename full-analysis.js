@@ -55,15 +55,16 @@
     return points.map(p=>({...p,y:p.f/center-1}));
   }
   function detrend(points, window=1, step=.5, maskCandidate=null) {
-    const origin=points[0].t, end=points[points.length-1].t, anchors=[];
+    const origin=points[0].t, end=points[points.length-1].t, anchors=[];let maskFallbacks=0,maskedAnchors=0;
     for(let c=origin;c<=end+step;c+=step){
       const local=points.filter(p=>Math.abs(p.t-c)<=window/2);
       const masked=maskCandidate?local.filter(p=>{let ph=((p.t-maskCandidate.epoch+maskCandidate.period/2)/maskCandidate.period)%1;if(ph<0)ph++;return Math.abs(ph-.5)>Math.max(maskCandidate.duration/(2*maskCandidate.period),.003);}):local;
       const use=masked.length>=8?masked:local;
+      if(maskCandidate&&masked.length>=8)maskedAnchors++;else if(maskCandidate)maskFallbacks++;
       const v=use.map(p=>p.f);
       if(v.length>=8)anchors.push({t:c,v:median(v)});
     }
-    if(anchors.length<3)return {points:normalize(points),anchors:0};
+    if(anchors.length<3)return {points:normalize(points),anchors:0,maskFallbacks,maskedAnchors};
     const corrected=points.map(p=>{
       let j=0;while(j<anchors.length-2&&anchors[j+1].t<p.t)j++;
       const a=anchors[j],b=anchors[Math.min(j+1,anchors.length-1)];
@@ -72,7 +73,7 @@
       return {...p,y:p.f/Math.max(base,1e-12)-1};
     });
     const m=median(corrected.map(p=>p.y));
-    return {points:corrected.map(p=>({...p,y:p.y-m})),anchors:anchors.length};
+    return {points:corrected.map(p=>({...p,y:p.y-m})),anchors:anchors.length,maskFallbacks,maskedAnchors};
   }
   function searchBLS(points, baseline, cadence) {
     const minP=Math.max(cadence*3,.3), maxP=Math.min(15,baseline/2);
@@ -208,7 +209,7 @@
       const maskSeed=firstSearch.candidates[0]||null,baselineWindowDays=Math.max(1,(maskSeed?.duration||.25)*4);
       const det=detrend(points,baselineWindowDays,.5,maskSeed),detPoints=det.points,detSearch=searchBLS(detPoints,baseline,cadence);
       if(window.AstroLensScienceCore?.denseRefine){const refined=window.AstroLensScienceCore.denseRefine(detPoints,detSearch.candidates.slice(0,3),baseline,.02,201);detSearch.candidates=[...refined,...detSearch.candidates.slice(3)].sort((a,b)=>b.snr-a.snr);detSearch.denseRefinement={windowFraction:.02,steps:201,refinedCandidates:Math.min(3,detSearch.candidates.length)};}
-      detSearch.transitMask={applied:!!maskSeed,seedPeriod:maskSeed?.period??null,seedDurationDays:maskSeed?.duration??null,baselineWindowDays,method:"One-pass candidate transit mask before rolling-median baseline fit; exploratory protection, not independent detection."};
+      detSearch.transitMask={applied:!!maskSeed,seedPeriod:maskSeed?.period??null,seedDurationDays:maskSeed?.duration??null,baselineWindowDays,maskedAnchors:det.maskedAnchors,maskFallbackAnchors:det.maskFallbacks,method:"One-pass candidate transit mask before rolling-median baseline fit; exploratory protection, not independent detection."};
       if(window.AstroLensScienceCore?.denseRefine){const refined=window.AstroLensScienceCore.denseRefine(detPoints,detSearch.candidates.slice(0,3),baseline,.02,201);detSearch.candidates=[...refined,...detSearch.candidates.slice(3)].sort((a,b)=>b.snr-a.snr);detSearch.denseRefinement={windowFraction:.02,steps:201,refinedCandidates:Math.min(3,detSearch.candidates.length)};}
       tick(79);setStatus("Comparing periods, harmonics, known references and phase-folded morphology…");
       const target=$("#mastTarget")?.value||"";
@@ -216,7 +217,7 @@
       const detStats=detSearch.candidates[0]?phaseStats(detPoints,detSearch.candidates[0]):null;
       const residualMeanPpm=detPoints.reduce((sum,p)=>sum+p.y,0)/Math.max(1,detPoints.length)*1e6,residualMedianPpm=window.AstroLensScienceCore?.median(detPoints.map(p=>p.y))*1e6;
        const report={meta:{...meta,baseline,cadence,residualMeanPpm,residualMedianPpm,metadataOrigin:file.name.toLowerCase().endsWith(".fits")?"FITS header and light-curve table":file.__astrolensFitsMeta?"Original FITS metadata retained with converted CSV":"CSV only; FITS-header metadata unavailable"},raw:rawPoints,detrended:detPoints,rawSearch,detSearch,rawStats,detStats,target,pointsForStats:detSearch.candidates.length?detPoints:rawPoints};
-      report.exportData={createdAt:new Date().toISOString(),sourceFile:file.name,sourceTarget:target||null,reproducibility:{primaryBLS:"Deterministic frequency grid and deterministic tie-breaking; no random seed used by the primary search.",blockResampleSeed:92821,injectionEpochSeed:61957,injectionDepthsPpm:Array.from({length:30},(_,i)=>(i+1)*100)},diagnostics:{measurements:points.length,baselineDays:baseline,medianCadenceDays:cadence,qualityColumn:meta.qualityColumn,qualityRemoved:meta.qualityRemoved,qualityMask:meta.qualityMask,qualityPolicy:meta.qualityPolicy,qualityBitCounts:meta.qualityBitCounts,missingQuality:meta.missingQuality,invalidRows:meta.invalidRows,residualMeanPpm,residualMedianPpm,sector:window.__astrolensFitsMeta?.sector??null,metadataOrigin:report.meta.metadataOrigin,fluxColumn:meta.fluxColumn,timeColumn:meta.timeColumn},originalFlux:{periodRangeDays:[rawSearch.minP,rawSearch.maxP],trialFrequencies:rawSearch.nTrial,denseRefinement:rawSearch.denseRefinement||null,candidates:rawSearch.candidates},rollingMedianDetrended:{windowDays:baselineWindowDays,stepDays:.5,transitMask:detSearch.transitMask,periodRangeDays:[detSearch.minP,detSearch.maxP],trialFrequencies:detSearch.nTrial,denseRefinement:detSearch.denseRefinement||null,candidates:detSearch.candidates},processingAgreement:agreement(rawSearch.candidates,detSearch.candidates),limitations:["Approximate browser BLS screening, not NASA SPOC or a validated transit pipeline.","The heuristic ranking score is not calibrated BLS power or formal false-alarm significance.","Transit-aware detrending uses one candidate-mask pass with a rolling median, not a validated spline/biweight pipeline.","Odd/even event-depth checks are approximate; centroid and pixel-level vetting require target-pixel data; independent confirmation is not completed." ]};
+      report.exportData={createdAt:new Date().toISOString(),sourceFile:file.name,sourceTarget:target||null,reproducibility:{primaryBLS:"Deterministic frequency grid and deterministic tie-breaking; no random seed used by the primary search.",blockResampleSeed:92821,injectionEpochSeed:61957,injectionDepthsPpm:Array.from({length:30},(_,i)=>(i+1)*100)},diagnostics:{measurements:points.length,baselineDays:baseline,medianCadenceDays:cadence,qualityColumn:meta.qualityColumn,qualityRemoved:meta.qualityRemoved,qualityMask:meta.qualityMask,qualityPolicy:meta.qualityPolicy,qualityBitCounts:meta.qualityBitCounts,missingQuality:meta.missingQuality,invalidRows:meta.invalidRows,residualMeanPpm,residualMedianPpm,sector:window.__astrolensFitsMeta?.sector??null,metadataOrigin:report.meta.metadataOrigin,fluxColumn:meta.fluxColumn,timeColumn:meta.timeColumn},originalFlux:{periodRangeDays:[rawSearch.minP,rawSearch.maxP],trialFrequencies:rawSearch.nTrial,denseRefinement:rawSearch.denseRefinement||null,candidates:rawSearch.candidates},rollingMedianDetrended:{windowDays:baselineWindowDays,stepDays:.5,transitMask:detSearch.transitMask,maskedAnchors:det.maskedAnchors,maskFallbackAnchors:det.maskFallbacks,periodRangeDays:[detSearch.minP,detSearch.maxP],trialFrequencies:detSearch.nTrial,denseRefinement:detSearch.denseRefinement||null,candidates:detSearch.candidates},processingAgreement:agreement(rawSearch.candidates,detSearch.candidates),limitations:["Approximate browser BLS screening, not NASA SPOC or a validated transit pipeline.","The heuristic ranking score is not calibrated BLS power or formal false-alarm significance.","Transit-aware detrending uses one candidate-mask pass with a rolling median, not a validated spline/biweight pipeline.","Odd/even event-depth checks are approximate; centroid and pixel-level vetting require target-pixel data; independent confirmation is not completed." ]};
       lastReport=report;renderReport(report);tick(100);setStatus("Full analysis complete. Review both processing modes and the validation limits below.","success");
       if(/\.fits?$/i.test(file.name))$("#faFileMeta").textContent="FITS converted locally for analysis · "+points.length.toLocaleString()+" quality-screened rows";
     } catch(e){setStatus("Full analysis failed: "+e.message,"error");$("#faResults").innerHTML='<div class="fa-error">'+esc(e.message)+'</div>';tick(0);}
