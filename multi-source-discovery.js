@@ -56,7 +56,7 @@
   function table(rows, maxRows=6) {
     const headers=rows[0], data=rows.slice(1,maxRows+1);
     if(!data.length)return "<p>No matching rows returned for this query.</p>";
-    return '<div class="msh-table-wrap"><table class="msh-table"><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+'</tr></thead><tbody>'+data.map(r=>"<tr>"+headers.map((_,i)=>"<td title=\""+esc(r[i]||"")+"\" >"+esc(r[i]||"")+"</td>").join("")+"</tr>").join("")+"</tbody></table></div><small>Showing '+data.length+' of '+Math.max(0,rows.length-1)+' returned rows.</small>';
+    return '<div class="msh-table-wrap"><table class="msh-table"><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+'</tr></thead><tbody>'+data.map(r=>"<tr>"+headers.map((_,i)=>"<td title=\\""+esc(r[i]||"")+"\\" >"+esc(r[i]||"")+"</td>").join("")+"</tr>").join("")+'</tbody></table></div><small>Showing '+data.length+' of '+Math.max(0,rows.length-1)+' returned rows.</small>';
   }
   function adqlNum(n){return Number(n).toFixed(7);}
   async function run(e) {
@@ -78,7 +78,7 @@
       const circle="1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',"+adqlNum(ra)+","+adqlNum(dec)+","+radius+"))";
       const jobs=[
         ["gaia",()=>tap("https://gea.esac.esa.int/tap-server/tap/sync","SELECT TOP 12 source_id,ra,dec,parallax,parallax_error,pmra,pmdec,phot_g_mean_mag FROM gaiadr3.gaia_source WHERE "+circle+" ORDER BY phot_g_mean_mag ASC")],
-        ["vizier",()=>tap("https://tapvizier1.cds.unistra.fr/TAPVizieR/tap/sync","SELECT TOP 12 \"2MASS\".* FROM \"II/246/out\" AS \"2MASS\" WHERE 1=CONTAINS(POINT('ICRS',RAJ2000,DEJ2000),CIRCLE('ICRS',"+adqlNum(ra)+","+adqlNum(dec)+","+radius+"))")],
+        ["vizier",()=>tap("https://tapvizier1.cds.unistra.fr/TAPVizieR/tap/sync","SELECT TOP 12 * FROM \"II/246/out\" WHERE 1=CONTAINS(POINT('ICRS',RAJ2000,DEJ2000),CIRCLE('ICRS',"+adqlNum(ra)+","+adqlNum(dec)+","+radius+"))")],
         ["eso",()=>tap("https://archive.eso.org/tap_obs/sync","SELECT TOP 12 target_name,instrument_name,dataproduct_type,s_ra,s_dec FROM ivoa.ObsCore WHERE 1=CONTAINS(POINT('ICRS',s_ra,s_dec),CIRCLE('ICRS',"+adqlNum(ra)+","+adqlNum(dec)+",0.05))")]
       ];
       const settled=await Promise.allSettled(jobs.map(async ([key,fn])=>{const raw=await fn(),rows=parseCSV(raw);if(rows.length<2){state(key,"NO ROWS","The service responded, but no rows matched this search.");return;}state(key,"LIVE",table(rows,6),"live");}));
