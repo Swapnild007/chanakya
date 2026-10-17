@@ -162,8 +162,8 @@
     const processingAgreement=agreement(rawSearch.candidates,detSearch.candidates);
     const parityConsistent=Number.isFinite(phase?.oddEvenSigma)&&phase.oddN>=3&&phase.evenN>=3&&Math.abs(phase.oddEvenSigma)<3;
     const eventScatterConsistent=Number.isFinite(phase?.eventDepthScatter)&&Number.isFinite(best?.depth)&&phase.usableEvents>=4&&phase.eventDepthScatter<Math.max(best.depth*1.5,1e-5);
-    const phaseContrastAboveThreshold=false;
-    const phaseDipCredible=phaseContrastAboveThreshold&&processingAgreement.startsWith("Consistent")&&parityConsistent&&eventScatterConsistent;
+    const phaseContrastPresent=Number.isFinite(phase?.dip)&&phase.dip>0;
+    const phaseDipCredible=phaseContrastPresent&&processingAgreement.startsWith("Consistent")&&parityConsistent&&eventScatterConsistent;
     const phaseGateReasons=[];
     phaseGateReasons.push("formal false-alarm significance not computed; no σ claim used");
     if(!processingAgreement.startsWith("Consistent"))phaseGateReasons.push("period shifts with processing");
