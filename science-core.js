@@ -58,7 +58,11 @@
     {bit:16,name:"Argabrightening"},{bit:32,name:"Desaturation"},{bit:64,name:"Cosmic ray in aperture"},
     {bit:128,name:"Manual exclude"},{bit:256,name:"Discontinuity"},{bit:512,name:"Stray light"},
     {bit:1024,name:"Low sky level"},{bit:2048,name:"Rolling band 1"},{bit:4096,name:"Rolling band 2"},
-    {bit:8192,name:"Rolling band 3"},{bit:16384,name:"Rolling band 4"},{bit:32768,name:"Rolling band 5"}
+    {bit:8192,name:"Rolling band 3"},{bit:16384,name:"Rolling band 4"},{bit:32768,name:"Rolling band 5"},
+    {bit:65536,name:"Rolling band 6"},{bit:131072,name:"Rolling band 7"},{bit:262144,name:"Rolling band 8"},{bit:524288,name:"Rolling band 9"},
+    {bit:1048576,name:"Rolling band 10"},{bit:2097152,name:"Rolling band 11"},{bit:4194304,name:"Rolling band 12"},{bit:8388608,name:"Rolling band 13"},
+    {bit:16777216,name:"Rolling band 14"},{bit:33554432,name:"Rolling band 15"},{bit:67108864,name:"Rolling band 16"},{bit:134217728,name:"Rolling band 17"},
+    {bit:268435456,name:"Rolling band 18"},{bit:536870912,name:"Rolling band 19"},{bit:1073741824,name:"Rolling band 20"}
   ];
   function tessQualitySummary(values,mask=TESS_QUALITY_MASK){
     const valid=values.filter(v=>Number.isFinite(Number(v))).map(v=>Number(v)>>>0);
