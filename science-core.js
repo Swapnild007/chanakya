@@ -107,7 +107,7 @@
     if(points.length<100||!c||!(c.depth>0)||!(c.period>0))return {n:0,recovered:0,fraction:null,levels:[],method:"unavailable"};
     const ordered=points.filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.y)).slice().sort((a,b)=>a.t-b.t),times=ordered.map(p=>p.t),span=times[times.length-1]-times[0];
     const width=Math.max(c.duration/2,c.period*.003),levels=[.5,1,2].map(mult=>({mult,depth:c.depth*mult,n:0,recovered:0}));
-    const residual=ordered.map(p=>{const ph=Math.abs(phaseOf(p.t,c));return {...p,y:p.y-(ph*c.period<=width?c.depth:0)};});
+    const residual=ordered.map(p=>{const ph=Math.abs(phaseOf(p.t,c));return {...p,y:p.y+(ph*c.period<=width?c.depth:0)};});
     let seed=61957;const rand=()=>{seed=(seed*48271)%2147483647;return seed/2147483647;};
     for(let k=0;k<trials;k++){
       const level=levels[k%levels.length];level.n++;const epoch=times[0]+rand()*Math.max(span-c.period,0),inside=[],outside=[];
