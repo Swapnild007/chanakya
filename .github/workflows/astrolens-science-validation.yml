@@ -1,0 +1,63 @@
+name: AstroLens scientific validation
+
+on:
+  push:
+    branches:
+      - audit/scientific-validation-roadmap
+    paths:
+      - "validation/**"
+      - ".github/workflows/astrolens-science-validation.yml"
+  workflow_dispatch:
+    inputs:
+      null_runs:
+        description: "Number of empirical null trials (minimum 1000 for the full audit)"
+        required: true
+        default: "1000"
+      period_count:
+        description: "Fixed BLS period grid size"
+        required: true
+        default: "5000"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astrolens-science-validation
+  cancel-in-progress: false
+
+jobs:
+  scientific-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: validation/requirements-independent.txt
+      - name: Install independent analysis dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r validation/requirements-independent.txt
+      - name: Download public SPOC Sector 70 data from MAST
+        run: python validation/download_sector70_lightcurve.py --output artifacts/sector70_tic278892590.csv
+      - name: Run independent BLS, null calibration, repeatability and diagnostics
+        env:
+          NULL_RUNS: ${{ github.event.inputs.null_runs || '1000' }}
+          PERIOD_COUNT: ${{ github.event.inputs.period_count || '5000' }}
+        run: |
+          mkdir -p artifacts
+          python validation/independent_bls_audit.py artifacts/sector70_tic278892590.csv \
+            --seed 20261018 --null-runs "$NULL_RUNS" --period-count "$PERIOD_COUNT" \
+            --null-mode block --block-size 30 --output artifacts/independent_bls_audit.json
+      - name: Validate report structure and hard gates
+        run: python validation/check_audit_report.py artifacts/independent_bls_audit.json
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astrolens-sector70-science-audit
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30
