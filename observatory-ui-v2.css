@@ -1,0 +1,113 @@
+/* AstroLens Observatory UI v2: real product modules, no mock metrics or fake source statuses. */
+:root{--obs-ink:#eff7ff;--obs-muted:#a4bad0;--obs-line:#263e57;--obs-cyan:#4de2e0;--obs-blue:#43aaff;--obs-glass:rgba(9,23,41,.88)}
+body{background:#050b14;background-image:radial-gradient(ellipse at 76% 0%,rgba(26,85,145,.24),transparent 38%),radial-gradient(ellipse at 6% 32%,rgba(16,61,92,.13),transparent 28%)}
+.topbar{background:rgba(4,11,21,.92);border-color:#1c3047}
+.app-shell{max-width:1780px;grid-template-columns:220px minmax(0,1fr);gap:0}
+.sidebar{border-color:#1c3047;margin-right:24px}
+.brand-symbol{box-shadow:0 0 24px #4dc9f52a}
+.main-content{min-width:0}
+body[data-workspace-view="overview"] .workspace,
+body[data-workspace-view="overview"] .analysis-grid,
+body[data-workspace-view="overview"] #commandPanels,
+body[data-workspace-view="overview"] #method,
+body[data-workspace-view="overview"] .astronomy-platform,
+body[data-workspace-view="overview"] footer{display:none!important}
+body[data-workspace-view="overview"] .hero{display:grid!important;grid-template-columns:minmax(0,1.02fr) minmax(360px,.98fr)!important;align-items:center;gap:clamp(20px,3vw,48px);padding:36px 0 24px!important;min-height:0!important;border:0}
+body[data-workspace-view="overview"] .hero-copy{max-width:700px}
+body[data-workspace-view="overview"] .hero h1{font-size:clamp(42px,4.5vw,72px);line-height:1.02;letter-spacing:-.07em}
+body[data-workspace-view="overview"] .hero-description{font-size:14px;line-height:1.8;max-width:55ch;color:#b0c2d8}
+body[data-workspace-view="overview"] .hero-art{height:clamp(300px,28vw,410px)!important;width:100%;margin:0;border:1px solid #2c4b68;border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#193f67 0,transparent 63%),linear-gradient(145deg,#0c1c30,#07101d);box-shadow:0 24px 75px #0005,inset 0 1px #ffffff12}
+body[data-workspace-view="overview"] .hero-art:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#07111b12 55%,#06101bd9);z-index:1}
+body[data-workspace-view="overview"] .hero-art .art-label,
+body[data-workspace-view="overview"] .hero-art .planet-callout{z-index:2}
+body[data-workspace-view="overview"] .hero-art .planet{width:clamp(155px,16vw,230px);height:clamp(155px,16vw,230px)}
+body[data-workspace-view="overview"] .hero-art .planet-halo{width:calc(clamp(155px,16vw,230px) + 40px);height:calc(clamp(155px,16vw,230px) + 40px)}
+body[data-workspace-view="overview"] .hero-proof{gap:9px 16px}
+body[data-workspace-view="overview"] .metrics{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 18px}
+body[data-workspace-view="overview"] .metric-card{min-height:90px;padding:13px 15px;border:1px solid #233b53;border-radius:14px;background:linear-gradient(145deg,rgba(15,34,54,.92),rgba(7,17,30,.92))}
+body[data-workspace-view="overview"] .metric-card>strong{font-size:24px;margin:8px 0 4px}
+body[data-workspace-view="overview"] .metric-label{font-size:8px}
+body[data-workspace-view="overview"] .metric-foot{font-size:9px}
+body[data-workspace-view="overview"] #missionLauncher{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0 26px}
+body[data-workspace-view="overview"] .mission-launch{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:14px;min-height:158px;padding:16px;border:1px solid #29445f;border-radius:16px;overflow:hidden;background:linear-gradient(145deg,rgba(15,35,57,.96),rgba(6,16,29,.96));text-align:left;transition:transform .22s,border-color .22s,box-shadow .22s}
+body[data-workspace-view="overview"] .mission-launch:before{content:"";position:absolute;inset:0;opacity:.72;background:radial-gradient(circle at 80% 18%,var(--module-glow,rgba(55,155,255,.24)),transparent 45%),linear-gradient(135deg,transparent 45%,rgba(90,205,255,.04));pointer-events:none}
+body[data-workspace-view="overview"] .mission-launch:hover{transform:translateY(-3px);border-color:#4b9db7;box-shadow:0 16px 35px #0003}
+body[data-workspace-view="overview"] .mission-launch-icon{position:relative;z-index:1;width:40px;height:40px;flex-basis:40px;border:1px solid #ffffff14;border-radius:12px;background:rgba(42,113,169,.2);font-size:20px}
+body[data-workspace-view="overview"] .mission-launch-copy{position:relative;z-index:1;gap:5px}
+body[data-workspace-view="overview"] .mission-launch-copy strong{font-size:13px;line-height:1.3;color:#eff7ff}
+body[data-workspace-view="overview"] .mission-launch-copy small{font-size:10px;line-height:1.5;color:#a8bdd2}
+body[data-workspace-view="overview"] .mission-launch-arrow{position:absolute;right:14px;top:14px;font-size:14px;color:#8ab8d3}
+body[data-workspace-view="overview"] .mission-launch[data-view="known"]{--module-glow:#278eff55}
+body[data-workspace-view="overview"] .mission-launch[data-view="explorer"]{--module-glow:#a45eff55}
+body[data-workspace-view="overview"] .mission-launch[data-view="lightcurve"]{--module-glow:#31d4c455}
+body[data-workspace-view="overview"] .mission-launch[data-view="reports"]{--module-glow:#f3b04b44}
+body[data-workspace-view="overview"] .mission-launch[data-view="sky"]{--module-glow:#9c77ff55}
+body[data-workspace-view="overview"] .mission-launch[data-view="solar"]{--module-glow:#ff994455}
+body[data-workspace-view="overview"] .mission-launch[data-view="spectra"]{--module-glow:#24dce055}
+body[data-workspace-view="overview"] .mission-launch[data-view="images"]{--module-glow:#f06acb44}
+body[data-workspace-view="overview"] .observatory-statusbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 48px;border:1px solid #233a51;border-radius:15px;background:linear-gradient(90deg,#0b1929,#0a1523);overflow:hidden}
+.observatory-status-item{display:flex;align-items:center;gap:11px;min-width:0;padding:16px;border-right:1px solid #20354a}
+.observatory-status-item:last-child{border-right:0}
+.observatory-status-icon{width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;border:1px solid #28445c;border-radius:10px;color:#8bdfe6;background:#10283a;font-size:17px}
+.observatory-status-copy{min-width:0;display:grid;gap:5px}
+.observatory-status-copy strong{font-size:10px;color:#e5f2ff}
+.observatory-status-copy small{font-size:9px;line-height:1.4;color:#92a9c1}
+.observatory-status-copy .status-live{color:#76dfbd}
+body[data-workspace-view="discover"] .hero,
+body[data-workspace-view="discover"] .metrics,
+body[data-workspace-view="discover"] #missionLauncher,
+body[data-workspace-view="discover"] .observatory-statusbar,
+body[data-workspace-view="discover"] .analysis-grid,
+body[data-workspace-view="discover"] #commandPanels,
+body[data-workspace-view="discover"] #method,
+body[data-workspace-view="discover"] .astronomy-platform,
+body[data-workspace-view="discover"] footer{display:none!important}
+body[data-workspace-view="discover"] .workspace{display:block!important;margin:26px 0 48px}
+body[data-workspace-view="discover"] .workspace-view-title{display:block;margin:18px 0;color:#73e4dd;font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+body[data-workspace-view="discover"] .multi-source-hub{margin:20px 0 24px}
+body[data-workspace-view="discover"] .section-head{padding-bottom:18px;border-bottom:1px solid #20354b}
+body[data-workspace-view="discover"] .section-head h2{font-size:clamp(30px,3vw,42px)}
+body[data-workspace-view="overview"] .workspace-view-title{display:none!important}
+@media(min-width:1500px){body[data-workspace-view="overview"] #missionLauncher{grid-template-columns:repeat(4,minmax(0,1fr))}.app-shell{grid-template-columns:230px minmax(0,1fr)}}
+@media(max-width:1050px){
+ .app-shell{display:block!important;max-width:920px;padding:0 18px!important}
+ body[data-workspace-view="overview"] .hero{grid-template-columns:1fr!important;gap:10px;padding:24px 0 16px!important}
+ body[data-workspace-view="overview"] .hero-copy{max-width:780px}
+ body[data-workspace-view="overview"] .hero h1{font-size:clamp(38px,7.2vw,58px)}
+ body[data-workspace-view="overview"] .hero-art{height:clamp(200px,34vw,285px)!important}
+ body[data-workspace-view="overview"] .metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin:8px 0 14px}
+ body[data-workspace-view="overview"] #missionLauncher{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0 16px}
+ body[data-workspace-view="overview"] .mission-launch{min-height:120px;padding:12px}
+ .observatory-statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .observatory-status-item:nth-child(2){border-right:0}
+ .observatory-status-item:nth-child(-n+2){border-bottom:1px solid #20354a}
+}
+@media(max-width:600px){
+ .app-shell{padding:0 13px!important}
+ body[data-workspace-view="overview"] .hero{padding:18px 0 12px!important}
+ body[data-workspace-view="overview"] .hero h1{font-size:clamp(34px,9vw,46px)!important;line-height:1.04}
+ body[data-workspace-view="overview"] .hero-description{font-size:12px;line-height:1.7;max-width:38ch}
+ body[data-workspace-view="overview"] .hero-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:15px}
+ body[data-workspace-view="overview"] .hero-actions>*{width:100%;min-height:44px}
+ body[data-workspace-view="overview"] .hero-art{height:174px!important;border-radius:15px;margin-top:8px}
+ body[data-workspace-view="overview"] .hero-art .planet{width:100px;height:100px}
+ body[data-workspace-view="overview"] .hero-art .planet-halo{width:130px;height:130px}
+ body[data-workspace-view="overview"] .hero-art .planet-callout{top:63%;max-width:110px}
+ body[data-workspace-view="overview"] .hero-proof span{font-size:7px}
+ body[data-workspace-view="overview"] .metrics{gap:7px;margin:8px 0 10px}
+ body[data-workspace-view="overview"] .metric-card{min-height:90px;padding:10px}
+ body[data-workspace-view="overview"] .metric-card>strong{font-size:22px}
+ body[data-workspace-view="overview"] .metric-foot{font-size:8px}
+ body[data-workspace-view="overview"] #missionLauncher{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 14px}
+ body[data-workspace-view="overview"] .mission-launch{min-height:128px;padding:11px;border-radius:13px;gap:12px}
+ body[data-workspace-view="overview"] .mission-launch-icon{width:34px;height:34px;flex-basis:34px;font-size:17px}
+ body[data-workspace-view="overview"] .mission-launch-copy strong{font-size:11px}
+ body[data-workspace-view="overview"] .mission-launch-copy small{font-size:9px;line-height:1.45}
+ .observatory-statusbar{grid-template-columns:1fr 1fr;margin-bottom:30px}
+ .observatory-status-item{padding:10px;gap:8px}
+ .observatory-status-icon{width:28px;height:28px;flex-basis:28px;font-size:14px}
+ .observatory-status-copy strong{font-size:9px}.observatory-status-copy small{font-size:8px}
+ body[data-workspace-view="discover"] .workspace{margin:15px 0 32px}
+ body[data-workspace-view="discover"] .multi-source-hub{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){body[data-workspace-view="overview"] .mission-launch{transition:none!important}}
