@@ -61,7 +61,7 @@ body{background-color:var(--al-bg);background-image:radial-gradient(ellipse at 8
 footer{border-top:1px solid #1d2d42;color:#8299b2}
 .command-backdrop{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;padding: min(14vh,110px) 16px 24px;background:rgba(2,7,14,.76);backdrop-filter:blur(12px)}
 .command-backdrop.open{display:flex}
-.command-panel{width:min(620px,100%);max-height:min(620px,78vh);overflow:auto;border:1px solid #36516d;border-radius:20px;background:linear-gradient(145deg,#12243a,#091522);box-shadow:0 28px 100px #000a}
+.command-deck-panel{width:min(620px,100%);max-height:min(620px,78vh);overflow:auto;border:1px solid #36516d;border-radius:20px;background:linear-gradient(145deg,#12243a,#091522);box-shadow:0 28px 100px #000a}
 .command-top{padding:18px 18px 13px;border-bottom:1px solid #253b51}
 .command-top label{display:block;font:9px var(--mono);letter-spacing:.16em;color:#8ea9c2;margin-bottom:11px}
 .command-input{width:100%;padding:14px 15px;border:1px solid #35516c;border-radius:12px;background:#071321;color:#f0f7ff;font:13px var(--sans);outline:none}
@@ -126,7 +126,7 @@ footer{border-top:1px solid #1d2d42;color:#8299b2}
  .method{padding:32px 0 38px;gap:18px}.method-intro h2{font-size:31px}.method-intro>p{font-size:11px}.method-cards article{padding:14px 34px 14px 13px}.method-cards h3{font-size:12px}.method-cards p{font-size:10px}
  .astro-domain-grid{grid-template-columns:1fr}.astro-domain-card{padding:14px}
  .command-backdrop{padding:calc(8vh + env(safe-area-inset-top)) 10px calc(18px + env(safe-area-inset-bottom))}
- .command-panel{max-height:78dvh;border-radius:17px}.command-top{padding:14px}.command-input{font-size:16px;padding:13px}
+ .command-deck-panel{max-height:78dvh;border-radius:17px}.command-top{padding:14px}.command-input{font-size:16px;padding:13px}
  .command-option{padding:10px}.command-option-icon{width:32px;height:32px}.command-option strong{font-size:11px}
  .mobile-dock{bottom:calc(10px + env(safe-area-inset-bottom))!important;left:10px!important;right:10px!important}
 }
