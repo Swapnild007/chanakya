@@ -1,0 +1,15 @@
+/* Astronomy platform expansion */
+.astronomy-platform{margin:3rem 0 5rem;scroll-margin-top:2rem}
+.astro-platform-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.4rem;margin:1.2rem 0 1.4rem;border:1px solid var(--line,rgba(140,170,210,.2));border-radius:18px;background:linear-gradient(115deg,rgba(75,125,180,.12),rgba(110,90,170,.08))}
+.astro-platform-banner strong{font-size:1.05rem}.astro-platform-banner p{margin:.35rem 0 0;color:var(--muted,#94a3b8);font-size:.9rem;line-height:1.5}
+.astro-platform-badge{white-space:nowrap;font:500 .68rem/1.2 "DM Mono",monospace;letter-spacing:.08em;color:var(--accent,#9dc5ff)}
+.astro-domain-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.astro-domain-card{min-width:0;padding:1.2rem;border:1px solid var(--line,rgba(140,170,210,.18));border-radius:18px;background:rgba(18,29,48,.58);display:flex;flex-direction:column;gap:.85rem}
+.astro-domain-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.astro-domain-number{font:500 .75rem "DM Mono",monospace;color:var(--muted,#94a3b8)}
+.astro-domain-state{font:500 .6rem "DM Mono",monospace;letter-spacing:.045em;padding:.35rem .5rem;border-radius:6px;border:1px solid rgba(140,170,210,.22);color:#a9bdd5}
+.astro-domain-state.state-existing-module{color:#9de3c0;border-color:rgba(95,205,150,.3)}.astro-domain-state.state-shared-foundation{color:#b8b4ff;border-color:rgba(160,140,255,.3)}
+.astro-domain-card h3{margin:0;font-size:1.08rem;letter-spacing:-.02em}.astro-domain-card>p{margin:0;color:var(--muted,#94a3b8);font-size:.88rem;line-height:1.65;flex:1}
+.astro-domain-methods{display:flex;flex-wrap:wrap;gap:.4rem}.astro-domain-methods span{font-size:.7rem;padding:.32rem .5rem;border-radius:6px;background:rgba(100,130,170,.12);color:#b9c8db}
+.astro-domain-links{display:flex;flex-wrap:wrap;gap:.5rem 1rem;padding-top:.8rem;border-top:1px solid var(--line,rgba(140,170,210,.16))}.astro-domain-links a{font-size:.75rem;color:var(--accent,#9dc5ff);text-decoration:none}.astro-domain-links a:hover{text-decoration:underline}
+.astro-platform-footnote{margin:1rem 0;color:var(--muted,#94a3b8);font-size:.78rem;line-height:1.65}
+@media(max-width:720px){.astro-domain-grid{grid-template-columns:1fr}.astro-platform-banner{align-items:flex-start;flex-direction:column}.astro-domain-card{padding:1rem}}
