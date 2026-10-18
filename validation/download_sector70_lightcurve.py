@@ -23,7 +23,7 @@ def main() -> int:
     # substituted. Lightkurve reads the TESS PDCSAP flux column as `lc.flux`.
     import numpy as np
     import astropy.units as u
-    exposures = search.table["exptime"].to_value(u.s)
+    exposures = np.array([float(v.to_value(u.s)) if hasattr(v, "to_value") else float(v) for v in search.table["exptime"]])
     idx = int(np.argmin(np.abs(exposures - 120.0)))
     chosen = search[idx]
     if abs(float(exposures[idx]) - 120.0) > 5.0:
@@ -31,7 +31,6 @@ def main() -> int:
     lc = chosen.download(quality_bitmask="default")
     if lc is None or len(lc) < 100:
         raise RuntimeError("Downloaded SPOC light curve is empty or too short.")
-    import numpy as np
     import pandas as pd
     t = np.asarray(lc.time.value, dtype=float)
     f = np.asarray(lc.flux.value, dtype=float)
