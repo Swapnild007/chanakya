@@ -1,0 +1,48 @@
+/* AstroLens visual identity: observatory, not generic admin dashboard */
+:root{--bg:#050914;--surface:#0b1424;--surface-raised:#111f32;--mint:#83e7d8;--cyan:#8ddcff;--gold:#e6c78f}
+body{background:radial-gradient(ellipse at 78% 7%,rgba(40,83,130,.20),transparent 35%),radial-gradient(ellipse at 15% 26%,rgba(24,93,99,.10),transparent 32%),var(--bg)}
+.cosmos{height:1050px;background:radial-gradient(ellipse at 74% 25%,rgba(63,105,177,.18),transparent 34%),radial-gradient(ellipse at 15% 8%,rgba(49,145,151,.11),transparent 29%)}
+.topbar{background:rgba(5,9,20,.78);border-bottom-color:rgba(126,175,204,.18)}
+.brand-symbol{border-color:#91b9d0;box-shadow:0 0 28px rgba(87,204,222,.12)}
+.hero{min-height:520px;grid-template-columns:minmax(0,1.03fr) minmax(300px,.97fr);gap:12px;padding-top:48px;padding-bottom:40px}
+.hero h1{font-size:clamp(38px,4.7vw,66px);letter-spacing:-.07em;max-width:680px}
+.hero h1 em{color:#9de6f2;background:linear-gradient(100deg,#a7e8f5,#83e8d3 72%,#d3d2ff);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-art{height:420px;transform:none}
+.planet{background:radial-gradient(circle at 29% 24%,#f1e3c5 0,#9bbfc9 9%,#4b7e9b 24%,#274b70 48%,#101c37 72%);box-shadow:inset -28px -16px 48px #02040dbb,inset 10px 8px 24px #efffff66,0 0 0 1px #9be7e34a,0 0 80px #50b3cf35}
+.planet:before{background:repeating-linear-gradient(168deg,transparent 0 13px,#d5e8e42b 14px 18px,transparent 21px 33px,#07142e58 35px 44px)}
+.planet-halo{border-color:#8ce4e94a;box-shadow:0 0 48px #69b7d21b}
+.orbit-one{border-color:#9fe7ed42}.orbit-two{border-color:#b3baff35}.orbit-three{border-color:#8bdcc42b}
+.planet-moon{box-shadow:0 0 18px #bdccf36b}
+.metrics{margin-bottom:74px}
+.metric-card,.panel,.candidate,.astro-domain-card{border-radius:13px;border-color:rgba(128,171,202,.22);box-shadow:0 12px 36px rgba(0,0,0,.12)}
+.metric-card{background:linear-gradient(140deg,rgba(18,35,54,.94),rgba(8,17,31,.96))}
+.metric-featured{background:linear-gradient(135deg,rgba(16,50,52,.94),rgba(8,19,31,.96))}
+.section-head h2,.panel-head h2{letter-spacing:-.055em}
+.astronomy-platform{padding:30px 0 44px;border-top:1px solid rgba(132,186,212,.17)}
+.astro-platform-banner{background:radial-gradient(ellipse at 0 50%,rgba(58,159,163,.14),transparent 55%),linear-gradient(120deg,rgba(18,37,57,.85),rgba(9,18,32,.85));border-color:rgba(137,192,210,.25)}
+.astro-domain-card{background:linear-gradient(150deg,rgba(18,34,53,.94),rgba(7,16,29,.96));transition:transform .22s,border-color .22s,box-shadow .22s}
+.astro-domain-card:hover{transform:translateY(-3px);border-color:rgba(131,231,216,.42);box-shadow:0 16px 38px rgba(0,0,0,.2)}
+.astro-domain-card h3{font-size:1.15rem;letter-spacing:-.035em}
+.astro-domain-number{color:#9de6d9}
+.astro-domain-links a{color:#9de0ee}
+.method{border-top-color:rgba(132,186,212,.18)}
+@media(max-width:1050px){.hero{grid-template-columns:minmax(0,1fr) minmax(230px,.75fr)}.hero-art{height:340px}}
+@media(max-width:760px){
+ .hero{grid-template-columns:minmax(0,1fr);padding-top:26px;gap:0}
+ .hero-copy{order:1}
+ .hero-art{order:2;display:grid;height:260px;margin:8px -8px 0;transform:none}
+ .planet{width:122px;height:122px}
+ .planet-halo{width:154px;height:154px}
+ .orbit-one{width:215px;height:96px}
+ .orbit-two{width:285px;height:132px}
+ .orbit-three{width:330px;height:164px}
+ .planet-callout{top:63%;right:1%;max-width:145px}
+ .planet-callout strong{font-size:9px}
+ .art-label{left:8px;right:8px}
+ .hero h1{font-size:clamp(35px,9.2vw,48px);line-height:1.06}
+ .hero-description{max-width:420px}
+ .metrics{margin-top:10px;margin-bottom:34px}
+ .astronomy-platform{margin-top:2rem;padding-top:24px}
+ .astro-domain-card{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){.planet,.astro-domain-card{animation:none;transition:none}}
