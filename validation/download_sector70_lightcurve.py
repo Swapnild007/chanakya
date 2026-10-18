@@ -18,10 +18,17 @@ def main() -> int:
     search = lk.search_lightcurve("TIC 278892590", mission="TESS", sector=70, author="SPOC")
     if len(search) == 0:
         raise RuntimeError("MAST returned no SPOC light curves for TIC 278892590, Sector 70.")
-    # Prefer the exact sector/target and PDCSAP product; do not silently fall back
-    # to another sector or author.
-    chosen = search[0]
-    lc = chosen.download(flux_type="pdcsap_flux", quality_bitmask="default")
+    # The supplied analysis CSV has approximately 120-second cadence. Select the
+    # closest SPOC exposure explicitly so a 20-second fast product is not silently
+    # substituted. Lightkurve reads the TESS PDCSAP flux column as `lc.flux`.
+    import numpy as np
+    import astropy.units as u
+    exposures = search.table["exptime"].to_value(u.s)
+    idx = int(np.argmin(np.abs(exposures - 120.0)))
+    chosen = search[idx]
+    if abs(float(exposures[idx]) - 120.0) > 5.0:
+        raise RuntimeError(f"No approximately 120-second SPOC product found. Available exposures: {exposures.tolist()}")
+    lc = chosen.download(quality_bitmask="default")
     if lc is None or len(lc) < 100:
         raise RuntimeError("Downloaded SPOC light curve is empty or too short.")
     import numpy as np
