@@ -23,7 +23,7 @@ permissions:
 
 concurrency:
   group: astrolens-science-validation
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   scientific-audit:
@@ -53,8 +53,12 @@ jobs:
           python validation/independent_bls_audit.py artifacts/sector70_tic278892590.csv \
             --seed 20261018 --null-runs "$NULL_RUNS" --period-count "$PERIOD_COUNT" \
             --null-mode block --block-size 30 --output artifacts/independent_bls_audit.json
-      - name: Validate report structure and hard gates
+      - name: Run fixed-rule injection recovery curve
+        run: python validation/injection_recovery.py artifacts/sector70_tic278892590.csv --seed 20261018 --trials-per-depth 10 --period-count "$PERIOD_COUNT" --output artifacts/injection_recovery.json
+      - name: Validate independent search report and hard gates
         run: python validation/check_audit_report.py artifacts/independent_bls_audit.json
+      - name: Validate injection recovery report
+        run: python validation/check_injection_report.py artifacts/injection_recovery.json
       - name: Upload audit artifacts
         if: always()
         uses: actions/upload-artifact@v4
