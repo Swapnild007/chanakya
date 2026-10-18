@@ -31,7 +31,7 @@
     hero.insertAdjacentElement("afterend",launcher);
     launcher.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)navigate(b.dataset.view);});
     const backdrop=document.createElement("div");backdrop.className="command-backdrop";backdrop.id="commandBackdrop";
-    backdrop.innerHTML='<section class="command-panel" role="dialog" aria-modal="true" aria-labelledby="commandLabel"><div class="command-top"><label id="commandLabel" for="commandInput">ASTROLENS COMMAND DECK</label><input id="commandInput" class="command-input" type="search" placeholder="Find a workspace or task…" autocomplete="off"><div class="command-footer"><span>Navigate your observatory</span><span><kbd>ESC</kbd> close</span></div></div><div class="command-results" id="commandResults"></div></section>';
+    backdrop.innerHTML='<section class="command-deck-panel" role="dialog" aria-modal="true" aria-labelledby="commandLabel"><div class="command-top"><label id="commandLabel" for="commandInput">ASTROLENS COMMAND DECK</label><input id="commandInput" class="command-input" type="search" placeholder="Find a workspace or task…" autocomplete="off"><div class="command-footer"><span>Navigate your observatory</span><span><kbd>ESC</kbd> close</span></div></div><div class="command-results" id="commandResults"></div></section>';
     document.body.appendChild(backdrop);
     const input=$("#commandInput"),results=$("#commandResults");
     function render(q=""){
