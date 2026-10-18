@@ -1,0 +1,76 @@
+/* AstroLens bold workspace redesign: overview is a launchpad; tools open as focused workspaces. */
+body[data-workspace-view="overview"] .workspace,
+body[data-workspace-view="overview"] .analysis-grid,
+body[data-workspace-view="overview"] #commandPanels,
+body[data-workspace-view="overview"] #method,
+body[data-workspace-view="overview"] .astronomy-platform,
+body[data-workspace-view="overview"] footer{display:none!important}
+body[data-workspace-view="overview"] #missionLauncher{margin:18px 0 14px}
+body[data-workspace-view="overview"] .hero{border:0;min-height:0!important;padding:32px 0 22px!important}
+body[data-workspace-view="overview"] .metrics{margin:12px 0 28px}
+body[data-workspace-view="overview"] .metric-card{min-height:116px}
+body[data-workspace-view="overview"] .hero-art{height:300px!important}
+body[data-workspace-view="overview"] .hero-proof{margin-top:14px}
+body[data-workspace-view="overview"] .workspace-view-title{display:none}
+body[data-workspace-view="discover"] .hero,
+body[data-workspace-view="discover"] .metrics,
+body[data-workspace-view="discover"] #missionLauncher,
+body[data-workspace-view="discover"] .analysis-grid,
+body[data-workspace-view="discover"] #commandPanels,
+body[data-workspace-view="discover"] #method,
+body[data-workspace-view="discover"] .astronomy-platform,
+body[data-workspace-view="discover"] footer{display:none!important}
+body[data-workspace-view="discover"] .workspace{margin:28px 0 52px}
+body[data-workspace-view="discover"] .workspace-view-title,
+body[data-workspace-view="known"] .workspace-view-title,
+body[data-workspace-view="explorer"] .workspace-view-title,
+body[data-workspace-view="lightcurve"] .workspace-view-title,
+body[data-workspace-view="analysis"] .workspace-view-title,
+body[data-workspace-view="reports"] .workspace-view-title,
+body[data-workspace-view="sky"] .workspace-view-title{display:block;margin:22px 0 0;color:#80e4d8;font:500 10px var(--mono);letter-spacing:.17em;text-transform:uppercase}
+.workspace-view-title:before{content:"●";font-size:7px;margin-right:9px;color:#71e1d3;vertical-align:2px}
+body[data-workspace-view="discover"] .multi-source-hub{margin:20px 0 24px}
+body[data-workspace-view="discover"] .section-head{padding-bottom:18px;border-bottom:1px solid #20334a}
+body[data-workspace-view="discover"] .section-head h2{font-size:clamp(30px,3vw,42px)}
+body[data-workspace-view="discover"] .candidate-list:empty{min-height:0}
+body[data-workspace-view="overview"] .mission-launcher{grid-template-columns:repeat(3,minmax(0,1fr))}
+body[data-workspace-view="overview"] .mission-launch{min-height:82px;padding:16px}
+body[data-workspace-view="overview"] .mission-launch-copy strong{font-size:12px}
+body[data-workspace-view="overview"] .mission-launch-copy small{font-size:10px}
+@media(min-width:1051px){
+ body[data-workspace-view="overview"] .hero{grid-template-columns:minmax(0,1.08fr) minmax(350px,.92fr)!important;gap:38px}
+ body[data-workspace-view="overview"] .hero-art{height:340px!important}
+ body[data-workspace-view="overview"] .hero h1{font-size:clamp(46px,4.4vw,68px)}
+ body[data-workspace-view="overview"] .metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+ body[data-workspace-view="discover"] .workspace{display:block}
+}
+@media(max-width:1050px){
+ body[data-workspace-view="overview"] .hero{padding:24px 0 16px!important;gap:4px}
+ body[data-workspace-view="overview"] .hero-art{height:210px!important;margin-top:12px}
+ body[data-workspace-view="overview"] .mission-launcher{margin:12px 0 10px}
+ body[data-workspace-view="overview"] .mission-launch{min-height:62px;padding:11px 10px}
+ body[data-workspace-view="overview"] .metrics{margin:8px 0 22px}
+ body[data-workspace-view="overview"] .metric-card{min-height:100px}
+ body[data-workspace-view="discover"] .workspace{margin:16px 0 34px}
+ body[data-workspace-view="discover"] .multi-source-hub{padding:16px;border-radius:18px}
+}
+@media(max-width:600px){
+ body[data-workspace-view="overview"] .hero{padding:18px 0 12px!important}
+ body[data-workspace-view="overview"] .hero h1{font-size:clamp(34px,9vw,45px)!important}
+ body[data-workspace-view="overview"] .hero-description{max-width:36ch;font-size:12px}
+ body[data-workspace-view="overview"] .hero-art{height:164px!important}
+ body[data-workspace-view="overview"] .planet{width:98px;height:98px}
+ body[data-workspace-view="overview"] .planet-halo{width:124px;height:124px}
+ body[data-workspace-view="overview"] .planet-callout{top:64%;max-width:112px}
+ body[data-workspace-view="overview"] .mission-launcher{grid-template-columns:1fr;gap:7px;margin:10px 0}
+ body[data-workspace-view="overview"] .mission-launch{min-height:56px;padding:10px 12px}
+ body[data-workspace-view="overview"] .mission-launch-icon{width:33px;height:33px;flex-basis:33px}
+ body[data-workspace-view="overview"] .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:7px 0 18px}
+ body[data-workspace-view="overview"] .metric-card{min-height:95px;padding:10px}
+ body[data-workspace-view="overview"] .metric-card>strong{font-size:23px}
+ body[data-workspace-view="overview"] .metric-foot{font-size:8px}
+ body[data-workspace-view="discover"] .workspace-view-title{margin-top:17px}
+ body[data-workspace-view="discover"] .section-head h2{font-size:28px}
+ body[data-workspace-view="discover"] .msh-head h2{font-size:24px}
+ body[data-workspace-view="discover"] .msh-chip{white-space:normal;text-align:right}
+}
