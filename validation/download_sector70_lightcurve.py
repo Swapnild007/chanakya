@@ -43,7 +43,7 @@ def main() -> int:
     import json
     meta_keys = ("TICID", "RA_OBJ", "DEC_OBJ", "CROWDSAP", "SECTOR", "CAMERA", "CCD", "AUTHOR", "ORIGIN", "DATE-OBS", "DATE-END")
     metadata = {k: str(lc.meta[k]) for k in meta_keys if k in lc.meta}
-    args.output.with_suffix(".metadata.json").write_text(json.dumps({"search_result": str(chosen), "metadata": metadata}, indent=2) + "\\n", encoding="utf-8")
+    args.output.with_suffix(".metadata.json").write_text(json.dumps({"search_result": str(chosen), "metadata": metadata}, indent=2) + "\n", encoding="utf-8")
     print(f"MAST product: {chosen}")
     print(f"Rows written: {len(out)}")
     print(f"Output: {args.output}")
