@@ -53,6 +53,8 @@ jobs:
           python validation/independent_bls_audit.py artifacts/sector70_tic278892590.csv \
             --seed 20261018 --null-runs "$NULL_RUNS" --period-count "$PERIOD_COUNT" \
             --null-mode block --block-size 30 --output artifacts/independent_bls_audit.json
+      - name: Run candidate event and excursion diagnostics
+        run: python validation/transit_vetting.py artifacts/sector70_tic278892590.csv artifacts/independent_bls_audit.json --output artifacts/transit_vetting.json
       - name: Run fixed-rule injection recovery curve
         env:
           PERIOD_COUNT: ${{ github.event.inputs.period_count || '5000' }}
