@@ -28,8 +28,9 @@ def depth_for_event(t: np.ndarray, residual: np.ndarray, centre: float, duration
         return {"centre": float(centre), "n_in": int(inside.sum()), "n_out": int(outside.sum()), "depth": None, "uncertainty": None, "snr": None}
     d = float(np.median(residual[outside]) - np.median(residual[inside]))
     si, so = robust_sigma(residual[inside]), robust_sigma(residual[outside])
-    err = float(np.sqrt((si * si / inside.sum()) + (so * so / outside.sum()))) if np.isfinite(si) and np.isfinite(so) else float("nan")
-    return {"centre": float(centre), "n_in": int(inside.sum()), "n_out": int(outside.sum()), "depth": d, "uncertainty": err, "snr": float(d / err) if err > 0 and np.isfinite(err) else None}
+    err_value = float(np.sqrt((si * si / inside.sum()) + (so * so / outside.sum()))) if np.isfinite(si) and np.isfinite(so) else float("nan")
+    err = err_value if np.isfinite(err_value) else None
+    return {"centre": float(centre), "n_in": int(inside.sum()), "n_out": int(outside.sum()), "depth": d, "uncertainty": err, "snr": float(d / err) if err is not None and err > 0 else None}
 
 def summarize_events(events: list[dict]) -> dict:
     valid = [e for e in events if e.get("depth") is not None and e.get("uncertainty") and e["uncertainty"] > 0]
