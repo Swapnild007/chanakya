@@ -163,6 +163,15 @@ def main() -> int:
         ap.error("Durations must be positive, period-count at least 100, and null-runs at least 1.")
 
     observed = best_bls(t, y, periods, durations)
+    # Deterministic repeatability check on the exact same input and grid.
+    repeated = best_bls(t, y, periods, durations)
+    repeatability = {
+        "period_identical": observed["period_days"] == repeated["period_days"],
+        "duration_identical": observed["duration_days"] == repeated["duration_days"],
+        "max_power_identical": observed["max_power"] == repeated["max_power"],
+        "period_difference_days": abs(observed["period_days"] - repeated["period_days"]),
+        "power_difference": abs(observed["max_power"] - repeated["max_power"]),
+    }
     observed["grid"] = {
         "period_min_days": args.period_min,
         "period_max_days": args.period_max,
@@ -210,6 +219,7 @@ def main() -> int:
             "statistic": "maximum Astropy BoxLeastSquares SNR over the fixed period-duration grid",
         },
         "astropy_bls": observed,
+        "repeatability": repeatability,
         "lightkurve_bls": lk_result,
         "lightkurve_error": lk_error,
         "peak_agreement": None if lk_result is None else {
@@ -237,6 +247,7 @@ def main() -> int:
         "astropy_peak": observed,
         "lightkurve_peak": lk_result,
         "lightkurve_error": lk_error,
+        "repeatability": repeatability,
         "null_mode": args.null_mode,
         "null_runs": args.null_runs,
         "exceedances": exceed,
