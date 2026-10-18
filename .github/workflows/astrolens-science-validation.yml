@@ -40,6 +40,8 @@ jobs:
           cache-dependency-path: validation/requirements-independent.txt
       - name: Install independent analysis dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r validation/requirements-independent.txt
+      - name: Prepare artifact directory
+        run: mkdir -p artifacts
       - name: Download public SPOC Sector 70 data from MAST
         run: python validation/download_sector70_lightcurve.py --output artifacts/sector70_tic278892590.csv
       - name: Run independent BLS, null calibration, repeatability and diagnostics
