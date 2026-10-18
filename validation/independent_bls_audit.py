@@ -115,10 +115,12 @@ def best_bls(t: np.ndarray, y: np.ndarray, periods: np.ndarray, durations: np.nd
     period_grid = align(result.period, "period")
     duration_grid = align(result.duration, "duration")
     time_grid = align(result.transit_time, "time")
+    depth_grid = align(result.depth, "duration") if hasattr(result, "depth") else np.full(power.shape, np.nan)
     return {
         "period_days": float(period_grid[ix]),
         "duration_days": float(duration_grid[ix]),
         "transit_time": float(time_grid[ix]),
+        "depth_fraction": float(depth_grid[ix]),
         "max_power": float(power[ix]),
         "period_index": int(ix[0]),
         "duration_index": int(ix[-1]) if len(ix) > 1 else 0,
