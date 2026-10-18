@@ -25,6 +25,9 @@ def main() -> int:
         errors.append("Lightkurve BLS did not produce an independent peak.")
     if not agreement or not agreement.get("within_one_grid_step", False):
         errors.append("Astropy and Lightkurve peak periods do not agree within one grid step.")
+    rep = report.get("repeatability", {})
+    if not all(rep.get(k, False) for k in ("period_identical", "duration_identical", "max_power_identical")):
+        errors.append("Repeated same-input BLS run was not exactly reproducible.")
     if int(null.get("trials", 0)) < 1000:
         errors.append("Null calibration count in the report is below 1000.")
     if null.get("fap_add_one") is None:
@@ -34,6 +37,7 @@ def main() -> int:
         "astropy_period_days": report.get("astropy_bls", {}).get("period_days"),
         "lightkurve_period_days": (lk or {}).get("period_days"),
         "peak_agreement": agreement,
+        "repeatability": report.get("repeatability"),
         "null_trials": null.get("trials"),
         "empirical_tail_estimate": null.get("fap_add_one"),
         "errors": errors,
