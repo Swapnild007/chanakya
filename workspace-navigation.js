@@ -31,6 +31,7 @@
   function setView(key,updateHash=true){
     if(!views[key])key="overview";
     current=key;
+    document.body.dataset.workspaceView=key;
     const cfg=views[key];
     allTop.forEach(sel=>visible($(sel),cfg.show.includes(sel)));
     const lab=$("#dataLab"), curve=lab?.querySelector(".curve-visual"), mast=lab?.querySelector(".mast-import"),
