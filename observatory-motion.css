@@ -8,7 +8,7 @@
 .orbit-one{animation:orbit-breathe 8s ease-in-out infinite alternate}
 .orbit-two{animation:orbit-breathe 11s ease-in-out infinite alternate-reverse}
 .orbit-three{animation:orbit-turn 80s linear infinite}
-.planet-moon{animation:moon-turn 24s linear infinite}
+.planet-moon{transform-origin:-120px 100px;animation:moon-turn 24s linear infinite}
 .orbit-point{animation:point-pulse 3.5s ease-in-out infinite}
 .art-star{animation:star-twinkle 4s ease-in-out infinite}
 .star-two{animation-delay:1.2s}.star-three{animation-delay:2.1s}.star-one{animation-delay:.5s}
@@ -29,7 +29,7 @@
 @keyframes planet-glow{from{filter:saturate(.92) brightness(.94)}to{filter:saturate(1.08) brightness(1.07)}}
 @keyframes orbit-breathe{from{opacity:.42}to{opacity:.95}}
 @keyframes orbit-turn{from{transform:translate(-50%,-50%) rotate(-52deg)}to{transform:translate(-50%,-50%) rotate(308deg)}}
-@keyframes moon-turn{from{transform:rotate(0deg) translateX(0)}to{transform:rotate(360deg) translateX(0)}}
+@keyframes moon-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes point-pulse{0%,100%{opacity:.45;box-shadow:0 0 7px #b5b5ff}50%{opacity:1;box-shadow:0 0 20px #b5b5ff}}
 @keyframes star-twinkle{0%,100%{opacity:.45;transform:scale(.88) rotate(-8deg)}50%{opacity:1;transform:scale(1.12) rotate(8deg)}}
 @keyframes card-sheen{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
