@@ -23,13 +23,28 @@
     if(!hero||$("#missionLauncher"))return;
     const launcher=document.createElement("nav");
     launcher.id="missionLauncher";launcher.className="mission-launcher";launcher.setAttribute("aria-label","Quick launch");
-    launcher.innerHTML=[
-      ['◎','Discover objects','Open catalogue workspace','known'],
-      ['⌁','Analyse observations','Open light-curve tools','lightcurve'],
-      ['✳','Methods & evidence','Review scientific standards','reports']
-    ].map(([icon,title,desc,view])=>'<button type="button" class="mission-launch" data-view="'+view+'"><span class="mission-launch-icon" aria-hidden="true">'+icon+'</span><span class="mission-launch-copy"><strong>'+title+'</strong><small>'+desc+'</small></span><span class="mission-launch-arrow" aria-hidden="true">↗</span></button>').join("");
+    const modules=[
+      {icon:"⌕",title:"Discover",desc:"Search known objects and query supported archives.",view:"explorer",state:"LIVE WORKSPACE",live:true},
+      {icon:"✧",title:"Sky Explorer",desc:"Explore targets and open available object details.",view:"sky",state:"WORKSPACE",live:true},
+      {icon:"⌁",title:"Exoplanet Lab",desc:"Import TESS observations and test transit-like signals.",view:"lightcurve",state:"LIVE ANALYSIS",live:true},
+      {icon:"◎",title:"Stars & Galaxies",desc:"Resolve known targets against available catalogues.",view:"known",state:"CATALOGUE TOOLS",live:true},
+      {icon:"☼",title:"Solar System",desc:"Dedicated planetary ephemerides and mission explorer.",view:"solar",state:"IN DEVELOPMENT",live:false},
+      {icon:"⌬",title:"Transients",desc:"Transient-event feeds and follow-up workflow.",view:"transients",state:"IN DEVELOPMENT",live:false},
+      {icon:"▥",title:"Spectra",desc:"Spectrum viewer, line identification and redshift tools.",view:"spectra",state:"IN DEVELOPMENT",live:false},
+      {icon:"▧",title:"Images",desc:"Multiwavelength image comparison and overlays.",view:"images",state:"IN DEVELOPMENT",live:false}
+    ];
+    launcher.innerHTML=modules.map(m=>'<button type="button" class="mission-launch" data-view="'+m.view+'" '+(m.live?'':'disabled aria-disabled="true"')+'><span class="mission-launch-icon" aria-hidden="true">'+m.icon+'</span><span class="mission-launch-copy"><strong>'+m.title+'</strong><small>'+m.desc+'</small><span class="module-state '+(m.live?'module-state-live':'module-state-planned')+'">'+m.state+'</span></span>'+(m.live?'<span class="mission-launch-arrow" aria-hidden="true">↗</span>':'')).join("");
     hero.insertAdjacentElement("afterend",launcher);
-    launcher.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)navigate(b.dataset.view);});
+    const status=document.createElement("section");
+    status.className="observatory-statusbar";status.setAttribute("aria-label","AstroLens capabilities and data status");
+    status.innerHTML=[
+      ["⌕","Archive discovery","Queries run on demand","live"],
+      ["⌁","Local analysis","Use your own observation files",""],
+      ["✳","Scientific integrity","Results retain uncertainty",""],
+      ["◌","Source status","No source is claimed active until queried",""]
+    ].map(([icon,title,desc,state])=>'<div class="observatory-status-item"><span class="observatory-status-icon" aria-hidden="true">'+icon+'</span><span class="observatory-status-copy"><strong>'+title+'</strong><small class="'+(state?'status-live':'')+'">'+desc+'</small></span></div>').join("");
+    launcher.insertAdjacentElement("afterend",status);
+    launcher.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(!b||b.disabled)return;navigate(b.dataset.view);});
     const backdrop=document.createElement("div");backdrop.className="command-backdrop";backdrop.id="commandBackdrop";
     backdrop.innerHTML='<section class="command-deck-panel" role="dialog" aria-modal="true" aria-labelledby="commandLabel"><div class="command-top"><label id="commandLabel" for="commandInput">ASTROLENS COMMAND DECK</label><input id="commandInput" class="command-input" type="search" placeholder="Find a workspace or task…" autocomplete="off"><div class="command-footer"><span>Navigate your observatory</span><span><kbd>ESC</kbd> close</span></div></div><div class="command-results" id="commandResults"></div></section>';
     document.body.appendChild(backdrop);
