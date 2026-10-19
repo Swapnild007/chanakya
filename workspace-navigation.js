@@ -4,7 +4,7 @@
  const main=$(".main-content"), sidebar=$("#sidebar"), menu=$("#mobileMenu");
  const links=$$(".sidebar .nav-link, .bottom-dock a");
  const modules={
-  sky:["Sky Explorer","Browse the sky by coordinates, constellation or object name.","CATALOGUE VIEW","A live sky-position renderer is not connected yet. Use Discover to resolve named targets against public catalogues."],
+  sky:["Sky Explorer","Explore celestial coordinates and resolve named targets without leaving AstroLens.","INTERACTIVE SKY WORKSPACE",""],
   solar:["Solar System","Planetary bodies, moons, small bodies and mission observations.","IN DEVELOPMENT","A live ephemeris and mission-data module is not connected yet. No positions or orbital values are fabricated."],
   stars:["Stars & Galaxies","Resolve stellar and extragalactic targets with source-traceable catalogue records.","CATALOGUE WORKSPACE","This workspace is reserved for stellar and galaxy records. Use Discover for the current multi-archive resolver while dedicated target-class filters are being connected."],
   transients:["Transients","Explore time-domain events and follow-up observations.","IN DEVELOPMENT","A verified transient feed and event cross-match pipeline are not connected yet."],
@@ -12,7 +12,7 @@
   images:["Astronomy Images","Explore image products with telescope, instrument, filter and provenance metadata.","IN DEVELOPMENT","A searchable image archive viewer is not connected yet. The artwork on Home is decorative, not scientific observation data."]
  };
  const keys={
-  home:{show:["#overview","#moduleSection",".metrics","#researchCockpit"],title:"Home"},
+  home:{show:["#overview","#moduleSection",".metrics","#researchPipeline","#researchCockpit"],title:"Home"},
   discover:{show:["#explorer"],title:"Discover"},
   sky:{show:["#moduleDetailView"],title:"Sky Explorer",module:"sky"},
   solar:{show:["#moduleDetailView"],title:"Solar System",module:"solar"},
@@ -52,6 +52,16 @@
  function renderModule(key){
   const el=$("#moduleDetailView"),d=modules[key];if(!el)return;
   if(!d){el.classList.add("workspace-view-hidden");el.innerHTML="";return;}
+  if(key==="sky"){
+   el.innerHTML='<div class="eyebrow"><span class="eyebrow-line"></span> ASTROLENS RESEARCH WORKSPACE</div><h1>Sky Explorer</h1><p class="workspace-lead">Search a target or enter coordinates. Results stay here, inside AstroLens.</p><section class="sky-workspace-panel"><div class="sky-query-row"><label>Object name<input id="skyTargetInput" type="search" placeholder="e.g. M31, Sirius, Vega" value="M31"></label><button type="button" class="primary" id="skyResolveBtn">Resolve target</button></div><div class="sky-query-row sky-coordinates"><label>Right ascension (degrees)<input id="skyRaInput" type="number" min="0" max="360" step="any" placeholder="10.6847"></label><label>Declination (degrees)<input id="skyDecInput" type="number" min="-90" max="90" step="any" placeholder="41.2688"></label><button type="button" class="secondary" id="skyPlotBtn">Plot coordinates</button></div><p id="skyStatus" class="status-message" role="status">Try M31 or enter RA/Dec in decimal degrees. Coordinate plotting works locally; name resolution uses a public astronomy service.</p><div id="skyResult" class="sky-result"><div class="sky-map" id="skyMap" role="img" aria-label="Sky coordinate plot waiting for target"><span class="sky-map-grid"></span><span class="sky-map-crosshair"></span><span class="sky-map-center">NO TARGET</span></div><div class="sky-result-meta"><span class="module-detail-status">WAITING FOR TARGET</span><h2 id="skyObjectName">No object selected</h2><p id="skyObjectCoords">Enter a name or coordinates to begin.</p><p class="sky-source-note" id="skySourceNote">No source has been queried yet.</p></div></div></section>';
+   const target=el.querySelector("#skyTargetInput"),ra=el.querySelector("#skyRaInput"),dec=el.querySelector("#skyDecInput"),status=el.querySelector("#skyStatus");
+   const paint=(name,r,d,source)=>{const map=el.querySelector("#skyMap");map.classList.add("has-target");map.style.setProperty("--target-x",(Number(r)/360*100)+"%");map.style.setProperty("--target-y",((90-Number(d))/180*100)+"%");el.querySelector("#skyMap .sky-map-center").textContent=Number(r).toFixed(4)+"°, "+Number(d).toFixed(4)+"°";el.querySelector("#skyObjectName").textContent=name;el.querySelector("#skyObjectCoords").textContent="RA "+Number(r).toFixed(6)+"° · Dec "+Number(d).toFixed(6)+"°";el.querySelector("#skySourceNote").textContent=source;el.querySelector(".sky-result-meta .module-detail-status").textContent="COORDINATES AVAILABLE";};
+   const plot=()=>{const r=Number(ra.value),d=Number(dec.value);if(ra.value===""||dec.value===""||!Number.isFinite(r)||!Number.isFinite(d)||r<0||r>360||d< -90||d>90){status.textContent="Enter RA from 0 to 360° and Dec from −90 to +90°.";return;}paint(target.value.trim()||"User-supplied coordinate",r,d,"Source: user-entered coordinates. No catalogue identity is implied.");status.textContent="Coordinate plotted locally. The marker is a coordinate visualization, not an image of the sky.";};
+   el.querySelector("#skyPlotBtn").addEventListener("click",plot);
+   const resolve=async()=>{const q=target.value.trim();if(!q){status.textContent="Enter an object name first.";return;}const btn=el.querySelector("#skyResolveBtn");btn.disabled=true;status.textContent="Resolving "+q+" against CDS Sesame…";try{const url="https://cds.unistra.fr/cgi-bin/nph-sesame/-oxp/SNV?"+encodeURIComponent(q);const res=await fetch(url,{headers:{Accept:"text/plain"}});if(!res.ok)throw Error("Resolver returned HTTP "+res.status);const body=await res.text();const match=body.match(/%J\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/);if(!match)throw Error("No decimal-degree coordinates were returned for this name.");const r=Number(match[1]),d=Number(match[2]);ra.value=r;dec.value=d;paint(q,r,d,"Source: CDS Sesame name resolver. Verify object identity against a source catalogue.");status.textContent="Target resolved by the public CDS Sesame service. The marker is a coordinate plot, not an observed image.";}catch(e){status.textContent="Could not resolve this name ("+e.message+"). You can still enter RA/Dec manually and plot locally.";}finally{btn.disabled=false;}};
+   el.querySelector("#skyResolveBtn").addEventListener("click",resolve);target.addEventListener("keydown",e=>{if(e.key==="Enter")resolve();});ra.addEventListener("keydown",e=>{if(e.key==="Enter")plot();});dec.addEventListener("keydown",e=>{if(e.key==="Enter")plot();});
+   return;
+  }
   el.innerHTML='<div class="eyebrow"><span class="eyebrow-line"></span> ASTROLENS RESEARCH WORKSPACE</div><h1>'+d[0]+'</h1><p class="workspace-lead">'+d[1]+'</p><article class="module-detail-card"><span class="module-detail-status">'+d[2]+'</span><h2>'+d[0]+'</h2><p>'+d[3]+'</p><div class="module-detail-actions"><button type="button" class="primary" data-go-discover>Open Discover →</button><button type="button" class="secondary" data-go-home>Back to Home</button></div></article>';
   el.querySelector("[data-go-discover]")?.addEventListener("click",()=>show("discover"));
   el.querySelector("[data-go-home]")?.addEventListener("click",()=>show("home"));
@@ -59,7 +69,7 @@
  function show(key,writeHash=true){
   if(!keys[key])key="home";
   ensureWorkspace();
-  const cfg=keys[key], selectors=["#overview","#moduleSection",".metrics","#researchCockpit","#explorer",".analysis-grid","#exoplanetWorkspace","#analysisWorkspace","#method","footer","#moduleDetailView"];
+  const cfg=keys[key], selectors=["#overview","#moduleSection",".metrics","#researchPipeline","#researchCockpit","#explorer",".analysis-grid","#exoplanetWorkspace","#analysisWorkspace","#method","footer","#moduleDetailView"];
   selectors.forEach(sel=>{const el=$(sel);if(el)el.classList.toggle("workspace-view-hidden",!cfg.show.includes(sel));});
   renderModule(cfg.module);
   links.forEach(a=>{const active=keyFor(a)===key;a.classList.toggle("active",active);if(active)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
