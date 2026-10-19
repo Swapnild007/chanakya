@@ -1,115 +1,50 @@
-/* AstroLens workspace navigation: each menu item opens a focused tool view. */
+/* AstroLens focused workspace navigation. One selected destination and one focused view. */
 (() => {
-  const $ = (s, root=document) => root.querySelector(s);
-  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-  const views = {
-    overview: {title:"Overview", show:[".hero",".metrics",".workspace"]},
-    discover: {title:"Discover", show:[".workspace"]},
-    explorer: {title:"Data Explorer", show:[".analysis-grid"], mode:"data"},
-    lightcurve: {title:"Light Curve Lab", show:[".analysis-grid"], mode:"lightcurve"},
-    analysis: {title:"AI Analysis", show:[".analysis-grid"], mode:"analysis"},
-    known: {title:"Known Objects", show:[".workspace"], mode:"known"},
-    reports: {title:"Reports & Methods", show:["#method","#commandPanels"], mode:"reports"},
-    sky: {title:"Sky Map & Reports", show:[".analysis-grid"], mode:"sky"}
-  };
-  let current="overview";
-  const main=$(".main-content");
-  const allTop=[".hero",".metrics",".workspace",".analysis-grid","#commandPanels","#method","footer"];
-  function visible(el,on){if(el)el.classList.toggle("workspace-view-hidden",!on)}
-  function infer(label){
-    const t=label.toLowerCase();
-    if(t.includes("overview")||t.includes("home"))return "overview";
-    if(t.includes("discover"))return "discover";
-    if(t.includes("data explorer"))return "explorer";
-    if(t.includes("light curve"))return "lightcurve";
-    if(t.includes("ai analysis")||t.includes("analysis"))return "analysis";
-    if(t.includes("known"))return "known";
-    if(t.includes("sky map"))return "sky";
-    if(t.includes("report")||t.includes("method"))return "reports";
-    return "overview";
-  }
-  function setView(key,updateHash=true){
-    if(!views[key])key="overview";
-    current=key;
-    document.body.dataset.workspaceView=key;
-    const cfg=views[key];
-    allTop.forEach(sel=>visible($(sel),cfg.show.includes(sel)));
-    const lab=$("#dataLab"), curve=lab?.querySelector(".curve-visual"), mast=lab?.querySelector(".mast-import"),
-      upload=lab?.querySelector(".upload-row"), scan=lab?.querySelector("#scanStatus"),
-      scanResults=lab?.querySelector("#scanResults"), bls=lab?.querySelector(".bls-tools"),
-      full=lab?.querySelector("#fullAnalysis"), panelHead=lab?.querySelector(".panel-head"),
-      dossier=lab?.querySelector(".detail-panel"), skyPanel=$(".analysis-grid > .command-panel");
-    [curve,mast,upload,scan,scanResults,bls,full,panelHead,dossier].forEach(el=>visible(el,true));
-    visible(skyPanel,cfg.mode==="sky");
-    if(cfg.mode==="data"){
-      [curve,upload,scan,scanResults,bls,full,dossier].forEach(el=>visible(el,false));
-      const h=panelHead?.querySelector("h2");if(h)h.textContent="Data Explorer";
-    }else if(cfg.mode==="lightcurve"){
-      visible(full,false);
-      const h=panelHead?.querySelector("h2");if(h)h.textContent="Light Curve Lab";
-    }else if(cfg.mode==="analysis"){
-      [curve,mast,upload,scan,scanResults,bls,dossier].forEach(el=>visible(el,false));
-      const h=panelHead?.querySelector("h2");if(h)h.textContent="AI Analysis";
-      visible(full,true);
-    }else if(cfg.mode==="sky"){
-      [curve,mast,upload,scan,scanResults,bls,full,panelHead,dossier].forEach(el=>visible(el,false));
-    }else{
-      const h=panelHead?.querySelector("h2");if(h)h.textContent="Light Curve Lab";
-    }
-    const command=$("#commandPanels");
-    if(command){
-      const cards=$(".command-panel",command);
-      cards.forEach(el=>visible(el,cfg.mode==="reports"));
-    }
-    $$(".sidebar .nav-link").forEach(a=>{
-      const k=a.dataset.workspaceView||infer(a.textContent);
-      a.classList.toggle("active",k===key);
-      if(k===key)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
-    });
-    $(".mobile-dock a").forEach(a=>{
-      const k=a.dataset.workspaceView||infer(a.textContent);
-      a.classList.toggle("active",k===key);
-    });
-    requestAnimationFrame(positionLiquid);
-    const title=$("#workspaceViewTitle");if(title)title.textContent=cfg.title;
-    if(updateHash)history.replaceState(null,"","#"+key);
-    const side=$("#sidebar"),menu=$("#mobileMenu");
-    side?.classList.remove("open");if(menu)menu.setAttribute("aria-expanded","false");
-    window.scrollTo({top:0,behavior:"auto"});
-  }
-  function positionLiquid(){
-    const dock=$(".mobile-dock"), indicator=$(".mobile-dock .liquid-indicator");
-    if(!dock||!indicator)return;
-    const active=$(".mobile-dock a.active",dock);
-    if(!active)return;
-    const dr=dock.getBoundingClientRect(), ar=active.getBoundingClientRect();
-    indicator.style.width=ar.width+"px";
-    indicator.style.transform="translateX("+(ar.left-dr.left-6)+"px)";
-    dock.classList.add("ready");
-  }
-  function bindNav(){
-    $(".sidebar .nav-link, .mobile-dock a").forEach(a=>{
-      if(a.dataset.navBound==="true")return;
-      a.dataset.navBound="true";
-      const key=a.dataset.workspaceView||infer(a.textContent);a.dataset.workspaceView=key;a.href="#"+key;
-      a.addEventListener("click",e=>{e.preventDefault();setView(key)});
-    });
-    const brand=$(".brand");if(brand)brand.addEventListener("click",e=>{e.preventDefault();setView("overview")});
-    const demo=$("#demoBtn");if(demo)demo.addEventListener("click",e=>{e.preventDefault();setView("lightcurve")});
-    const explore=$("#exploreBtn");if(explore)explore.addEventListener("click",()=>setView("known"));
-    const openAnalysis=$("#openFullAnalysis");if(openAnalysis)openAnalysis.addEventListener("click",()=>setView("analysis"));
-  }
-  function boot(){
-    if(!main)return;
-    const title=document.createElement("div");title.id="workspaceViewTitle";title.className="workspace-view-title";title.setAttribute("aria-live","polite");main.prepend(title);
-    bindNav();
-    const hash=location.hash.slice(1);setView(views[hash]?hash:"overview",false);
-    const observer=new MutationObserver(()=>{if(current==="analysis"&&$("#fullAnalysis"))setView("analysis",false)});
-    observer.observe(document.body,{childList:true,subtree:true});
-    window.addEventListener("resize",positionLiquid);
-    const dockObserver=new MutationObserver(()=>{bindNav();positionLiquid()});
-    dockObserver.observe(document.body,{childList:true,subtree:true});
-    window.addEventListener("hashchange",()=>{const key=location.hash.slice(1);if(views[key])setView(key,false)});
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
+ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+ const views={
+  home:{show:["#overview","#moduleSection",".metrics"],label:"Home"},
+  discover:{show:["#explorer"],label:"Discover"},
+  sky:{show:["#explorer"],label:"Sky Explorer"},
+  solar:{show:["#moduleSection"],label:"Solar System"},
+  exoplanets:{show:[".analysis-grid"],label:"Exoplanets"},
+  stars:{show:["#explorer"],label:"Stars & Galaxies"},
+  transients:{show:["#moduleSection"],label:"Transients"},
+  spectra:{show:["#moduleSection"],label:"Spectra"},
+  images:{show:["#moduleSection"],label:"Images"},
+  analysis:{show:[".analysis-grid"],label:"Analysis Lab"},
+  reports:{show:["#method"],label:"Reports & Methods"}
+ };
+ const links=$$(".sidebar .nav-link, .bottom-dock a");
+ function keyFor(a){
+  if(a.dataset.workspaceView)return a.dataset.workspaceView;
+  const t=a.textContent.toLowerCase();
+  if(t.includes("home"))return "home";
+  if(t.includes("discover"))return "discover";
+  if(t.includes("sky"))return "sky";
+  if(t.includes("solar"))return "solar";
+  if(t.includes("exoplanet"))return "exoplanets";
+  if(t.includes("stars"))return "stars";
+  if(t.includes("transient"))return "transients";
+  if(t.includes("spectra"))return "spectra";
+  if(t.includes("image"))return "images";
+  if(t.includes("analysis")||t.includes("lab"))return "analysis";
+  if(t.includes("report")||t.includes("method"))return "reports";
+  return "home";
+ }
+ function show(key){
+  const cfg=views[key]||views.home;
+  const sections=["#overview","#moduleSection",".metrics","#explorer",".analysis-grid","#method","footer"];
+  sections.forEach(sel=>{const el=$(sel);if(el)el.classList.toggle("workspace-view-hidden",!cfg.show.includes(sel));});
+  links.forEach(a=>{const active=keyFor(a)===key;a.classList.toggle("active",active);if(active)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  document.body.dataset.workspaceView=key;
+  history.replaceState(null,"","#"+key);
+  const sidebar=$("#sidebar"),menu=$("#mobileMenu");sidebar?.classList.remove("open");if(menu){menu.setAttribute("aria-expanded","false");menu.textContent="☰";}
+  window.scrollTo({top:0,behavior:"auto"});
+ }
+ links.forEach(a=>{a.dataset.workspaceView=keyFor(a);a.addEventListener("click",e=>{e.preventDefault();show(a.dataset.workspaceView);});});
+ $$(".module-card").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();const t=a.textContent.toLowerCase();show(t.includes("exoplanet")?"exoplanets":t.includes("discover")||t.includes("galax")?"discover":t.includes("sky")?"sky":t.includes("solar")?"solar":t.includes("transient")?"transients":t.includes("spectra")?"spectra":t.includes("image")?"images":"reports");}));
+ const brand=$(".brand");brand?.addEventListener("click",e=>{e.preventDefault();show("home");});
+ const explore=$("#exploreBtn");explore?.addEventListener("click",e=>{e.preventDefault();show("discover");});
+ $("#uploadDataBtn")?.addEventListener("click",e=>{e.preventDefault();show("exoplanets");});
+ const initial=location.hash.slice(1);show(views[initial]?initial:"home");
 })();
