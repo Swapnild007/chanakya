@@ -21,3 +21,7 @@
 .module-card:before{background-color:#10243a;background-blend-mode:screen}
 @media(min-width:721px){.hero-art{left:34%;background-position:center;background-size:cover}.hero-copy{max-width:690px}.hero h1{max-width:650px}.module-card{min-height:190px}.module-grid{gap:14px}.main-content{padding-top:24px}}
 @media(max-width:720px){.hero-art:before{width:clamp(230px,65vw,360px);right:17%;top:8%}.hero-art:after{background:linear-gradient(0deg,#071422 0%,#07142225 60%,#07142220 100%),radial-gradient(ellipse at 60% 25%,#1b79ae44,transparent 55%)}}
+
+/* Workspace navigation and mobile dock normalization */
+.bottom-dock{display:none}
+@media(max-width:720px){.bottom-dock{position:fixed;z-index:150;bottom:calc(8px + env(safe-area-inset-bottom));left:10px;right:10px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:8px 5px;border:1px solid #29465d;border-radius:17px;background:rgba(5,16,29,.96);box-shadow:0 12px 38px #0009;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.bottom-dock a{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px 1px;text-decoration:none;color:#9ab0c5;font:500 9px/1.15 Manrope, sans-serif;white-space:nowrap;border-radius:10px}.bottom-dock a span{font-size:17px;line-height:1}.bottom-dock a.active{color:#8df2e9;background:#123047}.bottom-dock a[aria-current=page]{color:#8df2e9}.main-content{padding-bottom:110px}}
