@@ -71,6 +71,7 @@
  }
  links.forEach(a=>{a.dataset.workspaceView=keyFor(a);a.href="#"+a.dataset.workspaceView;a.addEventListener("click",e=>{e.preventDefault();show(a.dataset.workspaceView);});});
  $$(".module-card").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();show(keyFor(a));}));
+ $("[data-open-workspace]").forEach(button=>button.addEventListener("click",()=>show(button.dataset.openWorkspace)));
  $(".brand")?.addEventListener("click",e=>{e.preventDefault();show("home");});
  $("#exploreBtn")?.addEventListener("click",e=>{e.preventDefault();show("discover");});
  $("#uploadDataBtn")?.addEventListener("click",e=>{e.preventDefault();show("exoplanets");});
