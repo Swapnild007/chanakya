@@ -27,20 +27,6 @@
       }
     });
   }
-  const navLinks = $$(".sidebar .nav-link, .bottom-dock a");
-  const destinations = navLinks.map(link => link.getAttribute("href")).filter(href => href && href.startsWith("#"));
-  const sections = [...new Set(destinations)].map(id => $(id)).filter(Boolean);
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(entries => {
-      const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio-a.intersectionRatio)[0];
-      if (!visible) return;
-      const hash = "#" + visible.target.id;
-      navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === hash));
-    }, {rootMargin:"-18% 0px -62% 0px",threshold:[0,.15,.35,.6]});
-    sections.forEach(section => observer.observe(section));
-  }
-  const explore = $("#exploreBtn");
-  if (explore) explore.addEventListener("click", () => $("#explorer")?.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}));
   const search = $("#searchInput");
   if (search) {
     document.addEventListener("keydown", event => {
