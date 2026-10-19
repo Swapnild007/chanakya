@@ -12,7 +12,7 @@
   images:["Astronomy Images","Explore image products with telescope, instrument, filter and provenance metadata.","IN DEVELOPMENT","A searchable image archive viewer is not connected yet. The artwork on Home is decorative, not scientific observation data."]
  };
  const keys={
-  home:{show:["#overview","#moduleSection",".metrics"],title:"Home"},
+  home:{show:["#overview","#moduleSection",".metrics","#researchCockpit"],title:"Home"},
   discover:{show:["#explorer"],title:"Discover"},
   sky:{show:["#moduleDetailView"],title:"Sky Explorer",module:"sky"},
   solar:{show:["#moduleDetailView"],title:"Solar System",module:"solar"},
@@ -59,7 +59,7 @@
  function show(key,writeHash=true){
   if(!keys[key])key="home";
   ensureWorkspace();
-  const cfg=keys[key], selectors=["#overview","#moduleSection",".metrics","#explorer",".analysis-grid","#exoplanetWorkspace","#analysisWorkspace","#method","footer","#moduleDetailView"];
+  const cfg=keys[key], selectors=["#overview","#moduleSection",".metrics","#researchCockpit","#explorer",".analysis-grid","#exoplanetWorkspace","#analysisWorkspace","#method","footer","#moduleDetailView"];
   selectors.forEach(sel=>{const el=$(sel);if(el)el.classList.toggle("workspace-view-hidden",!cfg.show.includes(sel));});
   renderModule(cfg.module);
   links.forEach(a=>{const active=keyFor(a)===key;a.classList.toggle("active",active);if(active)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
