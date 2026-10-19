@@ -4,7 +4,7 @@
  const main=$(".main-content"), sidebar=$("#sidebar"), menu=$("#mobileMenu");
  const linkEls=$$(".sidebar .nav-link, .bottom-dock a");
  const copy={
-  sky:["Sky Explorer","Browse the sky by coordinates, constellation or object name.","CATALOGUE VIEW","Use Discover to resolve a named target against public catalogues. Sky-position plotting is not yet connected to a live astrometric renderer."],
+  stars:["Stars & Galaxies","Resolve stellar and extragalactic targets with source-traceable catalogue records.","CATALOGUE WORKSPACE","This view is reserved for stellar and galaxy records. Use Discover for the current multi-archive resolver while dedicated filters and target-class browsing are being connected."],\n  sky:["Sky Explorer","Browse the sky by coordinates, constellation or object name.","CATALOGUE VIEW","Use Discover to resolve a named target against public catalogues. Sky-position plotting is not yet connected to a live astrometric renderer."],
   solar:["Solar System","Planetary bodies, moons, small bodies and mission observations.","IN DEVELOPMENT","A live ephemeris and mission-data module is not connected yet. No positions or orbital values are fabricated."],
   stars:["Stars & Galaxies","Resolve stellar and extragalactic targets with source-traceable catalogue records.","CATALOGUE WORKSPACE","Use the live multi-archive resolver to search SIMBAD, Gaia, VizieR and ESO observation metadata."],
   transients:["Transients","Explore time-domain events and follow-up observations.","IN DEVELOPMENT","A verified transient feed and event cross-match pipeline are not connected yet."],
@@ -18,7 +18,7 @@
   sky:{show:[],title:copy.sky[0],panel:"sky"},
   solar:{show:[],title:copy.solar[0],panel:"solar"},
   exoplanets:{show:[".analysis-grid"],title:"Exoplanets"},
-  stars:{show:["#explorer"],title:copy.stars[0]},
+  stars:{show:[],title:copy.stars[0],panel:"stars"},
   transients:{show:[],title:copy.transients[0],panel:"transients"},
   spectra:{show:[],title:copy.spectra[0],panel:"spectra"},
   images:{show:[],title:copy.images[0],panel:"images"},
