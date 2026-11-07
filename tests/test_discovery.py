@@ -177,3 +177,22 @@ class DiscoveryTests(unittest.TestCase):
         from astronomy.evaluate import trial
         self.assertFalse(trial(712, "asymmetric_eclipsing_binary", 0)["passed_vetting"])
         self.assertFalse(trial(713, "correlated_noise", 0)["passed_vetting"])
+
+    def test_cadence_flags_and_gaps_limit_independent_support(self):
+        from astronomy.artifact_vetting import cadence_context, event_evidence
+
+        time = np.arange(0, 8, .01)
+        phase = (time - 1 + 1) % 2 - 1
+        flux = 1 - .02 * (np.abs(phase) < .05)
+        quality = np.zeros(len(time))
+        quality[(time < 4) & (phase < .015) & (phase > -.09)] = 16
+        valid = quality == 0
+        evidence, warnings = event_evidence(
+            time[valid], flux[valid],
+            {"period_days": 2., "epoch_days": 1., "duration_days": .1, "event_cycles": [0, 1, 2, 3]},
+            {"cadence_days": .01, "noise_mad": .001},
+            cadence_context(time, flux, quality), 3,
+        )
+        self.assertEqual(evidence["covered_events"], 2)
+        self.assertEqual(evidence["gap_or_quality_affected_events"], 2)
+        self.assertTrue(any("cadence-quality and gap checks" in warning for warning in warnings))

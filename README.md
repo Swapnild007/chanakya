@@ -63,6 +63,17 @@ Set `ASTROLENS_WASP12_FITS` to the local WASP-12 product from the manifest to in
 
 Archive references are the [MAST API](https://mast.stsci.edu/api/v0/), [TESS archive guide](https://heasarc.gsfc.nasa.gov/docs/tess/TSC2-Intro.html), and [NASA TAP documentation](https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html).
 
+## Milestone 3 reliability
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m astronomy.reliability --repeats 12 --workers 4 > reliability.json
+OPENBLAS_NUM_THREADS=1 python -m astronomy.survey data/milestone3-targets.json --cache .venv/observations --workers 4 > survey.json
+```
+
+Candidate evidence includes original in-window quality flags, missing flux, gaps through the event, two-sided continuum coverage, local depth and timing, and a sharp-step versus trapezoid comparison. Multiple unusable events cannot replace independently observed events. Large depth or timing disagreement is screened against a local noise estimate. The p-values are diagnostics with approximate noise models. Known catalogue matches retain separate photometric warnings. Cadence flags reflect product-level pipeline metadata and do not rule out unflagged artifacts. [MAST cadence quality documentation](https://outerspace.stsci.edu/spaces/TESS/pages/14563420/2.0+-+Data+Product+Overview)
+
+The benchmark uses distinct development and holdout seed ranges and three observation baselines. The six previously missed dropouts are replayed separately. Coverage is reported by depth, duration-noise SNR, baseline, and supported transits, conditional on recovery and an available fit. The expanded real survey freezes ten target IDs and one SHA-256-pinned MAST product per target. It records failed lookups, preprocessing and event-level evidence, and catalogue results. For vetted known matches it compares nominal intervals with catalogue point ephemerides and fits disjoint halves independently, conditional on the same catalogue period family and full-product duration. Those comparisons measure agreement, with shared-data and model limitations. They do not estimate real-observation coverage.
+
 ## License
 
 The repository has no explicit software license.

@@ -1,0 +1,76 @@
+{
+  "purpose": "Fixed cross-mission engineering sample for catalogue recovery and residual transit screening, not a population survey.",
+  "selection": "Retain all four Milestone 2 anchors and add two named archive targets per mission before inspecting their photometry. Added TESS targets are Pi Mensae and TOI-700, two bright or well-studied multi-planet systems with confirmed transits beyond the common 0.5\u20135 day search. Added Kepler targets are TrES-2 and Kepler-17, short-period controls with distinct stellar variability. Added K2 targets are K2-18 and K2-3, systems with known transits outside or near the search window. Use the earliest eligible TESS pipeline sector by filename, the earliest standard Kepler long-cadence product at least 400000 bytes, and the earliest K2 long-cadence campaign. Keep all selected targets, including failures. No replacement or selection by search outcome.",
+  "targets": [
+    {
+      "target": "TIC 86396382",
+      "uri": "mast:TESS/product/tess2019357164649-s0020-0000000086396382-0165-s_lc.fits",
+      "expected_period_days": 1.091419,
+      "expected_name": "WASP-12 b",
+      "sha256": "bf74a16f6e0c40b693a66de922e142d446cb44cee5bb7f26843062e436957f63"
+    },
+    {
+      "target": "KIC 10666592",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010666592/kplr010666592-2009259160929_llc.fits",
+      "expected_period_days": 2.204735,
+      "expected_name": "HAT-P-7 b",
+      "sha256": "2a10ce0fa87e8a757e6d66a740669bcf94a704eecf0646bbf898ad91b402fc08"
+    },
+    {
+      "target": "KIC 6922244",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0069/006922244/kplr006922244-2009259160929_llc.fits",
+      "expected_period_days": 3.5225,
+      "expected_name": "Kepler-8 b",
+      "sha256": "28d2473a7dd0ccd135162d292436bd36a14f2c7763c6123bfd5c3b6200a86413"
+    },
+    {
+      "target": "EPIC 206103150",
+      "uri": "mast:K2/url/missions/k2/lightcurves/c3/206100000/03000/ktwo206103150-c03_llc.fits",
+      "expected_period_days": 4.159151,
+      "expected_name": "WASP-47 b",
+      "sha256": "e11c42556593f1328cf421c8045bf5b463394df73ba3f6d7779fd7062d2fad15"
+    },
+    {
+      "target": "TIC 261136679",
+      "uri": "mast:TESS/product/tess2018206045859-s0001-0000000261136679-0120-s_lc.fits",
+      "sha256": "1eecffff3afa7e8c4ad763b6907e62447bacf339968292d86be45acd9bf1d609",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2018206045859-s0001-0000000261136679-0120-s_lc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    },
+    {
+      "target": "TIC 150428135",
+      "uri": "mast:TESS/product/tess2018206045859-s0001-0000000150428135-0120-s_lc.fits",
+      "sha256": "4b2aa5d5584b4cc3f4e56eb6d39476ceb3d9176921d5074915f6dd70e189487e",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2018206045859-s0001-0000000150428135-0120-s_lc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    },
+    {
+      "target": "KIC 11446443",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0114/011446443/kplr011446443-2009259160929_llc.fits",
+      "sha256": "6d41c0b2a8784c922789c5ceb53258b795d7b220c6026ff514d86c81dde65e83",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0114%2F011446443%2Fkplr011446443-2009259160929_llc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    },
+    {
+      "target": "KIC 10619192",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010619192/kplr010619192-2009259160929_llc.fits",
+      "sha256": "7fca542c8432a9c2bda4b4647f7d73f6e64e496267d2185915da4f56266205fe",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0106%2F010619192%2Fkplr010619192-2009259160929_llc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    },
+    {
+      "target": "EPIC 201912552",
+      "uri": "mast:K2/url/missions/k2/lightcurves/c1/201900000/12000/ktwo201912552-c01_llc.fits",
+      "sha256": "e1e12ca75d58066b2add8a3a854680ed4233d63ff0d0279cb472cb68bf2d2491",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AK2%2Furl%2Fmissions%2Fk2%2Flightcurves%2Fc1%2F201900000%2F12000%2Fktwo201912552-c01_llc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    },
+    {
+      "target": "EPIC 201367065",
+      "uri": "mast:K2/url/missions/k2/lightcurves/c1/201300000/67000/ktwo201367065-c01_llc.fits",
+      "sha256": "b5541b1df0c4f55ba1c2e5265a6083ea3d4cba83f28a764459555146e6895392",
+      "retrieval_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AK2%2Furl%2Fmissions%2Fk2%2Flightcurves%2Fc1%2F201300000%2F67000%2Fktwo201367065-c01_llc.fits",
+      "selection_note": "Product listing timed out. Used the predeclared early sector, quarter or campaign via public MAST FITS URI and verified FITS target."
+    }
+  ]
+}

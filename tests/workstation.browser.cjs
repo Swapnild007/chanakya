@@ -48,6 +48,9 @@ const { chromium } = require("playwright");
     await page.locator("#open-results").click({ timeout: 45000 });
     await page.getByRole("button", { name: "Show folded curve" }).first().click();
     await page.getByText("Orbital phase · review rank", { exact: false }).waitFor();
+    const eventVetting = page.getByText("Cadence and event vetting", { exact: true }).first();
+    await eventVetting.click();
+    await page.getByText(/events with two-sided coverage/).first().waitFor();
     await page.getByRole("link", { name: "Light Curve Laboratory", exact: true }).click();
     await page.locator("#curve-range").waitFor();
     assert.equal(await page.locator("#pan").isDisabled(), true);
@@ -74,6 +77,10 @@ const { chromium } = require("playwright");
         await page.getByRole("link", { name, exact: true }).click();
         await page.getByRole("heading", { name, exact: true, level: 1 }).waitFor();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name);
+        if (name === "Candidate Investigation") {
+          const detail = page.locator("#evidence details").first();
+          if (await detail.getAttribute("open") === null) await detail.locator("summary").click();
+        }
         if (screenshots) {
           await page.screenshot({ path: `${screenshots}/${layout}-${name.toLowerCase().replaceAll(" ", "-")}.png`, fullPage: true });
         }

@@ -161,6 +161,19 @@ function render(next, index = 0) {
     } else {
       card.append(details, text("p", "Ephemeris intervals unavailable. " + (timing?.reason || "Run a new analysis to estimate timing.")));
     }
+    const vetting = candidate.instrumental_vetting;
+    if (vetting) {
+      const panel = text("details", "", "timing");
+      panel.append(text("summary", "Cadence and event vetting"),
+        text("p", `${vetting.covered_events}/${candidate.observed_transits} events with two-sided coverage · ${vetting.independent_events} locally supported`),
+        text("p", `${vetting.gap_or_quality_affected_events} coverage-limited near gaps or flagged cadences · ${vetting.sharp_step_events} favor an abrupt step`),
+        text("p", vetting.quality_available ? "Cadence quality column present" : "Cadence quality column unavailable"));
+      for (const [label, value] of [["Depth consistency", vetting.depth_consistency_p],
+        ["Timing consistency", vetting.timing_consistency_p]]) {
+        panel.append(text("p", `${label}: ${value == null ? "insufficient events" : "p = " + value.toExponential(2)}`));
+      }
+      card.append(panel);
+    }
     const fold = text("button", "Show folded curve");
     fold.addEventListener("click", () => {
       selectedCandidate = i; drawCharts(); $("fold-panel").scrollIntoView({ block: "nearest" });

@@ -17,15 +17,15 @@ DEPTHS = (.001, .002, .004, .008)
 CONTROLS = ("correlated_noise", "eclipsing_binary", "asymmetric_eclipsing_binary", "instrumental_dropouts")
 
 
-def case(seed, kind, depth=.004):
+def case(seed, kind, depth=.004, baseline=15):
     rng = np.random.default_rng(seed)
-    time = np.arange(0, 15, .0125)
+    time = np.arange(0, baseline, .0125)
     white = rng.normal(0, .001, len(time))
     red = lfilter([1], [1, -.73], rng.normal(0, .00045, len(time)))
     flux = 1 + white + red + .0012 * np.sin(2 * np.pi * time / 2.7 + rng.uniform(0, 6))
     quality = np.zeros(len(time), dtype=int)
     quality[rng.choice(len(time), 20, replace=False)] = 1
-    gap = rng.uniform(4, 10)
+    gap = rng.uniform(4, min(10, baseline - 1))
     quality[(time > gap) & (time < gap + .7)] = 1
     period, epoch = rng.uniform(1.05, 3), rng.uniform(.25, .75)
     duration = rng.uniform(.075, .155)
@@ -43,27 +43,39 @@ def case(seed, kind, depth=.004):
     elif kind == "instrumental_dropouts":
         for shift in rng.uniform(0, .15, 5) + np.arange(5) * 2.6:
             flux[(time > shift) & (time < shift + .075)] -= rng.uniform(.008, .035)
+    elif kind in ("quality_edge_dropouts", "stable_step_dropouts"):
+        for start in .35 + np.arange(0, baseline, 2.2):
+            window = (time > start) & (time < start + .087)
+            flux[window] -= .014
+            if kind == "quality_edge_dropouts":
+                quality[(time >= start - .035) & (time <= start + .043)] = 16
     return time, flux, quality, period, epoch
 
 
-def trial(seed, kind, depth):
-    time, flux, quality, period, epoch = case(seed, kind, depth)
+def trial(seed, kind, depth, baseline=15):
+    time, flux, quality, period, epoch = case(seed, kind, depth, baseline)
     result = analyze(time, flux, quality, settings=SETTINGS)
     signal = next(iter(result["candidates"]), None)
     passed = bool(signal and not signal["warnings"] and signal["observed_transits"] >= SETTINGS.min_transits)
     recovery = bool(passed and abs(signal["period_days"] / period - 1) <= .01 and
                     abs((signal["epoch_days"] - epoch + period / 2) % period - period / 2) <= .06)
     interval = signal.get("ephemeris", {}) if recovery else {}
-    score = None
+    period_score = epoch_score = None
     if interval.get("status") == "estimated":
         t0 = interval["epoch_days"]
         # Project truth to the actual reference cycle, never pick a cycle to minimize residual.
         truth = epoch + (round((signal["epoch_days"] - epoch) / period) + interval["reference_cycle"]) * period
         epoch_half = (interval["epoch_interval_days"][1] - interval["epoch_interval_days"][0]) / 2
         period_half = (interval["period_interval_days"][1] - interval["period_interval_days"][0]) / 2
-        score = max(abs(t0 - truth) / epoch_half, abs(interval["period_days"] - period) / period_half)
-    return {"seed": seed, "scenario": kind, "depth": depth, "passed_vetting": passed,
-            "recovered": recovery, "joint_interval_score": score}
+        epoch_score = abs(t0 - truth) / epoch_half
+        period_score = abs(interval["period_days"] - period) / period_half
+    return {"seed": seed, "scenario": kind, "depth": depth, "baseline_days": baseline,
+            "passed_vetting": passed, "recovered": recovery,
+            "period_interval_score": period_score, "epoch_interval_score": epoch_score,
+            "joint_interval_score": max(period_score, epoch_score) if period_score is not None else None,
+            "duration_noise_snr": signal.get("duration_noise_snr") if signal else None,
+            "observed_transits": signal["observed_transits"] if signal else 0,
+            "warnings": signal["warnings"] if signal else []}
 
 
 def fraction(success, total):

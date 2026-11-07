@@ -8,6 +8,7 @@ import numpy as np
 from scipy.ndimage import median_filter
 
 from .ephemeris import estimate
+from .artifact_vetting import cadence_context, event_evidence
 
 
 @dataclass(frozen=True)
@@ -254,6 +255,7 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
             or not 7 <= settings.min_snr <= 30 or not 1 <= settings.max_signals <= 3):
         raise ValueError("Invalid analysis settings")
     t, raw, y, audit = preprocess(time, flux, quality, settings)
+    context = cadence_context(time, flux, quality)
     keep = np.ones(t.size, dtype=bool)
     candidates = []
     for _ in range(settings.max_signals):
@@ -261,6 +263,11 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
         if candidate is None or candidate["snr"] < settings.min_snr:
             break
         vet(t[keep], y[keep], candidate, audit, settings)
+        evidence, warnings = event_evidence(t[keep], y[keep], candidate, audit, context, settings.min_transits)
+        candidate["instrumental_vetting"] = evidence
+        candidate["warnings"].extend(warnings)
+        if warnings and candidate["classification"] != "Insufficient evidence":
+            candidate["classification"] = "Rejected or likely false positive"
         candidate["ephemeris"] = (
             estimate(t[keep], y[keep], candidate, audit)
             if not candidate["warnings"] and candidate["observed_transits"] >= 4

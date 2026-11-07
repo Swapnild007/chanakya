@@ -15,3 +15,5 @@ input[type=file]{font-size:.9rem;overflow:hidden}
   #curve-tools .row label{min-width:0}
   #curve-tools .row label:last-child{grid-column:1/-1}
 }
+
+.timing summary{cursor:pointer;font-weight:650}.timing[open] summary{margin-bottom:.6rem}
