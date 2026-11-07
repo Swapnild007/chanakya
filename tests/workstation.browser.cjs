@@ -65,6 +65,9 @@ const { chromium } = require("playwright");
     if (screenshots) await page.screenshot({ path: screenshots + "/AstroLens_Mobile.png", fullPage: true });
     await page.getByRole("link", { name: "Classic astronomy tools" }).click();
     await page.waitForURL("**/classic.html");
+    await page.locator('body[data-workspace-view="home"]').waitFor();
+    await page.locator('[data-open-workspace="discover"]').click();
+    await page.locator('body[data-workspace-view="discover"]').waitFor();
     assert.deepEqual(errors, []);
     console.log("Browser workflow passed on desktop and mobile.");
   } finally { await browser.close(); }
