@@ -118,7 +118,11 @@ function render(next, index = 0) {
       "White-noise SNR": candidate.snr.toFixed(1), "Supported events": candidate.observed_transits,
       "Odd/even (σ)": candidate.odd_even_sigma?.toFixed(1) ?? "Unavailable",
       "Secondary SNR": candidate.secondary_snr?.toFixed(1) ?? "Unavailable"
-    })) details.append(text("dt", label), text("dd", value));
+    })) {
+      const item = document.createElement("div");
+      item.append(text("dt", label), text("dd", value));
+      details.append(item);
+    }
     const fold = text("button", "Show folded curve");
     fold.addEventListener("click", () => {
       selectedCandidate = i; drawCharts(); $("fold-panel").scrollIntoView({ block: "nearest" });
@@ -136,6 +140,9 @@ function render(next, index = 0) {
     const source = text("a", "Download source from NASA MAST");
     source.href = observation.source_url; context.append(source);
   }
+  const { minimum_period, maximum_period, trend_days } = report.settings;
+  context.append(text("p", `${report.algorithm || "Transit search"} · ${minimum_period}–${maximum_period} day period range · ${trend_days} day trend window`));
+  context.append(text("p", `${preprocessing.used} of ${preprocessing.input} cadences used · ${preprocessing.quality_rejected} quality-flagged · ${preprocessing.gap_count} gaps`));
   for (const note of limitations) context.append(text("p", note));
   for (const [table, detail] of Object.entries(catalogue_coverage.failures || {})) context.append(text("p", table + " · " + detail));
   if (catalogue_coverage.reason) context.append(text("p", catalogue_coverage.reason));

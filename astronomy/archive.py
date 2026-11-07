@@ -109,14 +109,17 @@ def catalogues(meta):
     if not meta.get("target"):
         return [], {"status": "unavailable", "reason": "FITS target identifier is missing"}
     kind, number = target_id(meta["target"])
-    id_column = {"TIC": "tic_id", "KIC": "kic_id", "EPIC": "epic_id"}[kind]
-    where = f"{id_column} = '{kind} {number}'"
     ra, dec = meta.get("ra"), meta.get("dec")
+    ps_columns = "pl_name,pl_orbper,pl_tranmid,tic_id"
+    queries = {}
+    if kind == "TIC":
+        queries["ps identifier"] = (f"SELECT TOP 500 {ps_columns} FROM ps "
+                                    f"WHERE default_flag=1 AND tic_id='TIC {number}'")
     if (isinstance(ra, (int, float)) and isinstance(dec, (int, float))
             and 0 <= ra < 360 and -90 <= dec <= 90):
-        where += f" OR 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {ra}, {dec}, 0.00277778))"
-    queries = {"ps": f"SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,{id_column},ra,dec FROM ps "
-                     f"WHERE default_flag=1 AND ({where})"}
+        queries["ps coordinates"] = (
+            f"SELECT TOP 500 {ps_columns} FROM ps WHERE default_flag=1 AND "
+            f"CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',{ra:.8f},{dec:.8f},0.00277778))=1")
     if kind == "TIC":
         queries["toi"] = ("SELECT TOP 500 toi,pl_orbper,pl_tranmid,tfopwg_disp FROM toi "
                           f"WHERE tid={number}")
@@ -127,10 +130,10 @@ def catalogues(meta):
     for table, query in queries.items():
         try:
             for row in tap(query):
-                if table == "ps":
+                if table.startswith("ps "):
                     rows.append({"id": row["pl_name"], "period": row["pl_orbper"], "epoch": row["pl_tranmid"],
                                  "type": "Known confirmed planet",
-                                 "identity": row.get(id_column) == f"{kind} {number}"})
+                                 "identity": row.get("tic_id") == f"{kind} {number}"})
                 elif table == "toi":
                     rows.append({"id": f"TOI {row['toi']}", "period": row["pl_orbper"],
                                  "epoch": row["pl_tranmid"], "identity": True,
@@ -140,12 +143,16 @@ def catalogues(meta):
                     epoch = row["koi_time0bk"]
                     rows.append({"id": row["kepoi_name"], "period": row["koi_period"],
                                  "epoch": epoch + 2454833 if epoch is not None else None, "identity": True,
-                                 "type": "Rejected or likely false positive" if row["koi_disposition"] == "FALSE POSITIVE"
-                                 else "Previously reported candidate"})
+                                 "type": {"FALSE POSITIVE": "Rejected or likely false positive",
+                                          "CONFIRMED": "Known confirmed planet"}.get(
+                                     row["koi_disposition"], "Previously reported candidate")})
         except (ArchiveError, ValueError, KeyError, TypeError) as exc:
             failures[table] = str(exc)
+    if kind != "TIC" and "ps coordinates" not in queries:
+        failures["ps coordinates"] = "FITS target coordinates are missing"
     if kind == "EPIC":
         failures["K2 candidates"] = "K2 candidate catalogue comparison is unsupported"
+    rows = list({(r["id"], r["period"], r["epoch"], r["type"]): r for r in rows}.values())
     return rows, {"status": "partial" if failures else "compared", "queries": queries, "failures": failures,
                   "queried_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 

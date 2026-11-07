@@ -1,4 +1,6 @@
+import os
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
@@ -115,3 +117,14 @@ class DiscoveryTests(unittest.TestCase):
         self.assertAlmostEqual(analyze(*parsed, settings=self.settings)["candidates"][0]["period_days"], 2.37, delta=.02)
         with self.assertRaisesRegex(ValueError, "Invalid observation"):
             process(b"broken", "corrupt.fits")
+
+    @unittest.skipUnless(os.getenv("ASTROLENS_WASP12_FITS"), "Optional real WASP-12 FITS fixture")
+    def test_public_tess_observation(self):
+        path = Path(os.environ["ASTROLENS_WASP12_FITS"])
+        parsed = read_observation(path.read_bytes(), path.name)
+        self.assertEqual(parsed[3]["target"], "TIC 86396382")
+        report = analyze(*parsed, settings=Settings(maximum_period=3, max_signals=1))
+        signal = report["candidates"][0]
+        self.assertAlmostEqual(signal["period_days"], 1.09142, delta=.003)
+        self.assertGreaterEqual(signal["observed_transits"], 15)
+        self.assertEqual(signal["warnings"], [])

@@ -116,43 +116,36 @@ def preprocess(time, flux, quality, settings):
 
 
 def search(t, y, audit, settings):
-    """Phase-binned, two-level least-squares search with a fixed cadence-independent noise estimate."""
+    """Search a baseline-constrained grid with Astropy BoxLeastSquares."""
+    from astropy.timeseries import BoxLeastSquares
+
     cadence, sigma = audit["cadence_days"], audit["noise_mad"]
     span = t[-1] - t[0]
     low = max(settings.minimum_period, 8 * cadence)
     high = min(settings.maximum_period, span / (settings.min_transits - 1))
     durations = np.array([.04, .07, .10, .15, .22, .32])
-    durations = durations[(durations >= 2 * cadence) & (durations <= settings.trend_days / 4)]
+    durations = durations[(durations >= 2 * cadence) & (durations <= settings.trend_days / 4)
+                          & (5 * durations < high)]
     if high <= low or not len(durations):
         raise ValueError("Insufficient baseline or cadence for the requested search")
-    count = int(np.ceil((1 / low - 1 / high) * span * high * 2 / durations[0])) + 1
-    if count > 40_000 or count * len(t) > 250_000_000:
-        raise ValueError("Search exceeds the trial or workload limit. Narrow the period range.")
-    periods = 1 / np.linspace(1 / high, 1 / low, max(2, count))
-    x = t - t[0]
-    values = 1 - y
-    bins = 256
+    model = BoxLeastSquares(t - t[0], y, dy=np.full(len(y), sigma))
+    periods = model.autoperiod(durations, minimum_period=low, maximum_period=high)
+    periods = periods[(periods >= low) & (periods <= high)]
+    if len(periods) > 40_000:
+        raise ValueError("Search exceeds the 40,000-period trial limit. Narrow the period range.")
     best = None
-    for period in periods:
-        phases = np.minimum((x % period / period * bins).astype(int), bins - 1)
-        counts = np.bincount(phases, minlength=bins)
-        sums = np.bincount(phases, weights=values, minlength=bins)
-        ns = np.r_[0, np.cumsum(np.tile(counts, 2))]
-        ys = np.r_[0, np.cumsum(np.tile(sums, 2))]
-        for duration in durations[durations < period / 5]:
-            width = max(1, round(duration / period * bins))
-            inside = ns[width:width + bins] - ns[:bins]
-            outside = len(y) - inside
-            with np.errstate(divide="ignore", invalid="ignore"):
-                in_sum = ys[width:width + bins] - ys[:bins]
-                depth = in_sum / inside - (ys[bins] - in_sum) / outside
-                snr = depth / sigma * np.sqrt(inside * outside / len(y))
-            snr = np.where((inside >= 6) & (outside >= 10), snr, -np.inf)
-            i = int(np.argmax(snr))
-            if np.isfinite(snr[i]) and (best is None or snr[i] > best["snr"]):
-                best = {"period_days": float(period), "epoch_days": float(t[0] + (i + width / 2) / bins * period),
-                        "duration_days": float(width / bins * period), "depth": float(depth[i]),
-                        "snr": float(snr[i]), "period_trials": len(periods), "phase_bins": bins}
+    for duration in durations:
+        trial = periods[periods > 5 * duration]
+        if not len(trial):
+            continue
+        result = model.power(trial, duration, objective="snr", oversample=10)
+        index = int(np.argmax(np.where(np.isfinite(result.depth_snr), result.depth_snr, -np.inf)))
+        snr = float(result.depth_snr[index])
+        if np.isfinite(snr) and (best is None or snr > best["snr"]):
+            best = {"period_days": float(result.period[index]),
+                    "epoch_days": float(result.transit_time[index] + t[0]),
+                    "duration_days": float(result.duration[index]), "depth": float(result.depth[index]),
+                    "snr": snr, "period_trials": len(periods), "phase_oversample": 10}
     return best
 
 
@@ -218,7 +211,7 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
         if keep.sum() < 100:
             break
     return {"observation": metadata or {}, "settings": asdict(settings), "preprocessing": audit,
-            "candidates": candidates, "curve": {"time": t.tolist(), "raw": raw.tolist(), "flux": y.tolist()},
+            "algorithm": "Astropy BoxLeastSquares", "candidates": candidates, "curve": {"time": t.tolist(), "raw": raw.tolist(), "flux": y.tolist()},
             "limitations": ["Single light curve. No pixel centroid, contamination, or independent follow-up vetting.",
-                            "Box model and fixed-width trial grid. SNR assumes white noise and is not a false-alarm probability.",
+                            "Box model and discrete duration grid. SNR assumes white noise and is not a false-alarm probability.",
                             "Period and epoch uncertainty are uncalibrated. Segment edges, aliases, variability and instrumental artifacts need review."]}
