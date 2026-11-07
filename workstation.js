@@ -237,6 +237,7 @@ function drawCharts() {
   const inTransit = t => candidate && Math.abs(fold(t)) < candidate.duration_days / (2 * candidate.period_days);
   if (!$("laboratory").hidden) {
     const fraction = Number($("zoom").value), center = Number($("pan").value) / 100;
+    $("pan").disabled = fraction === 1;
     const size = (time.at(-1) - time[0]) * fraction;
     const start = time[0] + (time.at(-1) - time[0] - size) * center;
     const values = $("flux-mode").value === "raw" ? raw : flux;
