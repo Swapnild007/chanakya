@@ -71,6 +71,8 @@ def products(target):
     names = [number, f"{kind} {number}", f"{kind.lower()}{number}"]
     if kind == "KIC":
         names.append(f"kplr{int(number):09d}")
+    if kind == "EPIC":
+        names.append(f"ktwo{number}")
     observations = mast("Mast.Caom.Filtered", columns="obsid,target_name,sequence_number",
                         filters=[{"paramName": "obs_collection", "values": [mission]},
                                  {"paramName": "target_name", "values": names},
@@ -105,6 +107,33 @@ def tap(query):
     return result
 
 
+CONE_RADIUS = 10 / 3600
+
+
+def coordinate_fallback(ra, dec):
+    """Use numeric TAP predicates, then apply the exact spherical cone locally."""
+    low, high = max(-90, dec - CONE_RADIUS), min(90, dec + CONE_RADIUS)
+    radius = math.radians(CONE_RADIUS)
+    cos_dec = math.cos(math.radians(dec))
+    where = f"dec BETWEEN {low:.10f} AND {high:.10f}"
+    if low > -90 and high < 90 and cos_dec > math.sin(radius):
+        half = math.degrees(math.asin(math.sin(radius) / cos_dec))
+        west, east = (ra - half) % 360, (ra + half) % 360
+        if west <= east:
+            where += f" AND ra BETWEEN {west:.10f} AND {east:.10f}"
+        else:
+            where += f" AND (ra >= {west:.10f} OR ra <= {east:.10f})"
+    query = ("SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec "
+             f"FROM ps WHERE default_flag=1 AND {where}")
+    def within(row):
+        dra = math.radians(float(row["ra"]) - ra)
+        ddec = math.radians(float(row["dec"]) - dec)
+        hav = math.sin(ddec / 2) ** 2 + cos_dec * math.cos(math.radians(float(row["dec"]))) * math.sin(dra / 2) ** 2
+        return hav <= math.sin(radius / 2) ** 2
+
+    return query, [row for row in tap(query) if within(row)]
+
+
 def catalogues(meta):
     if not meta.get("target"):
         return [], {"status": "unavailable", "reason": "FITS target identifier is missing"}
@@ -126,10 +155,21 @@ def catalogues(meta):
     if kind == "KIC":
         queries["cumulative"] = ("SELECT TOP 500 kepoi_name,koi_period,koi_time0bk,koi_disposition "
                                  f"FROM cumulative WHERE kepid={number}")
-    rows, failures = [], {}
-    for table, query in queries.items():
+    if kind == "EPIC":
+        queries["k2pandc"] = ("SELECT TOP 500 pl_name,epic_candname,disposition,pl_orbper,pl_tranmid,pl_tsystemref "
+                              f"FROM k2pandc WHERE epic_hostname='EPIC {number}' AND default_flag=1")
+    rows, failures, fallbacks = [], {}, {}
+    for table, query in list(queries.items()):
         try:
-            for row in tap(query):
+            try:
+                response = tap(query)
+            except ArchiveError as exc:
+                if table != "ps coordinates":
+                    raise
+                fallbacks[table] = {"primary_error": str(exc), "method": "TAP bounding box and exact local cone"}
+                query, response = coordinate_fallback(ra, dec)
+                queries["ps coordinates fallback"] = query
+            for row in response:
                 if table.startswith("ps "):
                     rows.append({"id": row["pl_name"], "period": row["pl_orbper"], "epoch": row["pl_tranmid"],
                                  "type": "Known confirmed planet",
@@ -139,6 +179,14 @@ def catalogues(meta):
                                  "epoch": row["pl_tranmid"], "identity": True,
                                  "type": "Rejected or likely false positive" if row["tfopwg_disp"] in ("FP", "FA")
                                  else "Previously reported candidate"})
+                elif table == "k2pandc":
+                    rows.append({"id": row["pl_name"] or row["epic_candname"] or f"EPIC {number}",
+                                 "period": row["pl_orbper"],
+                                 "epoch": row["pl_tranmid"] if row["pl_tsystemref"] == "BJD-TDB" else None,
+                                 "identity": True,
+                                 "type": {"FALSE POSITIVE": "Rejected or likely false positive",
+                                          "CONFIRMED": "Known confirmed planet"}.get(
+                                     row["disposition"], "Previously reported candidate")})
                 else:
                     epoch = row["koi_time0bk"]
                     rows.append({"id": row["kepoi_name"], "period": row["koi_period"],
@@ -148,19 +196,18 @@ def catalogues(meta):
                                      row["koi_disposition"], "Previously reported candidate")})
         except (ArchiveError, ValueError, KeyError, TypeError) as exc:
             failures[table] = str(exc)
-    if kind != "TIC" and "ps coordinates" not in queries:
+    if "ps coordinates" not in queries:
         failures["ps coordinates"] = "FITS target coordinates are missing"
-    if kind == "EPIC":
-        failures["K2 candidates"] = "K2 candidate catalogue comparison is unsupported"
     rows = list({(r["id"], r["period"], r["epoch"], r["type"]): r for r in rows}.values())
     return rows, {"status": "partial" if failures else "compared", "queries": queries, "failures": failures,
+                  "fallbacks": fallbacks,
                   "queried_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 
 def cross_match(result, rows, coverage):
     meta = result["observation"]
     reference = meta.get("bjd_reference")
-    result["catalogue_coverage"] = coverage
+    result["catalogue_coverage"] = {**coverage, "records_compared": rows}
     for candidate in result["candidates"]:
         matches = []
         period = candidate["period_days"]
@@ -179,7 +226,15 @@ def cross_match(result, rows, coverage):
             matches.append({**row, "ratio": ratio, "epoch_delta_days": epoch_delta,
                             "classification": row["type"] if direct else "Potentially matching known object"})
         candidate["catalogue_matches"] = matches
-        if candidate["classification"] != "Transit-like signal — catalogue comparison pending":
+        vetting_status = candidate["classification"]
+        candidate["vetting_status"] = vetting_status
+        if vetting_status != "Transit-like signal — catalogue comparison pending":
+            # Archive identity and this product's photometric vetting are distinct.
+            # Preserve every warning even if a secure ephemeris identifies the known source.
+            if vetting_status != "Insufficient evidence" and any(
+                m["classification"] == "Known confirmed planet" for m in matches
+            ):
+                candidate["classification"] = "Known confirmed planet"
             continue
         order = ["Known confirmed planet", "Previously reported candidate",
                  "Rejected or likely false positive", "Potentially matching known object"]

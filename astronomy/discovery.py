@@ -7,6 +7,8 @@ from dataclasses import asdict, dataclass
 import numpy as np
 from scipy.ndimage import median_filter
 
+from .ephemeris import estimate
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -129,10 +131,12 @@ def search(t, y, audit, settings):
     if high <= low or not len(durations):
         raise ValueError("Insufficient baseline or cadence for the requested search")
     model = BoxLeastSquares(t - t[0], y, dy=np.full(len(y), sigma))
-    periods = model.autoperiod(durations, minimum_period=low, maximum_period=high)
+    trial_budget = 24_000
+    dense_steps = (1 / low - 1 / high) * span ** 2 / durations.min()
+    factor = float(max(1, dense_steps / (trial_budget - 2)))
+    periods = model.autoperiod(durations, minimum_period=low, maximum_period=high,
+                               frequency_factor=factor)
     periods = periods[(periods >= low) & (periods <= high)]
-    if len(periods) > 40_000:
-        raise ValueError("Search exceeds the 40,000-period trial limit. Narrow the period range.")
     best = None
     for duration in durations:
         trial = periods[periods > 5 * duration]
@@ -140,12 +144,58 @@ def search(t, y, audit, settings):
             continue
         result = model.power(trial, duration, objective="snr", oversample=10)
         index = int(np.argmax(np.where(np.isfinite(result.depth_snr), result.depth_snr, -np.inf)))
+        if factor > 1 and np.isfinite(result.depth_snr[index]):
+            frequency = 1 / result.period[index]
+            step = factor * durations.min() / span ** 2
+            neighborhood = 1 / np.linspace(max(1 / high, frequency - step),
+                                            min(1 / max(low, 5 * duration), frequency + step), 17)
+            result = model.power(neighborhood, duration, objective="snr", oversample=10)
+            index = int(np.argmax(np.where(np.isfinite(result.depth_snr), result.depth_snr, -np.inf)))
         snr = float(result.depth_snr[index])
         if np.isfinite(snr) and (best is None or snr > best["snr"]):
             best = {"period_days": float(result.period[index]),
                     "epoch_days": float(result.transit_time[index] + t[0]),
                     "duration_days": float(result.duration[index]), "depth": float(result.depth[index]),
-                    "snr": snr, "period_trials": len(periods), "phase_oversample": 10}
+                    "snr": snr, "period_trials": len(periods), "phase_oversample": 10, "frequency_grid_factor": factor}
+    return best
+
+
+def red_noise_snr(time, flux, inside, depths, duration, cadence, noise):
+    if not depths:
+        return None
+    outside = ~inside
+    bins = np.floor((time[outside] - time[0]) / duration).astype(int)
+    # Compact labels avoid allocating over long observation gaps.
+    _, index = np.unique(bins, return_inverse=True)
+    counts = np.bincount(index)
+    sums = np.bincount(index, weights=flux[outside])
+    good = counts >= max(2, .6 * duration / cadence)
+    if good.sum() < 12:
+        return None
+    scatter = max(float(robust_sigma(sums[good] / counts[good])), noise / np.sqrt(duration / cadence))
+    return float(np.median(depths) * np.sqrt(len(depths)) / scatter)
+
+
+def secondary_event(cycles, flux, baseline, period, duration, depth, noise):
+    phase = cycles % 1
+    half = duration / (2 * period)
+    best = None
+    # Look for repeated off-phase eclipses. Limit phase resolution to four bins per duration.
+    for center in np.linspace(.15, .85, max(17, min(100, int(1.4 / half)))):
+        inside = np.abs(phase - center) < half
+        if inside.sum() < 6:
+            continue
+        drop = float(baseline - flux[inside].mean())
+        snr = drop * np.sqrt(inside.sum()) / noise
+        if drop < .20 * depth or snr < 9:
+            continue
+        labels = np.floor(cycles[inside]).astype(int)
+        _, index = np.unique(labels, return_inverse=True)
+        counts = np.bincount(index)
+        sums = np.bincount(index, weights=baseline - flux[inside])
+        supported = np.count_nonzero((counts >= 2) & (sums >= 2.5 * noise * np.sqrt(counts)))
+        if supported >= 3 and (best is None or snr > best["snr"]):
+            best = {"phase": float(center), "snr": float(snr), "events": int(supported)}
     return best
 
 
@@ -171,16 +221,26 @@ def vet(t, y, candidate, audit, settings):
     secondary = y[np.abs(np.abs(phase) - .5) < duration / (2 * period)]
     secondary_snr = float((baseline - secondary.mean()) * np.sqrt(len(secondary)) / noise) if len(secondary) >= 6 else None
     warnings = []
-    if odd_even is not None and odd_even >= 5:
+    correlated_snr = red_noise_snr(t, y, inside, depths, duration, audit["cadence_days"], noise)
+    if correlated_snr is not None and correlated_snr < 7:
+        warnings.append("Weak detection relative to transit-duration noise")
+    off_phase = secondary_event(cycles, y, baseline, period, duration, candidate["depth"], noise)
+    # Require material depth contrast as well as nominal significance.
+    if (odd_even is not None and odd_even >= 5
+            and abs(groups[0].mean() - groups[1].mean()) >= .20 * candidate["depth"]):
         warnings.append("Odd/even depth difference")
-    if secondary_snr is not None and secondary_snr >= 5:
+    if (secondary_snr is not None and secondary_snr >= 5
+            and baseline - secondary.mean() >= .20 * candidate["depth"]):
         warnings.append("Secondary eclipse near phase 0.5")
+    elif off_phase is not None:
+        warnings.append("Repeated secondary eclipse away from phase 0.5")
     if depths and max(depths) > 3 * min(depths):
         warnings.append("Inconsistent event depths")
     if candidate["depth"] > .1:
         warnings.append("Deep eclipse")
     candidate.update(observed_transits=len(supported), event_cycles=supported,
-                     odd_even_sigma=odd_even, secondary_snr=secondary_snr, warnings=warnings,
+                     odd_even_sigma=odd_even, secondary_snr=secondary_snr,
+                     duration_noise_snr=correlated_snr, off_phase_secondary=off_phase, warnings=warnings,
                      depth_error_white_noise=float(noise / np.sqrt(inside.sum())),
                      classification=("Insufficient evidence" if len(supported) < settings.min_transits
                                      else "Rejected or likely false positive" if warnings
@@ -201,6 +261,11 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
         if candidate is None or candidate["snr"] < settings.min_snr:
             break
         vet(t[keep], y[keep], candidate, audit, settings)
+        candidate["ephemeris"] = (
+            estimate(t[keep], y[keep], candidate, audit)
+            if not candidate["warnings"] and candidate["observed_transits"] >= 4
+            else {"status": "unavailable", "reason": "Vetting failed or fewer than four supported events"}
+        )
         candidates.append(candidate)
         if candidate["classification"] == "Insufficient evidence":
             break
@@ -214,4 +279,4 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
             "algorithm": "Astropy BoxLeastSquares", "candidates": candidates, "curve": {"time": t.tolist(), "raw": raw.tolist(), "flux": y.tolist()},
             "limitations": ["Single light curve. No pixel centroid, contamination, or independent follow-up vetting.",
                             "Box model and discrete duration grid. SNR assumes white noise and is not a false-alarm probability.",
-                            "Period and epoch uncertainty are uncalibrated. Segment edges, aliases, variability and instrumental artifacts need review."]}
+                            "Ephemeris intervals are conditional on the selected period family and linear timing model. Segment edges, aliases and instrumental artifacts need review."]}

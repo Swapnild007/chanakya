@@ -128,3 +128,52 @@ class DiscoveryTests(unittest.TestCase):
         self.assertAlmostEqual(signal["period_days"], 1.09142, delta=.003)
         self.assertGreaterEqual(signal["observed_transits"], 15)
         self.assertEqual(signal["warnings"], [])
+
+    def test_coordinate_403_fallback_keeps_only_exact_cone(self):
+        near = {"pl_name": "near", "pl_orbper": 2.37, "pl_tranmid": 2457000.42,
+                "tic_id": None, "ra": .0002, "dec": 0}
+        corner = {**near, "pl_name": "box corner", "ra": .002, "dec": .0025}
+
+        def catalogue_query(query):
+            if "CONTAINS" in query:
+                raise ArchiveError("HTTP 403")
+            if "BETWEEN" in query:
+                self.assertIn(" OR ra <=", query)
+                return [near, corner]
+            return []
+
+        with patch("astronomy.archive.tap", side_effect=catalogue_query):
+            rows, coverage = catalogues({"target": "TIC 123", "ra": 359.9999, "dec": 0.})
+        self.assertEqual([r["id"] for r in rows], ["near"])
+        self.assertEqual(coverage["status"], "compared")
+        self.assertEqual(coverage["fallbacks"]["ps coordinates"]["primary_error"], "HTTP 403")
+
+    def test_k2_mast_uses_pipeline_name(self):
+        rows = [{"obsid": 12}]
+        files = [{"productType": "SCIENCE", "productFilename": "ktwo206103150-c03_llc.fits",
+                  "dataURI": "mast:K2/url/missions/k2/ktwo206103150-c03_llc.fits"}]
+        products.cache_clear()
+        try:
+            with patch("astronomy.archive.mast", side_effect=[rows, files]) as query:
+                result = products("EPIC 206103150")
+            self.assertIn("ktwo206103150", query.call_args_list[0].kwargs["filters"][1]["values"])
+            self.assertEqual(result[0]["target"], "EPIC 206103150")
+        finally:
+            products.cache_clear()
+
+    def test_ephemeris_has_reference_cycle_and_positive_intervals(self):
+        from astronomy.evaluate import case
+        time, flux, quality, period, epoch = case(701, "injection", .008)
+        result = analyze(time, flux, quality, settings=self.settings)["candidates"][0]
+        fit = result["ephemeris"]
+        self.assertEqual(fit["status"], "estimated")
+        self.assertGreaterEqual(fit["timed_events"], 4)
+        self.assertLess(fit["period_interval_days"][0], period)
+        self.assertGreater(fit["period_interval_days"][1], period)
+        self.assertAlmostEqual((fit["epoch_days"] - epoch) / period,
+                               round((fit["epoch_days"] - epoch) / period), delta=.02)
+
+    def test_off_phase_binary_and_correlated_noise(self):
+        from astronomy.evaluate import trial
+        self.assertFalse(trial(712, "asymmetric_eclipsing_binary", 0)["passed_vetting"])
+        self.assertFalse(trial(713, "correlated_noise", 0)["passed_vetting"])

@@ -4,6 +4,7 @@ const storageKey = "astrolens.transit.sessions.v1";
 let report = null;
 let selectedCandidate = 0;
 let searchTarget = "";
+let searchRevision = 0;
 let sessions = [];
 try { sessions = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch { /* Storage is optional. */ }
 if (!Array.isArray(sessions)) sessions = [];
@@ -31,7 +32,10 @@ function view() {
   });
   requestAnimationFrame(drawCharts);
 }
-window.addEventListener("hashchange", view);
+window.addEventListener("hashchange", () => {
+  view();
+  if (location.hash !== "#main") window.scrollTo(0, 0);
+});
 window.addEventListener("resize", drawCharts);
 
 async function api(url, options) {
@@ -46,22 +50,35 @@ async function api(url, options) {
 api("/api/health").then(() => status("service", "Analysis service available"))
   .catch(() => status("service", "Analysis service unavailable", true));
 
+$("target").addEventListener("input", () => {
+  ++searchRevision;
+  searchTarget = "";
+  $("product").replaceChildren(new Option("Search for products first", ""));
+  $("product").disabled = true;
+  status("search-status", "Search this target to list its public observations.");
+});
+
 $("search").addEventListener("submit", async event => {
   event.preventDefault();
   const button = event.submitter;
   button.disabled = true;
   $("product").replaceChildren(new Option("Searching…", ""));
   $("product").disabled = true;
-  searchTarget = $("target").value.trim();
+  const target = $("target").value.trim();
+  const revision = ++searchRevision;
+  searchTarget = "";
   status("search-status", "Querying NASA MAST for public observation products…");
   try {
-    const { products } = await api("/api/products?" + new URLSearchParams({ target: searchTarget }));
+    const { products } = await api("/api/products?" + new URLSearchParams({ target }));
+    if (revision !== searchRevision) return;
+    searchTarget = target;
     $("product").replaceChildren(new Option(products.length ? "Select an observation" : "No matching products", ""));
     for (const item of products) $("product").add(new Option(item.file, item.uri));
     $("product").disabled = !products.length;
     status("search-status", products.length + " selectable light-curve product(s).");
     status("archive-status", "MAST responded with " + products.length + " selectable product(s).");
   } catch (error) {
+    if (revision !== searchRevision) return;
     $("product").replaceChildren(new Option("Archive unavailable", ""));
     status("search-status", error.message, true);
     status("archive-status", "MAST request failed.", true);
@@ -87,7 +104,9 @@ $("analysis").addEventListener("submit", async event => {
       headers: { "Content-Type": file ? "application/octet-stream" : "application/json" },
       body: file || JSON.stringify({ target: searchTarget, uri }) });
     render(next);
-    status("analysis-status", "Analysis complete. " + next.candidates.length + " hypothesis/hypotheses returned.");
+    const count = next.candidates.length;
+    status("analysis-status", count ? `Analysis complete. ${count} ${count === 1 ? "hypothesis" : "hypotheses"} returned.` :
+      "Analysis complete. No signal met the detection threshold.");
     $("open-results").hidden = false;
   } catch (error) {
     status("analysis-status", error.message + (report ? " The previous report is still available." : ""), true);
@@ -116,6 +135,7 @@ function render(next, index = 0) {
       "Period (days)": candidate.period_days.toFixed(5), "Epoch (observation days)": candidate.epoch_days.toFixed(5),
       "Duration (hours)": (candidate.duration_days * 24).toFixed(2), "Depth (ppm)": (candidate.depth * 1e6).toFixed(0),
       "White-noise SNR": candidate.snr.toFixed(1), "Supported events": candidate.observed_transits,
+      "Duration-noise SNR": candidate.duration_noise_snr?.toFixed(1) ?? "Unavailable",
       "Odd/even (σ)": candidate.odd_even_sigma?.toFixed(1) ?? "Unavailable",
       "Secondary SNR": candidate.secondary_snr?.toFixed(1) ?? "Unavailable"
     })) {
@@ -123,12 +143,36 @@ function render(next, index = 0) {
       item.append(text("dt", label), text("dd", value));
       details.append(item);
     }
+    const timing = candidate.ephemeris;
+    if (timing?.status === "estimated") {
+      const summary = text("div", "", "timing");
+      summary.append(text("h3", "Linear ephemeris"), text("p",
+        `Period ${timing.period_days.toFixed(6)} d · reference epoch ${timing.epoch_days.toFixed(6)} d`),
+        text("p", `Nominal 95% period interval ${timing.period_interval_days.map(v => v.toFixed(6)).join("–")} d`),
+        text("p", `Nominal 95% epoch interval ${timing.epoch_interval_days.map(v => v.toFixed(6)).join("–")} d`),
+        text("p", `${timing.timed_events} timed events · ${timing.calibration_scope}`));
+      if (timing.synthetic_calibration) {
+        const calibration = timing.synthetic_calibration;
+        summary.append(text("p",
+          `Synthetic joint coverage ${calibration.holdout.count}/${calibration.holdout.total} · interval scale ×${calibration.multiplier.toFixed(2)}`),
+          text("p", calibration.scope));
+      }
+      card.append(details, summary);
+    } else {
+      card.append(details, text("p", "Ephemeris intervals unavailable. " + (timing?.reason || "Run a new analysis to estimate timing.")));
+    }
     const fold = text("button", "Show folded curve");
     fold.addEventListener("click", () => {
       selectedCandidate = i; drawCharts(); $("fold-panel").scrollIntoView({ block: "nearest" });
     });
-    card.append(details, text("p", candidate.ranking_basis),
+    if (candidate.classification === "Known confirmed planet" && candidate.warnings.length) {
+      card.append(text("p", "Catalogue match confirmed. Photometric vetting flagged this observation.", "timing"));
+    }
+    card.append(text("p", candidate.ranking_basis),
       text("p", candidate.warnings.join(" · ") || "No tested veto triggered."), fold);
+    if (candidate.classification === "Unmatched transit-like signal") {
+      card.append(text("p", "No match in the catalogues queried. Independent observations and false-positive vetting are required.", "timing"));
+    }
     for (const match of candidate.catalogue_matches) card.append(text("p", match.id + " · " + match.classification + " · period ratio " + match.ratio.toFixed(2)));
     return card;
   });
@@ -144,6 +188,9 @@ function render(next, index = 0) {
   context.append(text("p", `${report.algorithm || "Transit search"} · ${minimum_period}–${maximum_period} day period range · ${trend_days} day trend window`));
   context.append(text("p", `${preprocessing.used} of ${preprocessing.input} cadences used · ${preprocessing.quality_rejected} quality-flagged · ${preprocessing.gap_count} gaps`));
   for (const note of limitations) context.append(text("p", note));
+  for (const [table, detail] of Object.entries(catalogue_coverage.fallbacks || {})) {
+    context.append(text("p", table + " · " + detail.method + " · " + detail.primary_error));
+  }
   for (const [table, detail] of Object.entries(catalogue_coverage.failures || {})) context.append(text("p", table + " · " + detail));
   if (catalogue_coverage.reason) context.append(text("p", catalogue_coverage.reason));
   $("evidence").replaceChildren(...items, context);
@@ -159,12 +206,18 @@ function plot(canvas, points, axis, output) {
   ctx.scale(ratio, ratio);
   let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity;
   for (const [x, y] of points) { xmin = Math.min(xmin, x); xmax = Math.max(xmax, x); ymin = Math.min(ymin, y); ymax = Math.max(ymax, y); }
-  const left = 62, top = 15, plotW = width - left - 15, plotH = height - top - 30;
+  const left = 62, top = 15, plotW = width - left - 20, plotH = height - top - 32;
   ctx.font = "11px system-ui";
   for (let i = 0; i <= 4; i++) {
     const y = top + plotH * i / 4;
     ctx.strokeStyle = "#26374e"; ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(width - 15, y); ctx.stroke();
     ctx.fillStyle = "#a7bad0"; ctx.fillText((ymax - (ymax - ymin) * i / 4).toFixed(5), 5, y + 4);
+  }
+  ctx.textAlign = "center";
+  const divisions = width < 430 ? 2 : 4;
+  for (let i = 0; i <= divisions; i++) {
+    ctx.fillText((xmin + (xmax - xmin) * i / divisions).toFixed(2),
+      Math.min(width - 24, left + plotW * i / divisions), height - 9);
   }
   for (const [x, y, transit] of points) {
     ctx.fillStyle = transit ? "#ffce86" : "#8ef1d7";
@@ -172,7 +225,7 @@ function plot(canvas, points, axis, output) {
     ctx.fillRect(left + (x - xmin) / (xmax - xmin || 1) * plotW,
       top + (ymax - y) / (ymax - ymin || 1) * plotH, transit ? 2 : 1.5, 2);
   }
-  status(output, `${axis} ${xmin.toFixed(4)} to ${xmax.toFixed(4)} · Relative flux ${ymin.toFixed(5)} to ${ymax.toFixed(5)} · ${points.length} cadences · Amber marks the transit window`);
+  status(output, `${axis} ${xmin.toFixed(4)} to ${xmax.toFixed(4)} · Relative flux ${ymin.toFixed(5)} to ${ymax.toFixed(5)} · ${points.length} cadences` + (points.some(point => point[2]) ? " · Amber marks the transit window" : ""));
 }
 
 function drawCharts() {

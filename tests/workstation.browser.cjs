@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
 const { chromium } = require("playwright");
 
 (async () => {
@@ -16,12 +17,22 @@ const { chromium } = require("playwright");
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(base);
     await page.getByText("Analysis service available").waitFor();
-    if (screenshots) await page.screenshot({ path: screenshots + "/AstroLens_Desktop.png", fullPage: true });
+    if (screenshots) fs.mkdirSync(screenshots, { recursive: true });
     for (const name of pages) {
       await page.getByRole("link", { name, exact: true }).click();
       await page.getByRole("heading", { name, exact: true, level: 1 }).waitFor();
     }
     await page.getByRole("link", { name: "Planet Discovery", exact: true }).click();
+    await page.route("**/api/products?*", route => route.fulfill({ json: { products: [
+      { file: "test-fixture.fits", uri: "mast:TESS/product/test-fixture.fits" }
+    ] } }));
+    await page.locator("#target").fill("TIC 123");
+    await page.getByRole("button", { name: "Search NASA MAST" }).click();
+    await page.locator("#product").selectOption("mast:TESS/product/test-fixture.fits");
+    await page.locator("#target").fill("TIC 456");
+    assert.equal(await page.locator("#product").isDisabled(), true);
+    assert.equal(await page.locator("#product").inputValue(), "");
+    await page.unroute("**/api/products?*");
     await page.locator("#file").setInputFiles({ name: "invalid.csv", mimeType: "text/csv", buffer: Buffer.from("invalid") });
     await page.getByRole("button", { name: "Run transit search" }).click();
     await page.getByText("Invalid observation:", { exact: false }).waitFor();
@@ -55,14 +66,17 @@ const { chromium } = require("playwright");
     await page.locator("#filter").fill("synthetic");
     await page.getByRole("button", { name: "Inspect", exact: true }).first().click();
     await page.getByRole("heading", { name: "Candidate Investigation", level: 1 }).waitFor();
-    await page.setViewportSize({ width: 390, height: 844 });
-    for (const name of pages) {
-      await page.getByRole("link", { name, exact: true }).click();
-      await page.getByRole("heading", { name, exact: true, level: 1 }).waitFor();
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name);
+    for (const [layout, width, height] of [["desktop", 1440, 900], ["mobile", 390, 844]]) {
+      await page.setViewportSize({ width, height });
+      for (const name of pages) {
+        await page.getByRole("link", { name, exact: true }).click();
+        await page.getByRole("heading", { name, exact: true, level: 1 }).waitFor();
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name);
+        if (screenshots) {
+          await page.screenshot({ path: `${screenshots}/${layout}-${name.toLowerCase().replaceAll(" ", "-")}.png`, fullPage: true });
+        }
+      }
     }
-    await page.getByRole("link", { name: "Planet Discovery", exact: true }).click();
-    if (screenshots) await page.screenshot({ path: screenshots + "/AstroLens_Mobile.png", fullPage: true });
     await page.getByRole("link", { name: "Classic astronomy tools" }).click();
     await page.waitForURL("**/classic.html");
     await page.locator('body[data-workspace-view="home"]').waitFor();
