@@ -5,6 +5,7 @@ import numpy as np
 
 from astronomy.discovery import analyze
 from astronomy.ephemeris import compare_observations, project_epoch
+from astronomy.observation_validation import aperture_events
 from test_discovery import synthetic
 
 
@@ -60,3 +61,16 @@ class ObservationComparisonTests(unittest.TestCase):
                "epoch_period_covariance_days2": 0.000001}
         self.assertAlmostEqual(project_epoch(fit, 3)["epoch_days"], 16.)
         self.assertGreater(project_epoch(fit, 3)["half_width_days"], project_epoch(fit, -3)["half_width_days"])
+
+class PixelSummaryTests(unittest.TestCase):
+    def test_two_apertures_show_dilution_and_centroid_shift(self):
+        time = np.arange(0, 10, .02)
+        cube = np.full((len(time), 1, 2), 100.)
+        inside = np.abs((time - .5 + 1) % 2 - 1) < .095
+        cube[inside, 0, 0] = 90.
+        central = aperture_events(time, cube, np.array([[True, False]]), 2., .5, .2)
+        full = aperture_events(time, cube, np.array([[True, True]]), 2., .5, .2)
+        self.assertEqual(central["events"], 5)
+        self.assertAlmostEqual(central["median_fractional_depth"], .1)
+        self.assertAlmostEqual(full["median_fractional_depth"], .05)
+        self.assertGreater(full["median_centroid_shift_pixels"][0], 0)
