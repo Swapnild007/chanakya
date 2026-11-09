@@ -1,0 +1,33 @@
+{
+  "purpose": "Known-host controls and a residual transit search. This sample does not estimate population yield.",
+  "targets": [
+    {
+      "target": "TIC 86396382",
+      "uri": "mast:TESS/product/tess2019357164649-s0020-0000000086396382-0165-s_lc.fits",
+      "expected_period_days": 1.091419,
+      "expected_name": "WASP-12 b",
+      "sha256": "bf74a16f6e0c40b693a66de922e142d446cb44cee5bb7f26843062e436957f63"
+    },
+    {
+      "target": "KIC 10666592",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010666592/kplr010666592-2009259160929_llc.fits",
+      "expected_period_days": 2.204735,
+      "expected_name": "HAT-P-7 b",
+      "sha256": "2a10ce0fa87e8a757e6d66a740669bcf94a704eecf0646bbf898ad91b402fc08"
+    },
+    {
+      "target": "KIC 6922244",
+      "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0069/006922244/kplr006922244-2009259160929_llc.fits",
+      "expected_period_days": 3.5225,
+      "expected_name": "Kepler-8 b",
+      "sha256": "28d2473a7dd0ccd135162d292436bd36a14f2c7763c6123bfd5c3b6200a86413"
+    },
+    {
+      "target": "EPIC 206103150",
+      "uri": "mast:K2/url/missions/k2/lightcurves/c3/206100000/03000/ktwo206103150-c03_llc.fits",
+      "expected_period_days": 4.159151,
+      "expected_name": "WASP-47 b",
+      "sha256": "e11c42556593f1328cf421c8045bf5b463394df73ba3f6d7779fd7062d2fad15"
+    }
+  ]
+}

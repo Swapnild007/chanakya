@@ -1,35 +1,79 @@
-# AstroLens: Astronomy Candidate Research
+# AstroLens · Transit Research
 
-AstroLens is an evidence-first research workspace for exploring astronomical candidates. It currently combines a live NASA Exoplanet Archive TOI catalogue loader, a browser-local light-curve outlier scanner, and a transparent Python candidate triage function.
+AstroLens screens measured stellar light curves for repeating transit-like signals. The workstation has six views for acquisition, photometry, investigation, catalogue filtering and reproducible session export. The original astronomy tools remain accessible at `classic.html`, including their separate browser-local CSV/FITS analysis and catalogue browsing.
 
-## Current capabilities
-- **Live catalogue query:** requests up to 100 rows from the NASA Exoplanet Archive TAP `toi` table. TOIs are existing catalogue candidates, not new discoveries. The dashboard's score reflects metadata completeness only.
-- **Local light-curve scan:** choose a CSV with time and flux/brightness columns. The browser flags groups of at least two low-flux points below median minus three scaled median absolute deviations (MAD). The file stays in the browser and is not uploaded.
-- **Python candidate scoring:** transparent heuristic for triage, not a calibrated probability or machine-learning model.
-- Responsive dashboard, candidate detail panels, search, filters, test suite, and CI.
+## Run locally
 
-## Run
-Requires Python 3.10+.
+Requires Python 3.10 or newer.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m astronomy.server
+```
+
+On Windows PowerShell activate with `.venv\Scripts\Activate.ps1`. Open http://127.0.0.1:8000. The default listener is local only. Static hosting can serve the classic tools and workstation shell, but the workstation analysis requires the same-origin Python service. The reference server is intended for local research. Public deployment needs a hardened application server or proxy with TLS, authentication as appropriate, request limits and access controls.
+
+In **Planet Discovery**, search by TIC, KIC or EPIC identifier or upload a single FITS or CSV. CSV column names are `time,flux`, with optional `quality`. Time must be in days and the segment's median flux must be positive. FITS uses `TIME` plus `PDCSAP_FLUX`, `SAP_FLUX`, or `FLUX`. FITS without mission identity or time metadata can be screened with catalogue limitations. Uploads are sent to the configured AstroLens server and processed in memory. Saved reports are stored by the browser and can be exported as JSON.
+
+Analyze independently of the browser:
+
+```bash
+python -m astronomy observation.fits --min-period 0.5 --max-period 5 > report.json
+```
+
+## Method
+
+- NASA MAST discovery returns public light-curve products from a bounded set of matching observations. Search metadata is cached in-process. Archive calls have size/time limits and a bounded retry. Download requires a listed product and the FITS identifier must agree with the requested target.
+- Preprocessing removes invalid and duplicate measurements, requires zero quality flags where present, splits on gaps of five median cadences, normalizes each segment, applies a gap-aware rolling median and clips positive outliers. Input SHA-256, settings, cadence counts and a robust noise estimate are exported.
+- Astropy BoxLeastSquares searches a frequency grid constrained by baseline and cadence. Long baselines use a bounded coarse grid and local peak refinement. It ranks transit-like dips by white-noise SNR and requires independently supported events before promoting a hypothesis. It masks the first candidate's window before a second pass.
+- Odd/even depths, repeated secondary eclipses at other phases, transit-duration noise, per-event depth consistency and deep eclipses provide initial vetting. Review rank sorts by vetting status, supported event count and white-noise SNR.
+- NASA Exoplanet Archive Planetary Systems, TOI, Kepler KOI and K2 Planets and Candidates queries compare applicable target identifiers and periods. Planetary Systems matches TIC identifiers and also searches a 10-arcsec cone when the FITS header provides coordinates. Period screening uses 1% tolerance, with half, double and third harmonics flagged separately. Direct matches require target identity and phase agreement within the larger of 0.05 days or the fitted transit duration, using compatible BJD/TDB metadata. If TAP rejects the spatial predicate, numeric RA/Dec predicates supply a bounding box and an exact local spherical filter restores the 10-arcsec cone. A failed fallback retains partial coverage. Results record the queries, fallback reason and normalized catalogue records. A secure catalogue identification can coexist with photometric warnings, which remain visible and auditable.
+
+## Scientific limits
+
+The pipeline screens one product at a time. A white-noise SNR is a ranking diagnostic. Time-correlated variability, residual systematics, sparse coverage, nearby binaries, period aliases and detrending can affect results. Event timings use local trapezoid fits and a Student-t linear ephemeris with a reference epoch near the middle of the observations. The report includes nominal intervals and a joint scale checked against held-out synthetic injections. Coverage on real observations, period aliases, template bias and transit timing variations are outside that calibration. Intervals are withheld if fewer than four transits can be timed reliably or the signal fails photometric vetting. Pixel-level vetting, transit timing variations, multi-sector stitching and independent follow-up remain outside this release. Candidate catalogue coverage is incomplete even when the configured queries succeed. The workstation uses **Unmatched transit-like signal** for that result and reserves discovery claims for independently validated work.
+
+## Verification
 
 ```bash
 python -m unittest discover -s tests -v
-python -m http.server 8000
+node --test tests/*.test.js
+npm install --no-save playwright
+npx playwright install chromium
+# Start the Python server on port 8765 in a separate terminal.
+node tests/workstation.browser.cjs
 ```
-Open http://localhost:8000. Live catalogue loading requires an internet connection and browser access to the NASA TAP endpoint. If the browser blocks cross-origin requests, use the NASA TAP link below or add a small server-side proxy; never label failed retrieval as live data.
 
-## NASA data sources
-- [NASA Exoplanet Archive TAP documentation](https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html)
-- [NASA Exoplanet Archive TOI catalogue](https://exoplanetarchive.ipac.caltech.edu/overview/TOI)
-- [MAST API documentation](https://mast.stsci.edu/api/v0/)
-- [Exo.MAST light-curve web services](https://exo.mast.stsci.edu/docs/)
+Synthetic cases cover injected periods, noise, isolated dips and eclipses. Tests also cover catalogue classifications, unavailable sources, malformed observations, quality filtering and FITS round-trip parsing. Synthetic cases measure fixture recovery only.
 
-## Scientific limits
-The current browser scanner is an outlier detector, not a periodic transit search. Stellar variability, cosmic rays, gaps, detrending artifacts, eclipsing binaries, and instrumental effects can create false positives. The live TOI catalogue is not a blind discovery feed. Genuine discovery work next requires FITS light-curve ingestion, robust detrending, a periodic transit-search algorithm (e.g. box least squares), known-object cross-matching, and evaluation against labelled public observations.
+### Reproduce the scientific validation
 
-Do not describe any candidate as a confirmed planet, star, or new discovery without appropriate independent validation.
+```bash
+python -m astronomy.evaluate --repeats 48 --seed 92741 > injection-results.json
+python -m astronomy.survey data/validation-targets.json --cache .venv/observations > survey-results.json
+```
 
-## Tests
-`python -m unittest discover -s tests -v`
+The injection experiment uses labelled synthetic light curves with gapped cadence, correlated and white noise, and stellar modulation. It reports recovery by depth, false positives by negative-control scenario, and Wilson binomial intervals. It uses disjoint stratified calibration and holdout seeds to check joint period and epoch coverage, conditional on recovery and usable timing. The [checked-in calibration summary](data/ephemeris-calibration.json) records the fitted scale and measured holdout coverage.
+
+The multi-target manifest fixes the product URIs and SHA-256 hashes for WASP-12 b, HAT-P-7 b, Kepler-8 b and WASP-47 b. The survey applies the same search range to all four light curves without injecting their catalogue periods into detection. It records each processed product, result, software version and unsuccessful request, and lists only vetted, catalogue-compared unmatched signals. The four known-host controls provide an engineering check across missions. Survey reports depend on the recorded live catalogue snapshot and do not establish a population yield or a planetary discovery.
+
+Set `ASTROLENS_WASP12_FITS` to the local WASP-12 product from the manifest to include that observation in the unit tests. Live archives require outbound HTTPS.
+
+Archive references are the [MAST API](https://mast.stsci.edu/api/v0/), [TESS archive guide](https://heasarc.gsfc.nasa.gov/docs/tess/TSC2-Intro.html), and [NASA TAP documentation](https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html).
+
+## Milestone 3 reliability
+
+```bash
+OPENBLAS_NUM_THREADS=1 python -m astronomy.reliability --repeats 12 --workers 4 > reliability.json
+OPENBLAS_NUM_THREADS=1 python -m astronomy.survey data/milestone3-targets.json --cache .venv/observations --workers 4 > survey.json
+```
+
+Candidate evidence includes original in-window quality flags, missing flux, gaps through the event, two-sided continuum coverage, local depth and timing, and a sharp-step versus trapezoid comparison. Multiple unusable events cannot replace independently observed events. Large depth or timing disagreement is screened against a local noise estimate. The p-values are diagnostics with approximate noise models. Known catalogue matches retain separate photometric warnings. Cadence flags reflect product-level pipeline metadata and do not rule out unflagged artifacts. [MAST cadence quality documentation](https://outerspace.stsci.edu/spaces/TESS/pages/14563420/2.0+-+Data+Product+Overview)
+
+The benchmark uses distinct development and holdout seed ranges and three observation baselines. The six previously missed dropouts are replayed separately. Coverage is reported by depth, duration-noise SNR, baseline, and supported transits, conditional on recovery and an available fit. The expanded real survey freezes ten target IDs and one SHA-256-pinned MAST product per target. It records failed lookups, preprocessing and event-level evidence, and catalogue results. For vetted known matches it compares nominal intervals with catalogue point ephemerides and fits disjoint halves independently, conditional on the same catalogue period family and full-product duration. Those comparisons measure agreement, with shared-data and model limitations. They do not estimate real-observation coverage.
 
 ## License
-No license is granted by this initial scaffold. Add an explicit license before external redistribution.
+
+The repository has no explicit software license.

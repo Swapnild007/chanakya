@@ -1,0 +1,383 @@
+{
+  "TIC 86396382": {
+    "status": "compared",
+    "queries": {
+      "ps identifier": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND tic_id='TIC 86396382'",
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',97.63664272,29.67229620,0.00277778))=1",
+      "toi": "SELECT TOP 500 toi,pl_orbper,pl_tranmid,tfopwg_disp FROM toi WHERE tid=86396382",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN 29.6695184262 AND 29.6750739817 AND ra BETWEEN 97.6334457222 AND 97.6398397159"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (URLError)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:29:58Z",
+    "records_compared": [
+      {
+        "id": "WASP-12 b",
+        "period": 1.091418901,
+        "epoch": 2457607.519305,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI 1725.01",
+        "period": 1.0914304,
+        "epoch": 2458842.997159,
+        "identity": true,
+        "type": "Previously reported candidate"
+      }
+    ]
+  },
+  "KIC 10666592": {
+    "status": "compared",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',292.24728000,47.96951900,0.00277778))=1",
+      "cumulative": "SELECT TOP 500 kepoi_name,koi_period,koi_time0bk,koi_disposition FROM cumulative WHERE kepid=10666592",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN 47.9667412222 AND 47.9722967778 AND ra BETWEEN 292.2431311270 AND 292.2514288730"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:28:53Z",
+    "records_compared": [
+      {
+        "id": "HAT-P-7 b",
+        "period": 2.20474,
+        "epoch": null,
+        "type": "Known confirmed planet",
+        "identity": false
+      },
+      {
+        "id": "K00002.01",
+        "period": 2.204735417,
+        "epoch": 2454954.3585417,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "KIC 6922244": {
+    "status": "compared",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',281.28812000,42.45108000,0.00277778))=1",
+      "cumulative": "SELECT TOP 500 kepoi_name,koi_period,koi_time0bk,koi_disposition FROM cumulative WHERE kepid=6922244",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN 42.4483022222 AND 42.4538577778 AND ra BETWEEN 281.2843553282 AND 281.2918846718"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:28:53Z",
+    "records_compared": [
+      {
+        "id": "Kepler-8 b",
+        "period": 3.5224991,
+        "epoch": 2454954.11931,
+        "type": "Known confirmed planet",
+        "identity": false
+      },
+      {
+        "id": "K00010.01",
+        "period": 3.522498429,
+        "epoch": 2454954.1194228,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "EPIC 206103150": {
+    "status": "compared",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',331.20304500,-12.01889300,0.00277778))=1",
+      "k2pandc": "SELECT TOP 500 pl_name,epic_candname,disposition,pl_orbper,pl_tranmid,pl_tsystemref FROM k2pandc WHERE epic_hostname='EPIC 206103150' AND default_flag=1",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN -12.0216707778 AND -12.0161152222 AND ra BETWEEN 331.2002049658 AND 331.2058850342"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:28:53Z",
+    "records_compared": [
+      {
+        "id": "WASP-47 b",
+        "period": 4.159151,
+        "epoch": 2459407.761987,
+        "identity": true,
+        "type": "Known confirmed planet"
+      },
+      {
+        "id": "WASP-47 c",
+        "period": 589.57,
+        "epoch": null,
+        "identity": true,
+        "type": "Known confirmed planet"
+      },
+      {
+        "id": "WASP-47 d",
+        "period": 9.030501,
+        "epoch": 2457024.430107,
+        "identity": true,
+        "type": "Known confirmed planet"
+      },
+      {
+        "id": "WASP-47 e",
+        "period": 0.78961,
+        "epoch": 2457012.13666,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "TIC 261136679": {
+    "status": "compared",
+    "queries": {
+      "ps identifier": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND tic_id='TIC 261136679'",
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',84.30089899,-80.46911980,0.00277778))=1",
+      "toi": "SELECT TOP 500 toi,pl_orbper,pl_tranmid,tfopwg_disp FROM toi WHERE tid=261136679",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN -80.4718975748 AND -80.4663420192 AND ra BETWEEN 84.2841228575 AND 84.3176751229"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (URLError)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:30:36Z",
+    "records_compared": [
+      {
+        "id": "pi Men c",
+        "period": 6.2678399,
+        "epoch": 2458425.789204,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "HD 39091 b",
+        "period": 2088.8,
+        "epoch": 2458632.6,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "pi Men d",
+        "period": 124.64,
+        "epoch": null,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI 144.01",
+        "period": 6.2678139,
+        "epoch": 2460901.578202,
+        "identity": true,
+        "type": "Previously reported candidate"
+      }
+    ]
+  },
+  "TIC 150428135": {
+    "status": "compared",
+    "queries": {
+      "ps identifier": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND tic_id='TIC 150428135'",
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',97.09550242,-65.57931155,0.00277778))=1",
+      "toi": "SELECT TOP 500 toi,pl_orbper,pl_tranmid,tfopwg_disp FROM toi WHERE tid=150428135",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN -65.5820893260 AND -65.5765337704 AND ra BETWEEN 97.0887836090 AND 97.1022212214"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (URLError)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:30:36Z",
+    "records_compared": [
+      {
+        "id": "TOI-700 b",
+        "period": 9.97722,
+        "epoch": 2458880.0994,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI-700 c",
+        "period": 16.0511039,
+        "epoch": 2458821.6219,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI-700 d",
+        "period": 37.423457,
+        "epoch": 2460763.01612,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI-700 e",
+        "period": 27.810124,
+        "epoch": 2460772.46343,
+        "type": "Known confirmed planet",
+        "identity": true
+      },
+      {
+        "id": "TOI 700.01",
+        "period": 16.051106,
+        "epoch": 2459303.157062,
+        "identity": true,
+        "type": "Previously reported candidate"
+      },
+      {
+        "id": "TOI 700.02",
+        "period": 37.4236838,
+        "epoch": 2458330.486155,
+        "identity": true,
+        "type": "Previously reported candidate"
+      },
+      {
+        "id": "TOI 700.03",
+        "period": 9.977273,
+        "epoch": 2458331.349645,
+        "identity": true,
+        "type": "Previously reported candidate"
+      },
+      {
+        "id": "TOI 700.04",
+        "period": 27.8096898,
+        "epoch": 2458352.99952,
+        "identity": true,
+        "type": "Previously reported candidate"
+      }
+    ]
+  },
+  "KIC 11446443": {
+    "status": "compared",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',286.80847100,49.31640000,0.00277778))=1",
+      "cumulative": "SELECT TOP 500 kepoi_name,koi_period,koi_time0bk,koi_disposition FROM cumulative WHERE kepid=11446443",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN 49.3136222222 AND 49.3191777778 AND ra BETWEEN 286.8042098293 AND 286.8127321707"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:29:23Z",
+    "records_compared": [
+      {
+        "id": "TrES-2 b",
+        "period": 2.47063,
+        "epoch": null,
+        "type": "Known confirmed planet",
+        "identity": false
+      },
+      {
+        "id": "K00001.01",
+        "period": 2.470613377,
+        "epoch": 2454955.763305,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "KIC 10619192": {
+    "status": "partial",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',298.39527000,47.81501000,0.00277778))=1",
+      "cumulative": "SELECT TOP 500 kepoi_name,koi_period,koi_time0bk,koi_disposition FROM cumulative WHERE kepid=10619192"
+    },
+    "failures": {
+      "ps coordinates": "Public archive request failed (URLError)"
+    },
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:30:09Z",
+    "records_compared": [
+      {
+        "id": "K00203.01",
+        "period": 1.485710994,
+        "epoch": 2454965.7935653,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "EPIC 201912552": {
+    "status": "compared",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',172.56046500,7.58839100,0.00277778))=1",
+      "k2pandc": "SELECT TOP 500 pl_name,epic_candname,disposition,pl_orbper,pl_tranmid,pl_tsystemref FROM k2pandc WHERE epic_hostname='EPIC 201912552' AND default_flag=1",
+      "ps coordinates fallback": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id,ra,dec FROM ps WHERE default_flag=1 AND dec BETWEEN 7.5856132222 AND 7.5911687778 AND ra BETWEEN 172.5576626804 AND 172.5632673196"
+    },
+    "failures": {},
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:30:28Z",
+    "records_compared": [
+      {
+        "id": "K2-18 c",
+        "period": 8.962,
+        "epoch": null,
+        "identity": true,
+        "type": "Known confirmed planet"
+      },
+      {
+        "id": "K2-18 b",
+        "period": 32.939623,
+        "epoch": 2457264.39144,
+        "type": "Known confirmed planet",
+        "identity": false
+      },
+      {
+        "id": "K2-18 b",
+        "period": 32.939623,
+        "epoch": null,
+        "identity": true,
+        "type": "Known confirmed planet"
+      }
+    ]
+  },
+  "EPIC 201367065": {
+    "status": "partial",
+    "queries": {
+      "ps coordinates": "SELECT TOP 500 pl_name,pl_orbper,pl_tranmid,tic_id FROM ps WHERE default_flag=1 AND CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',172.33495500,-1.45478700,0.00277778))=1",
+      "k2pandc": "SELECT TOP 500 pl_name,epic_candname,disposition,pl_orbper,pl_tranmid,pl_tsystemref FROM k2pandc WHERE epic_hostname='EPIC 201367065' AND default_flag=1"
+    },
+    "failures": {
+      "ps coordinates": "Public archive request failed (URLError)",
+      "k2pandc": "Public archive request failed (URLError)"
+    },
+    "fallbacks": {
+      "ps coordinates": {
+        "primary_error": "Public archive request failed (HTTP 403)",
+        "method": "TAP bounding box and exact local cone"
+      }
+    },
+    "queried_utc": "2026-11-09T11:31:00Z",
+    "records_compared": []
+  }
+}

@@ -1,0 +1,3842 @@
+{
+  "synthetic": {
+    "development": {
+      "seed": 217001,
+      "scenarios": {
+        "background step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 0,
+            "total": 48,
+            "fraction": 0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07410012966611748
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 48,
+          "fit_stages": {
+            "vetting rejection": 48
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "pointing recovery": {
+          "detected": {
+            "count": 47,
+            "total": 48,
+            "fraction": 0.9791666666666666,
+            "wilson_95": [
+              0.8910078200474814,
+              0.9963128890224893
+            ]
+          },
+          "passed_photometry": {
+            "count": 1,
+            "total": 48,
+            "fraction": 0.020833333333333332,
+            "wilson_95": [
+              0.003687110977510649,
+              0.10899217995251861
+            ]
+          },
+          "insufficiently_validated": 1,
+          "instrumental_coincidences": 47,
+          "fit_stages": {
+            "vetting rejection": 46,
+            "incorrect period or phase": 1,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 1,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "blended centroid": {
+          "detected": {
+            "count": 47,
+            "total": 48,
+            "fraction": 0.9791666666666666,
+            "wilson_95": [
+              0.8910078200474814,
+              0.9963128890224893
+            ]
+          },
+          "passed_photometry": {
+            "count": 40,
+            "total": 48,
+            "fraction": 0.8333333333333334,
+            "wilson_95": [
+              0.7042217159874441,
+              0.9130448642351444
+            ]
+          },
+          "insufficiently_validated": 40,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 40,
+            "vetting rejection": 7,
+            "no detection": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 40,
+            "period": {
+              "count": 39,
+              "total": 40,
+              "fraction": 0.975,
+              "wilson_95": [
+                0.8711863103652591,
+                0.9955731684973186
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            },
+            "joint": {
+              "count": 39,
+              "total": 40,
+              "fraction": 0.975,
+              "wilson_95": [
+                0.8711863103652591,
+                0.9955731684973186
+              ]
+            }
+          }
+        },
+        "silent step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 42,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 41,
+            "vetting rejection": 6,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 42,
+            "period": {
+              "count": 41,
+              "total": 41,
+              "fraction": 1,
+              "wilson_95": [
+                0.9143324298155681,
+                0.9999999999999999
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 41,
+              "fraction": 0.975609756097561,
+              "wilson_95": [
+                0.8740493794422576,
+                0.9956814684310874
+              ]
+            },
+            "joint": {
+              "count": 40,
+              "total": 41,
+              "fraction": 0.975609756097561,
+              "wilson_95": [
+                0.8740493794422576,
+                0.9956814684310874
+              ]
+            }
+          }
+        },
+        "planet": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 39,
+            "total": 48,
+            "fraction": 0.8125,
+            "wilson_95": [
+              0.680601328507153,
+              0.8980860904515235
+            ]
+          },
+          "insufficiently_validated": 39,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 38,
+            "vetting rejection": 9,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 39,
+            "period": {
+              "count": 38,
+              "total": 38,
+              "fraction": 1,
+              "wilson_95": [
+                0.908190131774416,
+                0.9999999999999999
+              ]
+            },
+            "epoch": {
+              "count": 38,
+              "total": 38,
+              "fraction": 1,
+              "wilson_95": [
+                0.908190131774416,
+                0.9999999999999999
+              ]
+            },
+            "joint": {
+              "count": 38,
+              "total": 38,
+              "fraction": 1,
+              "wilson_95": [
+                0.908190131774416,
+                0.9999999999999999
+              ]
+            }
+          }
+        },
+        "planet with unrelated excursions": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 42,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 42,
+            "vetting rejection": 6
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 42,
+            "period": {
+              "count": 41,
+              "total": 42,
+              "fraction": 0.9761904761904762,
+              "wilson_95": [
+                0.8767879842623334,
+                0.9957845958655673
+              ]
+            },
+            "epoch": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            },
+            "joint": {
+              "count": 41,
+              "total": 42,
+              "fraction": 0.9761904761904762,
+              "wilson_95": [
+                0.8767879842623334,
+                0.9957845958655673
+              ]
+            }
+          }
+        },
+        "planet with coincident background": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 1,
+            "total": 48,
+            "fraction": 0.020833333333333332,
+            "wilson_95": [
+              0.003687110977510649,
+              0.10899217995251861
+            ]
+          },
+          "insufficiently_validated": 1,
+          "instrumental_coincidences": 47,
+          "fit_stages": {
+            "vetting rejection": 47,
+            "insufficient event coverage": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 1,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        }
+      }
+    },
+    "legacy-holdout": {
+      "seed": 391027,
+      "scenarios": {
+        "background step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 43,
+            "total": 48,
+            "fraction": 0.8958333333333334,
+            "wilson_95": [
+              0.7783257830561368,
+              0.9546782809581869
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 43,
+            "vetting rejection": 5
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 43,
+            "period": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "epoch": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "joint": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            }
+          }
+        },
+        "pointing recovery": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 40,
+            "vetting rejection": 6,
+            "unavailable timing fit": 2
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 42,
+            "period": {
+              "count": 39,
+              "total": 40,
+              "fraction": 0.975,
+              "wilson_95": [
+                0.8711863103652591,
+                0.9955731684973186
+              ]
+            },
+            "epoch": {
+              "count": 36,
+              "total": 40,
+              "fraction": 0.9,
+              "wilson_95": [
+                0.7694822477247771,
+                0.9604204713173936
+              ]
+            },
+            "joint": {
+              "count": 35,
+              "total": 40,
+              "fraction": 0.875,
+              "wilson_95": [
+                0.738878801611489,
+                0.945404997490546
+              ]
+            }
+          }
+        },
+        "blended centroid": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 42,
+            "vetting rejection": 6
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 42,
+            "period": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            },
+            "epoch": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            },
+            "joint": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            }
+          }
+        },
+        "silent step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 44,
+            "total": 48,
+            "fraction": 0.9166666666666666,
+            "wilson_95": [
+              0.8044669820963272,
+              0.9671162431819081
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 43,
+            "vetting rejection": 4,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 44,
+            "period": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "epoch": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "joint": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            }
+          }
+        },
+        "planet": {
+          "detected": {
+            "count": 46,
+            "total": 48,
+            "fraction": 0.9583333333333334,
+            "wilson_95": [
+              0.8602434412954456,
+              0.9884981065106133
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 40,
+            "vetting rejection": 5,
+            "incorrect period or phase": 1,
+            "no detection": 1,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 41,
+            "period": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            },
+            "joint": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            }
+          }
+        },
+        "planet with unrelated excursions": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 44,
+            "total": 48,
+            "fraction": 0.9166666666666666,
+            "wilson_95": [
+              0.8044669820963272,
+              0.9671162431819081
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 44,
+            "vetting rejection": 4
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 44,
+            "period": {
+              "count": 42,
+              "total": 44,
+              "fraction": 0.9545454545454546,
+              "wilson_95": [
+                0.8486500156237035,
+                0.987444890050405
+              ]
+            },
+            "epoch": {
+              "count": 43,
+              "total": 44,
+              "fraction": 0.9772727272727273,
+              "wilson_95": [
+                0.8819229030178671,
+                0.9959767479399467
+              ]
+            },
+            "joint": {
+              "count": 41,
+              "total": 44,
+              "fraction": 0.9318181818181818,
+              "wilson_95": [
+                0.8177495562977846,
+                0.9765406040926183
+              ]
+            }
+          }
+        },
+        "planet with coincident background": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 46,
+            "total": 48,
+            "fraction": 0.9583333333333334,
+            "wilson_95": [
+              0.8602434412954456,
+              0.9884981065106133
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 46,
+            "vetting rejection": 2
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 46,
+            "period": {
+              "count": 45,
+              "total": 46,
+              "fraction": 0.9782608695652174,
+              "wilson_95": [
+                0.8866470547848865,
+                0.9961521457419497
+              ]
+            },
+            "epoch": {
+              "count": 44,
+              "total": 46,
+              "fraction": 0.9565217391304348,
+              "wilson_95": [
+                0.8546774097378094,
+                0.9879945544014435
+              ]
+            },
+            "joint": {
+              "count": 43,
+              "total": 46,
+              "fraction": 0.9347826086956522,
+              "wilson_95": [
+                0.8249725891809578,
+                0.9775721385707115
+              ]
+            }
+          }
+        }
+      }
+    },
+    "holdout": {
+      "seed": 391027,
+      "scenarios": {
+        "background step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 0,
+            "total": 48,
+            "fraction": 0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07410012966611748
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 48,
+          "fit_stages": {
+            "vetting rejection": 48
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "pointing recovery": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 0,
+            "total": 48,
+            "fraction": 0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07410012966611748
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 48,
+          "fit_stages": {
+            "vetting rejection": 48
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "blended centroid": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 42,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 42,
+            "vetting rejection": 6
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 42,
+            "period": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            },
+            "epoch": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            },
+            "joint": {
+              "count": 42,
+              "total": 42,
+              "fraction": 1,
+              "wilson_95": [
+                0.916201209134296,
+                0.9999999999999999
+              ]
+            }
+          }
+        },
+        "silent step": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 44,
+            "total": 48,
+            "fraction": 0.9166666666666666,
+            "wilson_95": [
+              0.8044669820963272,
+              0.9671162431819081
+            ]
+          },
+          "insufficiently_validated": 44,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 43,
+            "vetting rejection": 4,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 44,
+            "period": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "epoch": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            },
+            "joint": {
+              "count": 43,
+              "total": 43,
+              "fraction": 1,
+              "wilson_95": [
+                0.9179901967742088,
+                1
+              ]
+            }
+          }
+        },
+        "planet": {
+          "detected": {
+            "count": 46,
+            "total": 48,
+            "fraction": 0.9583333333333334,
+            "wilson_95": [
+              0.8602434412954456,
+              0.9884981065106133
+            ]
+          },
+          "passed_photometry": {
+            "count": 42,
+            "total": 48,
+            "fraction": 0.875,
+            "wilson_95": [
+              0.7529954171361317,
+              0.9414294856142802
+            ]
+          },
+          "insufficiently_validated": 42,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 40,
+            "vetting rejection": 5,
+            "incorrect period or phase": 1,
+            "no detection": 1,
+            "unavailable timing fit": 1
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 41,
+            "period": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            },
+            "joint": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1,
+              "wilson_95": [
+                0.9123783988027135,
+                1
+              ]
+            }
+          }
+        },
+        "planet with unrelated excursions": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 44,
+            "total": 48,
+            "fraction": 0.9166666666666666,
+            "wilson_95": [
+              0.8044669820963272,
+              0.9671162431819081
+            ]
+          },
+          "insufficiently_validated": 44,
+          "instrumental_coincidences": 0,
+          "fit_stages": {
+            "usable fit": 44,
+            "vetting rejection": 4
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 44,
+            "period": {
+              "count": 42,
+              "total": 44,
+              "fraction": 0.9545454545454546,
+              "wilson_95": [
+                0.8486500156237035,
+                0.987444890050405
+              ]
+            },
+            "epoch": {
+              "count": 43,
+              "total": 44,
+              "fraction": 0.9772727272727273,
+              "wilson_95": [
+                0.8819229030178671,
+                0.9959767479399467
+              ]
+            },
+            "joint": {
+              "count": 41,
+              "total": 44,
+              "fraction": 0.9318181818181818,
+              "wilson_95": [
+                0.8177495562977846,
+                0.9765406040926183
+              ]
+            }
+          }
+        },
+        "planet with coincident background": {
+          "detected": {
+            "count": 48,
+            "total": 48,
+            "fraction": 1,
+            "wilson_95": [
+              0.9258998703338824,
+              0.9999999999999999
+            ]
+          },
+          "passed_photometry": {
+            "count": 0,
+            "total": 48,
+            "fraction": 0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07410012966611748
+            ]
+          },
+          "insufficiently_validated": 0,
+          "instrumental_coincidences": 48,
+          "fit_stages": {
+            "vetting rejection": 48
+          },
+          "intervals": {
+            "attempted": 48,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "legacy_silent_steps": {
+    "baseline_photometry_pass": 36,
+    "updated_photometry_pass": 36,
+    "updated_insufficiently_validated": 36,
+    "total": 36
+  },
+  "timing_stress": {
+    "seed": 180000,
+    "regimes": [
+      {
+        "cadence_minutes": 18,
+        "red_noise_scale": 1,
+        "attempted": 72,
+        "recovered": 32,
+        "period": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        },
+        "epoch": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        },
+        "joint": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        }
+      },
+      {
+        "cadence_minutes": 18,
+        "red_noise_scale": 2,
+        "attempted": 72,
+        "recovered": 27,
+        "period": {
+          "count": 26,
+          "total": 26,
+          "fraction": 1,
+          "wilson_95": [
+            0.8712710781407846,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 26,
+          "total": 26,
+          "fraction": 1,
+          "wilson_95": [
+            0.8712710781407846,
+            1
+          ]
+        },
+        "joint": {
+          "count": 26,
+          "total": 26,
+          "fraction": 1,
+          "wilson_95": [
+            0.8712710781407846,
+            1
+          ]
+        }
+      },
+      {
+        "cadence_minutes": 30,
+        "red_noise_scale": 1,
+        "attempted": 72,
+        "recovered": 35,
+        "period": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        },
+        "epoch": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        },
+        "joint": {
+          "count": 27,
+          "total": 27,
+          "fraction": 1,
+          "wilson_95": [
+            0.8754449702581328,
+            0.9999999999999998
+          ]
+        }
+      },
+      {
+        "cadence_minutes": 30,
+        "red_noise_scale": 2,
+        "attempted": 72,
+        "recovered": 25,
+        "period": {
+          "count": 21,
+          "total": 21,
+          "fraction": 1,
+          "wilson_95": [
+            0.8453609810751531,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 21,
+          "total": 21,
+          "fraction": 1,
+          "wilson_95": [
+            0.8453609810751531,
+            1
+          ]
+        },
+        "joint": {
+          "count": 21,
+          "total": 21,
+          "fraction": 1,
+          "wilson_95": [
+            0.8453609810751531,
+            1
+          ]
+        }
+      }
+    ],
+    "fit_stages": {
+      "no detection": 51,
+      "incorrect period or phase": 65,
+      "vetting rejection": 53,
+      "usable fit": 101,
+      "insufficient event coverage": 11,
+      "unavailable timing fit": 7
+    },
+    "usable_fit": {
+      "count": 101,
+      "total": 288,
+      "fraction": 0.3506944444444444,
+      "wilson_95": [
+        0.29787705224200534,
+        0.4074424032338597
+      ]
+    },
+    "joint_coverage_conditional": {
+      "count": 101,
+      "total": 101,
+      "fraction": 1,
+      "wilson_95": [
+        0.9633593536001439,
+        1
+      ]
+    },
+    "depth": {
+      "0.001": {
+        "attempted": 72,
+        "recovered": 0,
+        "period": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "epoch": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "joint": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "fit_stages": {
+          "no detection": 30,
+          "incorrect period or phase": 42
+        }
+      },
+      "0.002": {
+        "attempted": 72,
+        "recovered": 7,
+        "period": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "joint": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "fit_stages": {
+          "vetting rejection": 27,
+          "incorrect period or phase": 19,
+          "usable fit": 4,
+          "no detection": 19,
+          "unavailable timing fit": 3
+        }
+      },
+      "0.004": {
+        "attempted": 72,
+        "recovered": 42,
+        "period": {
+          "count": 37,
+          "total": 37,
+          "fraction": 1,
+          "wilson_95": [
+            0.9059421741627975,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 37,
+          "total": 37,
+          "fraction": 1,
+          "wilson_95": [
+            0.9059421741627975,
+            1
+          ]
+        },
+        "joint": {
+          "count": 37,
+          "total": 37,
+          "fraction": 1,
+          "wilson_95": [
+            0.9059421741627975,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 37,
+          "insufficient event coverage": 3,
+          "vetting rejection": 24,
+          "no detection": 2,
+          "incorrect period or phase": 4,
+          "unavailable timing fit": 2
+        }
+      },
+      "0.008": {
+        "attempted": 72,
+        "recovered": 70,
+        "period": {
+          "count": 60,
+          "total": 60,
+          "fraction": 1,
+          "wilson_95": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "epoch": {
+          "count": 60,
+          "total": 60,
+          "fraction": 1,
+          "wilson_95": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "joint": {
+          "count": 60,
+          "total": 60,
+          "fraction": 1,
+          "wilson_95": [
+            0.93982814785791,
+            0.9999999999999998
+          ]
+        },
+        "fit_stages": {
+          "vetting rejection": 2,
+          "insufficient event coverage": 8,
+          "usable fit": 60,
+          "unavailable timing fit": 2
+        }
+      }
+    },
+    "baseline_days": {
+      "9": {
+        "attempted": 96,
+        "recovered": 34,
+        "period": {
+          "count": 19,
+          "total": 19,
+          "fraction": 1,
+          "wilson_95": [
+            0.8318207759473837,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 19,
+          "total": 19,
+          "fraction": 1,
+          "wilson_95": [
+            0.8318207759473837,
+            1
+          ]
+        },
+        "joint": {
+          "count": 19,
+          "total": 19,
+          "fraction": 1,
+          "wilson_95": [
+            0.8318207759473837,
+            1
+          ]
+        },
+        "fit_stages": {
+          "no detection": 28,
+          "incorrect period or phase": 16,
+          "vetting rejection": 18,
+          "usable fit": 19,
+          "insufficient event coverage": 11,
+          "unavailable timing fit": 4
+        }
+      },
+      "15": {
+        "attempted": 96,
+        "recovered": 42,
+        "period": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 23,
+          "no detection": 17,
+          "vetting rejection": 14,
+          "usable fit": 41,
+          "unavailable timing fit": 1
+        }
+      },
+      "24": {
+        "attempted": 96,
+        "recovered": 43,
+        "period": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 41,
+          "total": 41,
+          "fraction": 1,
+          "wilson_95": [
+            0.9143324298155681,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 26,
+          "vetting rejection": 21,
+          "usable fit": 41,
+          "no detection": 6,
+          "unavailable timing fit": 2
+        }
+      }
+    },
+    "covered_events": {
+      "0": {
+        "attempted": 51,
+        "recovered": 0,
+        "period": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "epoch": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "joint": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "fit_stages": {
+          "no detection": 51
+        }
+      },
+      "2": {
+        "attempted": 3,
+        "recovered": 1,
+        "period": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "epoch": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "joint": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "fit_stages": {
+          "vetting rejection": 1,
+          "incorrect period or phase": 1,
+          "insufficient event coverage": 1
+        }
+      },
+      "3": {
+        "attempted": 19,
+        "recovered": 10,
+        "period": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "epoch": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "joint": {
+          "count": 0,
+          "total": 0,
+          "fraction": null,
+          "wilson_95": null
+        },
+        "fit_stages": {
+          "incorrect period or phase": 7,
+          "insufficient event coverage": 10,
+          "vetting rejection": 2
+        }
+      },
+      "4": {
+        "attempted": 29,
+        "recovered": 10,
+        "period": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "joint": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 15,
+          "vetting rejection": 4,
+          "usable fit": 8,
+          "unavailable timing fit": 2
+        }
+      },
+      "5": {
+        "attempted": 32,
+        "recovered": 10,
+        "period": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "joint": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 12,
+          "vetting rejection": 10,
+          "usable fit": 8,
+          "unavailable timing fit": 2
+        }
+      },
+      "6": {
+        "attempted": 30,
+        "recovered": 14,
+        "period": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 10,
+          "vetting rejection": 6,
+          "usable fit": 13,
+          "unavailable timing fit": 1
+        }
+      },
+      "7": {
+        "attempted": 22,
+        "recovered": 13,
+        "period": {
+          "count": 12,
+          "total": 12,
+          "fraction": 1,
+          "wilson_95": [
+            0.7575059933447592,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 12,
+          "total": 12,
+          "fraction": 1,
+          "wilson_95": [
+            0.7575059933447592,
+            1
+          ]
+        },
+        "joint": {
+          "count": 12,
+          "total": 12,
+          "fraction": 1,
+          "wilson_95": [
+            0.7575059933447592,
+            1
+          ]
+        },
+        "fit_stages": {
+          "vetting rejection": 1,
+          "incorrect period or phase": 8,
+          "usable fit": 12,
+          "unavailable timing fit": 1
+        }
+      },
+      "8": {
+        "attempted": 29,
+        "recovered": 11,
+        "period": {
+          "count": 11,
+          "total": 11,
+          "fraction": 1,
+          "wilson_95": [
+            0.7411670330319684,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 11,
+          "total": 11,
+          "fraction": 1,
+          "wilson_95": [
+            0.7411670330319684,
+            1
+          ]
+        },
+        "joint": {
+          "count": 11,
+          "total": 11,
+          "fraction": 1,
+          "wilson_95": [
+            0.7411670330319684,
+            1
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 9,
+          "vetting rejection": 9,
+          "usable fit": 11
+        }
+      },
+      "9": {
+        "attempted": 25,
+        "recovered": 14,
+        "period": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 13,
+          "total": 13,
+          "fraction": 1,
+          "wilson_95": [
+            0.7719046276458016,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "incorrect period or phase": 3,
+          "vetting rejection": 8,
+          "usable fit": 13,
+          "unavailable timing fit": 1
+        }
+      },
+      "10": {
+        "attempted": 12,
+        "recovered": 8,
+        "period": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "joint": {
+          "count": 8,
+          "total": 8,
+          "fraction": 1,
+          "wilson_95": [
+            0.6755924351161198,
+            1
+          ]
+        },
+        "fit_stages": {
+          "vetting rejection": 4,
+          "usable fit": 8
+        }
+      },
+      "11": {
+        "attempted": 6,
+        "recovered": 3,
+        "period": {
+          "count": 3,
+          "total": 3,
+          "fraction": 1,
+          "wilson_95": [
+            0.4385029682449546,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 3,
+          "total": 3,
+          "fraction": 1,
+          "wilson_95": [
+            0.4385029682449546,
+            1
+          ]
+        },
+        "joint": {
+          "count": 3,
+          "total": 3,
+          "fraction": 1,
+          "wilson_95": [
+            0.4385029682449546,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 3,
+          "vetting rejection": 3
+        }
+      },
+      "12": {
+        "attempted": 5,
+        "recovered": 4,
+        "period": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "joint": {
+          "count": 4,
+          "total": 4,
+          "fraction": 1,
+          "wilson_95": [
+            0.5101091635454027,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 4,
+          "vetting rejection": 1
+        }
+      },
+      "13": {
+        "attempted": 8,
+        "recovered": 7,
+        "period": {
+          "count": 7,
+          "total": 7,
+          "fraction": 1,
+          "wilson_95": [
+            0.6456695649333126,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 7,
+          "total": 7,
+          "fraction": 1,
+          "wilson_95": [
+            0.6456695649333126,
+            1
+          ]
+        },
+        "joint": {
+          "count": 7,
+          "total": 7,
+          "fraction": 1,
+          "wilson_95": [
+            0.6456695649333126,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 7,
+          "vetting rejection": 1
+        }
+      },
+      "14": {
+        "attempted": 4,
+        "recovered": 2,
+        "period": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "joint": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "fit_stages": {
+          "vetting rejection": 2,
+          "usable fit": 2
+        }
+      },
+      "15": {
+        "attempted": 2,
+        "recovered": 2,
+        "period": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "joint": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 2
+        }
+      },
+      "16": {
+        "attempted": 6,
+        "recovered": 5,
+        "period": {
+          "count": 5,
+          "total": 5,
+          "fraction": 1,
+          "wilson_95": [
+            0.5655175352168251,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 5,
+          "total": 5,
+          "fraction": 1,
+          "wilson_95": [
+            0.5655175352168251,
+            1
+          ]
+        },
+        "joint": {
+          "count": 5,
+          "total": 5,
+          "fraction": 1,
+          "wilson_95": [
+            0.5655175352168251,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 5,
+          "vetting rejection": 1
+        }
+      },
+      "17": {
+        "attempted": 2,
+        "recovered": 2,
+        "period": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "joint": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 2
+        }
+      },
+      "20": {
+        "attempted": 1,
+        "recovered": 1,
+        "period": {
+          "count": 1,
+          "total": 1,
+          "fraction": 1,
+          "wilson_95": [
+            0.20654931437723745,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 1,
+          "total": 1,
+          "fraction": 1,
+          "wilson_95": [
+            0.20654931437723745,
+            1
+          ]
+        },
+        "joint": {
+          "count": 1,
+          "total": 1,
+          "fraction": 1,
+          "wilson_95": [
+            0.20654931437723745,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 1
+        }
+      },
+      "21": {
+        "attempted": 2,
+        "recovered": 2,
+        "period": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "joint": {
+          "count": 2,
+          "total": 2,
+          "fraction": 1,
+          "wilson_95": [
+            0.34238022750665303,
+            1
+          ]
+        },
+        "fit_stages": {
+          "usable fit": 2
+        }
+      }
+    },
+    "cadence_minutes": {
+      "18": {
+        "attempted": 144,
+        "recovered": 59,
+        "period": {
+          "count": 53,
+          "total": 53,
+          "fraction": 1,
+          "wilson_95": [
+            0.932418011423458,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 53,
+          "total": 53,
+          "fraction": 1,
+          "wilson_95": [
+            0.932418011423458,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 53,
+          "total": 53,
+          "fraction": 1,
+          "wilson_95": [
+            0.932418011423458,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "no detection": 11,
+          "incorrect period or phase": 43,
+          "vetting rejection": 31,
+          "usable fit": 53,
+          "insufficient event coverage": 6
+        }
+      },
+      "30": {
+        "attempted": 144,
+        "recovered": 60,
+        "period": {
+          "count": 48,
+          "total": 48,
+          "fraction": 1,
+          "wilson_95": [
+            0.9258998703338824,
+            0.9999999999999999
+          ]
+        },
+        "epoch": {
+          "count": 48,
+          "total": 48,
+          "fraction": 1,
+          "wilson_95": [
+            0.9258998703338824,
+            0.9999999999999999
+          ]
+        },
+        "joint": {
+          "count": 48,
+          "total": 48,
+          "fraction": 1,
+          "wilson_95": [
+            0.9258998703338824,
+            0.9999999999999999
+          ]
+        },
+        "fit_stages": {
+          "no detection": 40,
+          "incorrect period or phase": 22,
+          "unavailable timing fit": 7,
+          "vetting rejection": 22,
+          "usable fit": 48,
+          "insufficient event coverage": 5
+        }
+      }
+    },
+    "red_noise_scale": {
+      "1.0": {
+        "attempted": 144,
+        "recovered": 67,
+        "period": {
+          "count": 54,
+          "total": 54,
+          "fraction": 1,
+          "wilson_95": [
+            0.9335864119091037,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 54,
+          "total": 54,
+          "fraction": 1,
+          "wilson_95": [
+            0.9335864119091037,
+            1
+          ]
+        },
+        "joint": {
+          "count": 54,
+          "total": 54,
+          "fraction": 1,
+          "wilson_95": [
+            0.9335864119091037,
+            1
+          ]
+        },
+        "fit_stages": {
+          "no detection": 23,
+          "incorrect period or phase": 26,
+          "vetting rejection": 28,
+          "usable fit": 54,
+          "insufficient event coverage": 8,
+          "unavailable timing fit": 5
+        }
+      },
+      "2.0": {
+        "attempted": 144,
+        "recovered": 52,
+        "period": {
+          "count": 47,
+          "total": 47,
+          "fraction": 1,
+          "wilson_95": [
+            0.9244423958360037,
+            1
+          ]
+        },
+        "epoch": {
+          "count": 47,
+          "total": 47,
+          "fraction": 1,
+          "wilson_95": [
+            0.9244423958360037,
+            1
+          ]
+        },
+        "joint": {
+          "count": 47,
+          "total": 47,
+          "fraction": 1,
+          "wilson_95": [
+            0.9244423958360037,
+            1
+          ]
+        },
+        "fit_stages": {
+          "no detection": 28,
+          "incorrect period or phase": 39,
+          "vetting rejection": 25,
+          "usable fit": 47,
+          "insufficient event coverage": 3,
+          "unavailable timing fit": 2
+        }
+      }
+    }
+  },
+  "real": {
+    "counts": {
+      "attempted": 10,
+      "analyzed": 10,
+      "failed": 0,
+      "matched": 6,
+      "unmatched": 0,
+      "rejected": 8,
+      "photometry_flagged": 9,
+      "no_signal": 0
+    },
+    "versions": {
+      "python": "3.12.14",
+      "astropy": "8.0.2",
+      "numpy": "2.3.5",
+      "scipy": "1.17.0"
+    },
+    "catalogue_mode": "replayed snapshot",
+    "settings": {
+      "minimum_period": 0.5,
+      "maximum_period": 5,
+      "trend_days": 2,
+      "min_transits": 3,
+      "min_snr": 8,
+      "max_signals": 2
+    },
+    "records": [
+      {
+        "target": "TIC 86396382",
+        "observation": {
+          "file": "tess2019357164649-s0020-0000000086396382-0165-s_lc.fits",
+          "sha256": "bf74a16f6e0c40b693a66de922e142d446cb44cee5bb7f26843062e436957f63",
+          "target": "TIC 86396382",
+          "mission": "TESS",
+          "bjd_reference": 2457000,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "QUALITY",
+          "ra": 97.63664271907939,
+          "dec": 29.6722962039341,
+          "sector": 20,
+          "quarter": null,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2019357164649-s0020-0000000086396382-0165-s_lc.fits",
+          "product": {
+            "target": "TIC 86396382",
+            "uri": "mast:TESS/product/tess2019357164649-s0020-0000000086396382-0165-s_lc.fits",
+            "file": "tess2019357164649-s0020-0000000086396382-0165-s_lc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 18954,
+          "used": 16551,
+          "invalid": 2403,
+          "quality_rejected": 0,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.001388864096497855,
+          "noise_mad": 0.0023602557704484124,
+          "gap_count": 8,
+          "observed_time_range_days": [
+            1842.5095101836014,
+            1868.8271302866792
+          ],
+          "coverage_days": 26.317620103077843
+        },
+        "known_control_recovered": true,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 1.0910996359288132,
+            "epoch_days": 1843.0095101836014,
+            "duration_days": 0.1,
+            "warnings": [],
+            "catalogue_matches": [
+              {
+                "id": "WASP-12 b",
+                "period": 1.091418901,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              },
+              {
+                "id": "TOI 1725.01",
+                "period": 1.0914304,
+                "ratio": 1,
+                "classification": "Previously reported candidate"
+              }
+            ],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 4.737281067556299,
+            "epoch_days": 1842.8295101836013,
+            "duration_days": 0.32,
+            "warnings": [
+              "Odd/even depth difference"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "compared",
+          "catalogue_id": "WASP-12 b",
+          "split_observation_days": 1855.665542423595,
+          "common_catalogue_epoch_days": 1856.1025277440815,
+          "halves": [
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": -7,
+              "timed_events": 11,
+              "reduced_chi_square": 0.3543704848234587,
+              "epoch_days": 1848.4621153513544,
+              "period_days": 1.0913939375298065,
+              "epoch_interval_days": [
+                1848.4614815315715,
+                1848.4627491711374
+              ],
+              "period_interval_days": [
+                1.0911753368930122,
+                1.0916125381666009
+              ],
+              "epoch_period_covariance_days2": -4.7916796805651195e-11,
+              "supported_events": 11,
+              "covered_events": 11,
+              "timed_cycles": [
+                -12,
+                -11,
+                -10,
+                -9,
+                -8,
+                -7,
+                -6,
+                -5,
+                -4,
+                -3,
+                -2
+              ],
+              "epoch_at_common_cycle_days": 1856.101872914063,
+              "epoch_at_common_cycle_half_width_days": 0.0016552402537155589
+            },
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": 6,
+              "timed_events": 10,
+              "reduced_chi_square": 0.3451616491190891,
+              "epoch_days": 1862.6507042454843,
+              "period_days": 1.0912535603813336,
+              "epoch_interval_days": [
+                1862.6500058061608,
+                1862.6514026848079
+              ],
+              "period_interval_days": [
+                1.0909978870747723,
+                1.0915092336878949
+              ],
+              "epoch_period_covariance_days2": -5.0567382638637955e-9,
+              "supported_events": 10,
+              "covered_events": 10,
+              "timed_cycles": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "epoch_at_common_cycle_days": 1856.1031828831963,
+              "epoch_at_common_cycle_half_width_days": 0.001778700535754203
+            }
+          ],
+          "period_difference_days": -0.00014037714847292548,
+          "epoch_difference_days": 0.001309969133217237,
+          "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "KIC 10666592",
+        "observation": {
+          "file": "kplr010666592-2009259160929_llc.fits",
+          "sha256": "2a10ce0fa87e8a757e6d66a740669bcf94a704eecf0646bbf898ad91b402fc08",
+          "target": "KIC 10666592",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 292.24728,
+          "dec": 47.969519,
+          "sector": null,
+          "quarter": 2,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0106%2F010666592%2Fkplr010666592-2009259160929_llc.fits",
+          "product": {
+            "target": "KIC 10666592",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010666592/kplr010666592-2009259160929_llc.fits",
+            "file": "kplr010666592-2009259160929_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4354,
+          "used": 2037,
+          "invalid": 284,
+          "quality_rejected": 2033,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.020433827303349972,
+          "noise_mad": 0.00006525203745650371,
+          "gap_count": 86,
+          "observed_time_range_days": [
+            174.1991571750841,
+            258.40613196567574
+          ],
+          "coverage_days": 84.20697479059163
+        },
+        "known_control_recovered": true,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 2.204376511329372,
+            "epoch_days": 174.27478066375474,
+            "duration_days": 0.15,
+            "warnings": [],
+            "catalogue_matches": [
+              {
+                "id": "HAT-P-7 b",
+                "period": 2.20474,
+                "ratio": 1,
+                "classification": "Potentially matching known object"
+              },
+              {
+                "id": "K00002.01",
+                "period": 2.204735417,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              }
+            ],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 2.0859482294038902,
+            "epoch_days": 176.1314980222714,
+            "duration_days": 0.32,
+            "warnings": [
+              "Weak detection relative to transit-duration noise"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "compared",
+          "catalogue_id": "K00002.01",
+          "split_observation_days": 213.99358831788413,
+          "common_catalogue_epoch_days": 213.9574292140577,
+          "halves": [
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": -8,
+              "timed_events": 4,
+              "reduced_chi_square": 0.007853747985856386,
+              "epoch_days": 196.32018612196015,
+              "period_days": 2.2060159048048797,
+              "epoch_interval_days": [
+                196.298206092621,
+                196.3421661512993
+              ],
+              "period_interval_days": [
+                2.192114513655068,
+                2.2199172959546916
+              ],
+              "epoch_period_covariance_days2": -1.5131320134031525e-22,
+              "supported_events": 19,
+              "covered_events": 5,
+              "timed_cycles": [
+                -10,
+                -9,
+                -7,
+                -6
+              ],
+              "epoch_at_common_cycle_days": 213.96831336039918,
+              "epoch_at_common_cycle_half_width_days": 0.11336241417398454
+            },
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": 12,
+              "timed_events": 7,
+              "reduced_chi_square": 0.0814770107712782,
+              "epoch_days": 240.41281929956278,
+              "period_days": 2.205105407194879,
+              "epoch_interval_days": [
+                240.40279354225797,
+                240.4228450568676
+              ],
+              "period_interval_days": [
+                2.2026425614433,
+                2.2075682529464578
+              ],
+              "epoch_period_covariance_days2": 5.245338356138171e-7,
+              "supported_events": 20,
+              "covered_events": 11,
+              "timed_cycles": [
+                6,
+                7,
+                9,
+                12,
+                13,
+                15,
+                18
+              ],
+              "epoch_at_common_cycle_days": 213.95155441322424,
+              "epoch_at_common_cycle_half_width_days": 0.02984590484845673
+            }
+          ],
+          "period_difference_days": -0.0009104976100009488,
+          "epoch_difference_days": -0.0167589471749352,
+          "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+        },
+        "same_exposure_sensitivity": [
+          {
+            "flux_column": "PDCSAP_FLUX",
+            "trend_days": 1,
+            "split_timing": {
+              "status": "compared",
+              "catalogue_id": "K00002.01",
+              "split_observation_days": 213.99358831788413,
+              "common_catalogue_epoch_days": 213.9574292140577,
+              "halves": [
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": -8,
+                  "timed_events": 4,
+                  "reduced_chi_square": 0.007853747985856386,
+                  "epoch_days": 196.32018612196015,
+                  "period_days": 2.2060159048048797,
+                  "epoch_interval_days": [
+                    196.298206092621,
+                    196.3421661512993
+                  ],
+                  "period_interval_days": [
+                    2.192114513655068,
+                    2.2199172959546916
+                  ],
+                  "epoch_period_covariance_days2": -1.5131320134031525e-22,
+                  "supported_events": 19,
+                  "covered_events": 5,
+                  "timed_cycles": [
+                    -10,
+                    -9,
+                    -7,
+                    -6
+                  ],
+                  "epoch_at_common_cycle_days": 213.96831336039918,
+                  "epoch_at_common_cycle_half_width_days": 0.11336241417398454
+                },
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": 12,
+                  "timed_events": 7,
+                  "reduced_chi_square": 0.0814770107712782,
+                  "epoch_days": 240.41281929956278,
+                  "period_days": 2.205105407194879,
+                  "epoch_interval_days": [
+                    240.40279354225797,
+                    240.4228450568676
+                  ],
+                  "period_interval_days": [
+                    2.2026425614433,
+                    2.2075682529464578
+                  ],
+                  "epoch_period_covariance_days2": 5.245338356138171e-7,
+                  "supported_events": 20,
+                  "covered_events": 11,
+                  "timed_cycles": [
+                    6,
+                    7,
+                    9,
+                    12,
+                    13,
+                    15,
+                    18
+                  ],
+                  "epoch_at_common_cycle_days": 213.95155441322424,
+                  "epoch_at_common_cycle_half_width_days": 0.02984590484845673
+                }
+              ],
+              "period_difference_days": -0.0009104976100009488,
+              "epoch_difference_days": -0.0167589471749352,
+              "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+            }
+          },
+          {
+            "flux_column": "PDCSAP_FLUX",
+            "trend_days": 3,
+            "split_timing": {
+              "status": "compared",
+              "catalogue_id": "K00002.01",
+              "split_observation_days": 213.99358831788413,
+              "common_catalogue_epoch_days": 213.9574292140577,
+              "halves": [
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": -8,
+                  "timed_events": 4,
+                  "reduced_chi_square": 0.007853747985856386,
+                  "epoch_days": 196.32018612196015,
+                  "period_days": 2.2060159048048797,
+                  "epoch_interval_days": [
+                    196.298206092621,
+                    196.3421661512993
+                  ],
+                  "period_interval_days": [
+                    2.192114513655068,
+                    2.2199172959546916
+                  ],
+                  "epoch_period_covariance_days2": -1.5131320134031525e-22,
+                  "supported_events": 19,
+                  "covered_events": 5,
+                  "timed_cycles": [
+                    -10,
+                    -9,
+                    -7,
+                    -6
+                  ],
+                  "epoch_at_common_cycle_days": 213.96831336039918,
+                  "epoch_at_common_cycle_half_width_days": 0.11336241417398454
+                },
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": 12,
+                  "timed_events": 7,
+                  "reduced_chi_square": 0.0814770107712782,
+                  "epoch_days": 240.41281929956278,
+                  "period_days": 2.205105407194879,
+                  "epoch_interval_days": [
+                    240.40279354225797,
+                    240.4228450568676
+                  ],
+                  "period_interval_days": [
+                    2.2026425614433,
+                    2.2075682529464578
+                  ],
+                  "epoch_period_covariance_days2": 5.245338356138171e-7,
+                  "supported_events": 20,
+                  "covered_events": 11,
+                  "timed_cycles": [
+                    6,
+                    7,
+                    9,
+                    12,
+                    13,
+                    15,
+                    18
+                  ],
+                  "epoch_at_common_cycle_days": 213.95155441322424,
+                  "epoch_at_common_cycle_half_width_days": 0.02984590484845673
+                }
+              ],
+              "period_difference_days": -0.0009104976100009488,
+              "epoch_difference_days": -0.0167589471749352,
+              "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+            }
+          },
+          {
+            "flux_column": "SAP_FLUX",
+            "trend_days": 2,
+            "split_timing": {
+              "status": "compared",
+              "catalogue_id": "K00002.01",
+              "split_observation_days": 213.99358831788413,
+              "common_catalogue_epoch_days": 213.9574292140577,
+              "halves": [
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": -8,
+                  "timed_events": 4,
+                  "reduced_chi_square": 0.007853747985856386,
+                  "epoch_days": 196.32018612196015,
+                  "period_days": 2.2060159048048797,
+                  "epoch_interval_days": [
+                    196.298206092621,
+                    196.3421661512993
+                  ],
+                  "period_interval_days": [
+                    2.192114513655068,
+                    2.2199172959546916
+                  ],
+                  "epoch_period_covariance_days2": -1.5131320134031525e-22,
+                  "supported_events": 19,
+                  "covered_events": 5,
+                  "timed_cycles": [
+                    -10,
+                    -9,
+                    -7,
+                    -6
+                  ],
+                  "epoch_at_common_cycle_days": 213.96831336039918,
+                  "epoch_at_common_cycle_half_width_days": 0.11336241417398454
+                },
+                {
+                  "status": "estimated",
+                  "confidence": 0.95,
+                  "reference_cycle": 12,
+                  "timed_events": 7,
+                  "reduced_chi_square": 0.08261367900903054,
+                  "epoch_days": 240.41236887671684,
+                  "period_days": 2.204957411116928,
+                  "epoch_interval_days": [
+                    240.40234311941202,
+                    240.42239463402166
+                  ],
+                  "period_interval_days": [
+                    2.202494565365349,
+                    2.207420256868507
+                  ],
+                  "epoch_period_covariance_days2": 5.245338356138171e-7,
+                  "supported_events": 20,
+                  "covered_events": 11,
+                  "timed_cycles": [
+                    6,
+                    7,
+                    9,
+                    12,
+                    13,
+                    15,
+                    18
+                  ],
+                  "epoch_at_common_cycle_days": 213.9528799433137,
+                  "epoch_at_common_cycle_half_width_days": 0.02984590484845673
+                }
+              ],
+              "period_difference_days": -0.0010584936879518558,
+              "epoch_difference_days": -0.01543341708548951,
+              "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+            }
+          }
+        ]
+      },
+      {
+        "target": "KIC 6922244",
+        "observation": {
+          "file": "kplr006922244-2009259160929_llc.fits",
+          "sha256": "28d2473a7dd0ccd135162d292436bd36a14f2c7763c6123bfd5c3b6200a86413",
+          "target": "KIC 6922244",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 281.28812,
+          "dec": 42.45108,
+          "sector": null,
+          "quarter": 2,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0069%2F006922244%2Fkplr006922244-2009259160929_llc.fits",
+          "product": {
+            "target": "KIC 6922244",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0069/006922244/kplr006922244-2009259160929_llc.fits",
+            "file": "kplr006922244-2009259160929_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4354,
+          "used": 3390,
+          "invalid": 284,
+          "quality_rejected": 680,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.020433445868548006,
+          "noise_mad": 0.00020793309139070877,
+          "gap_count": 14,
+          "observed_time_range_days": [
+            169.99054507920664,
+            258.46699367501424
+          ],
+          "coverage_days": 88.4764485958076
+        },
+        "known_control_recovered": true,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 3.522900763358783,
+            "epoch_days": 170.43054507920664,
+            "duration_days": 0.1,
+            "warnings": [],
+            "catalogue_matches": [
+              {
+                "id": "Kepler-8 b",
+                "period": 3.5224991,
+                "ratio": 1,
+                "classification": "Potentially matching known object"
+              },
+              {
+                "id": "K00010.01",
+                "period": 3.522498429,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              }
+            ],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "compared",
+          "catalogue_id": "K00010.01",
+          "split_observation_days": 213.9937790404074,
+          "common_catalogue_epoch_days": 212.7043819539076,
+          "halves": [
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": -6,
+              "timed_events": 10,
+              "reduced_chi_square": 0.03562826053314311,
+              "epoch_days": 191.5701691576854,
+              "period_days": 3.522732482497943,
+              "epoch_interval_days": [
+                191.562718804897,
+                191.5776195104738
+              ],
+              "period_interval_days": [
+                3.5207691421493514,
+                3.5246958228465344
+              ],
+              "epoch_period_covariance_days2": -8.276404662790506e-24,
+              "supported_events": 13,
+              "covered_events": 11,
+              "timed_cycles": [
+                -12,
+                -11,
+                -10,
+                -7,
+                -6,
+                -5,
+                -4,
+                -3,
+                -2,
+                0
+              ],
+              "epoch_at_common_cycle_days": 212.70656405267306,
+              "epoch_at_common_cycle_half_width_days": 0.013938333772378434
+            },
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": 7,
+              "timed_events": 7,
+              "reduced_chi_square": 0.06731342998588888,
+              "epoch_days": 237.3613481412743,
+              "period_days": 3.522613018727851,
+              "epoch_interval_days": [
+                237.35139446493088,
+                237.37130181761773
+              ],
+              "period_interval_days": [
+                3.520030664202113,
+                3.525195373253589
+              ],
+              "epoch_period_covariance_days2": 2.883372934890776e-7,
+              "supported_events": 12,
+              "covered_events": 9,
+              "timed_cycles": [
+                1,
+                2,
+                6,
+                7,
+                8,
+                11,
+                12
+              ],
+              "epoch_at_common_cycle_days": 212.70305701017935,
+              "epoch_at_common_cycle_half_width_days": 0.019979005057727473
+            }
+          ],
+          "period_difference_days": -0.00011946377009186548,
+          "epoch_difference_days": -0.003507042493708923,
+          "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "EPIC 206103150",
+        "observation": {
+          "file": "ktwo206103150-c03_llc.fits",
+          "sha256": "e11c42556593f1328cf421c8045bf5b463394df73ba3f6d7779fd7062d2fad15",
+          "target": "EPIC 206103150",
+          "mission": "K2",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 331.203045,
+          "dec": -12.018893,
+          "sector": null,
+          "quarter": null,
+          "campaign": 3,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AK2%2Furl%2Fmissions%2Fk2%2Flightcurves%2Fc3%2F206100000%2F03000%2Fktwo206103150-c03_llc.fits",
+          "product": {
+            "target": "EPIC 206103150",
+            "uri": "mast:K2/url/missions/k2/lightcurves/c3/206100000/03000/ktwo206103150-c03_llc.fits",
+            "file": "ktwo206103150-c03_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 3386,
+          "used": 2877,
+          "invalid": 403,
+          "quality_rejected": 38,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 68,
+          "cadence_days": 0.020431662116607185,
+          "noise_mad": 0.000213682308237217,
+          "gap_count": 24,
+          "observed_time_range_days": [
+            2144.123225536736,
+            2213.2436322837093
+          ],
+          "coverage_days": 69.12040674697346
+        },
+        "known_control_recovered": true,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 4.157459580494699,
+            "epoch_days": 2145.8232255367357,
+            "duration_days": 0.1,
+            "warnings": [
+              "Odd/even depth difference",
+              "Inconsistent event depths",
+              "Independent event depths disagree beyond local noise"
+            ],
+            "catalogue_matches": [
+              {
+                "id": "WASP-47 b",
+                "period": 4.159151,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              }
+            ],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 4.643036799133234,
+            "epoch_days": 2145.530225536736,
+            "duration_days": 0.07,
+            "warnings": [
+              "Odd/even depth difference",
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "TIC 261136679",
+        "observation": {
+          "file": "tess2018206045859-s0001-0000000261136679-0120-s_lc.fits",
+          "sha256": "1eecffff3afa7e8c4ad763b6907e62447bacf339968292d86be45acd9bf1d609",
+          "target": "TIC 261136679",
+          "mission": "TESS",
+          "bjd_reference": 2457000,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "QUALITY",
+          "ra": 84.30089899016973,
+          "dec": -80.4691197969941,
+          "sector": 1,
+          "quarter": null,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2018206045859-s0001-0000000261136679-0120-s_lc.fits",
+          "product": {
+            "target": "TIC 261136679",
+            "uri": "mast:TESS/product/tess2018206045859-s0001-0000000261136679-0120-s_lc.fits",
+            "file": "tess2018206045859-s0001-0000000261136679-0120-s_lc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 20076,
+          "used": 18264,
+          "invalid": 1797,
+          "quality_rejected": 15,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.0013888662138015206,
+          "noise_mad": 0.00013134585882775208,
+          "gap_count": 45,
+          "observed_time_range_days": [
+            1325.2969604950604,
+            1353.1770658972157
+          ],
+          "coverage_days": 27.880105402155323
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 3.134913766357613,
+            "epoch_days": 1325.5069604950604,
+            "duration_days": 0.1,
+            "warnings": [
+              "Odd/even depth difference"
+            ],
+            "catalogue_matches": [
+              {
+                "id": "pi Men c",
+                "period": 6.2678399,
+                "ratio": 0.5,
+                "classification": "Potentially matching known object"
+              },
+              {
+                "id": "TOI 144.01",
+                "period": 6.2678139,
+                "ratio": 0.5,
+                "classification": "Potentially matching known object"
+              }
+            ],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 4.495859717486607,
+            "epoch_days": 1329.0089604950604,
+            "duration_days": 0.32,
+            "warnings": [
+              "Weak detection relative to transit-duration noise"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "TIC 150428135",
+        "observation": {
+          "file": "tess2018206045859-s0001-0000000150428135-0120-s_lc.fits",
+          "sha256": "4b2aa5d5584b4cc3f4e56eb6d39476ceb3d9176921d5074915f6dd70e189487e",
+          "target": "TIC 150428135",
+          "mission": "TESS",
+          "bjd_reference": 2457000,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "QUALITY",
+          "ra": 97.09550241518296,
+          "dec": -65.5793115481931,
+          "sector": 1,
+          "quarter": null,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2018206045859-s0001-0000000150428135-0120-s_lc.fits",
+          "product": {
+            "target": "TIC 150428135",
+            "uri": "mast:TESS/product/tess2018206045859-s0001-0000000150428135-0120-s_lc.fits",
+            "file": "tess2018206045859-s0001-0000000150428135-0120-s_lc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 20076,
+          "used": 18279,
+          "invalid": 1797,
+          "quality_rejected": 0,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.0013888857702113455,
+          "noise_mad": 0.0018018858824567433,
+          "gap_count": 48,
+          "observed_time_range_days": [
+            1325.2954950150029,
+            1353.1759744851113
+          ],
+          "coverage_days": 27.880479470108412
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 3.0853987406666947,
+            "epoch_days": 1326.543495015003,
+            "duration_days": 0.32,
+            "warnings": [
+              "Weak detection relative to transit-duration noise",
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 4.006745249941565,
+            "epoch_days": 1325.647495015003,
+            "duration_days": 0.32,
+            "warnings": [
+              "Weak detection relative to transit-duration noise",
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "KIC 11446443",
+        "observation": {
+          "file": "kplr011446443-2009259160929_llc.fits",
+          "sha256": "6d41c0b2a8784c922789c5ceb53258b795d7b220c6026ff514d86c81dde65e83",
+          "target": "KIC 11446443",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 286.808471,
+          "dec": 49.3164,
+          "sector": null,
+          "quarter": 2,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0114%2F011446443%2Fkplr011446443-2009259160929_llc.fits",
+          "product": {
+            "target": "KIC 11446443",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0114/011446443/kplr011446443-2009259160929_llc.fits",
+            "file": "kplr011446443-2009259160929_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4354,
+          "used": 3514,
+          "invalid": 284,
+          "quality_rejected": 555,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 1,
+          "cadence_days": 0.020433624038560083,
+          "noise_mad": 0.00005128420884863116,
+          "gap_count": 15,
+          "observed_time_range_days": [
+            169.78543930966407,
+            258.46708751810365
+          ],
+          "coverage_days": 88.68164820843958
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 2.4704995200140014,
+            "epoch_days": 172.17243930966407,
+            "duration_days": 0.07,
+            "warnings": [
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [
+              {
+                "id": "TrES-2 b",
+                "period": 2.47063,
+                "ratio": 1,
+                "classification": "Potentially matching known object"
+              },
+              {
+                "id": "K00001.01",
+                "period": 2.470613377,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              }
+            ],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "KIC 10619192",
+        "observation": {
+          "file": "kplr010619192-2009259160929_llc.fits",
+          "sha256": "7fca542c8432a9c2bda4b4647f7d73f6e64e496267d2185915da4f56266205fe",
+          "target": "KIC 10619192",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 298.39527,
+          "dec": 47.81501,
+          "sector": null,
+          "quarter": 2,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0106%2F010619192%2Fkplr010619192-2009259160929_llc.fits",
+          "product": {
+            "target": "KIC 10619192",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010619192/kplr010619192-2009259160929_llc.fits",
+            "file": "kplr010619192-2009259160929_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4354,
+          "used": 3673,
+          "invalid": 284,
+          "quality_rejected": 397,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.020433838362805545,
+          "noise_mad": 0.0006446744013062437,
+          "gap_count": 14,
+          "observed_time_range_days": [
+            169.76477226702264,
+            258.4677810083667
+          ],
+          "coverage_days": 88.70300874134409
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Known confirmed planet",
+            "period_days": 1.485638405715232,
+            "epoch_days": 169.93977226702265,
+            "duration_days": 0.07,
+            "warnings": [],
+            "catalogue_matches": [
+              {
+                "id": "K00203.01",
+                "period": 1.485710994,
+                "ratio": 1,
+                "classification": "Known confirmed planet"
+              }
+            ],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 4.015040927551752,
+            "epoch_days": 170.21277226702264,
+            "duration_days": 0.32,
+            "warnings": [
+              "Weak detection relative to transit-duration noise"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "compared",
+          "catalogue_id": "K00203.01",
+          "split_observation_days": 213.99367113865446,
+          "common_catalogue_epoch_days": 214.5076699698276,
+          "halves": [
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": -14,
+              "timed_events": 13,
+              "reduced_chi_square": 0.041589540842761015,
+              "epoch_days": 193.7076184136807,
+              "period_days": 1.4856908422252144,
+              "epoch_interval_days": [
+                193.7013812035927,
+                193.71385562376872
+              ],
+              "period_interval_days": [
+                1.4849088376498933,
+                1.4864728468005355
+              ],
+              "epoch_period_covariance_days2": -9.710486906090215e-9,
+              "supported_events": 30,
+              "covered_events": 23,
+              "timed_cycles": [
+                -27,
+                -26,
+                -24,
+                -18,
+                -17,
+                -15,
+                -14,
+                -13,
+                -8,
+                -7,
+                -5,
+                -4,
+                -3
+              ],
+              "epoch_at_common_cycle_days": 214.5072902048337,
+              "epoch_at_common_cycle_half_width_days": 0.012547738927609917
+            },
+            {
+              "status": "estimated",
+              "confidence": 0.95,
+              "reference_cycle": 12,
+              "timed_events": 14,
+              "reduced_chi_square": 0.037978944365216635,
+              "epoch_days": 232.3365499362137,
+              "period_days": 1.485730017822085,
+              "epoch_interval_days": [
+                232.33055853771089,
+                232.3425413347165
+              ],
+              "period_interval_days": [
+                1.4850686665243888,
+                1.486391369119781
+              ],
+              "epoch_period_covariance_days2": -9.87160560009164e-8,
+              "supported_events": 30,
+              "covered_events": 23,
+              "timed_cycles": [
+                0,
+                2,
+                3,
+                5,
+                7,
+                8,
+                9,
+                16,
+                17,
+                19,
+                21,
+                23,
+                24,
+                29
+              ],
+              "epoch_at_common_cycle_days": 214.50778972234866,
+              "epoch_at_common_cycle_half_width_days": 0.01049416172671446
+            }
+          ],
+          "period_difference_days": 0.000039175596870499874,
+          "epoch_difference_days": 0.0004995175149531406,
+          "interpretation": "Disjoint cadences and independent preprocessing. Catalogue period family and full-product duration are shared. This tests agreement, not coverage."
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "EPIC 201912552",
+        "observation": {
+          "file": "ktwo201912552-c01_llc.fits",
+          "sha256": "e1e12ca75d58066b2add8a3a854680ed4233d63ff0d0279cb472cb68bf2d2491",
+          "target": "EPIC 201912552",
+          "mission": "K2",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 172.560465,
+          "dec": 7.588391,
+          "sector": null,
+          "quarter": null,
+          "campaign": 1,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AK2%2Furl%2Fmissions%2Fk2%2Flightcurves%2Fc1%2F201900000%2F12000%2Fktwo201912552-c01_llc.fits",
+          "product": {
+            "target": "EPIC 201912552",
+            "uri": "mast:K2/url/missions/k2/lightcurves/c1/201900000/12000/ktwo201912552-c01_llc.fits",
+            "file": "ktwo201912552-c01_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4022,
+          "used": 3001,
+          "invalid": 494,
+          "quality_rejected": 527,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.020431826065760106,
+          "noise_mad": 0.0007658693787430675,
+          "gap_count": 12,
+          "observed_time_range_days": [
+            1977.3643799690326,
+            2057.3140255401595
+          ],
+          "coverage_days": 79.9496455711269
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 1.1936067086287547,
+            "epoch_days": 1978.4863799690327,
+            "duration_days": 0.21999999999999997,
+            "warnings": [
+              "Inconsistent event depths",
+              "Independent event timings disagree with a linear ephemeris"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 2.6883846502848274,
+            "epoch_days": 1979.118973140447,
+            "duration_days": 0.32,
+            "warnings": [
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      },
+      {
+        "target": "EPIC 201367065",
+        "observation": {
+          "file": "ktwo201367065-c01_llc.fits",
+          "sha256": "b5541b1df0c4f55ba1c2e5265a6083ea3d4cba83f28a764459555146e6895392",
+          "target": "EPIC 201367065",
+          "mission": "K2",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 172.334955,
+          "dec": -1.454787,
+          "sector": null,
+          "quarter": null,
+          "campaign": 1,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AK2%2Furl%2Fmissions%2Fk2%2Flightcurves%2Fc1%2F201300000%2F67000%2Fktwo201367065-c01_llc.fits",
+          "product": {
+            "target": "EPIC 201367065",
+            "uri": "mast:K2/url/missions/k2/lightcurves/c1/201300000/67000/ktwo201367065-c01_llc.fits",
+            "file": "ktwo201367065-c01_llc.fits"
+          }
+        },
+        "preprocessing": {
+          "input": 4022,
+          "used": 3328,
+          "invalid": 485,
+          "quality_rejected": 209,
+          "quality_policy": "require zero when present",
+          "duplicates_removed": 0,
+          "positive_outliers_removed": 0,
+          "cadence_days": 0.02043181355111301,
+          "noise_mad": 0.0003063994909223321,
+          "gap_count": 6,
+          "observed_time_range_days": [
+            1977.364610781966,
+            2057.3143191531053
+          ],
+          "coverage_days": 79.94970837113942
+        },
+        "known_control_recovered": null,
+        "candidates": [
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 2.254179973699042,
+            "epoch_days": 1978.228610781966,
+            "duration_days": 0.32,
+            "warnings": [
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          },
+          {
+            "classification": "Rejected or likely false positive",
+            "period_days": 3.349746130895259,
+            "epoch_days": 1980.4446107819658,
+            "duration_days": 0.1,
+            "warnings": [
+              "Inconsistent event depths"
+            ],
+            "catalogue_matches": [],
+            "coincident_channels": []
+          }
+        ],
+        "disjoint_timing_check": {
+          "status": "unavailable",
+          "reason": "No vetted catalogue-matched ephemeris"
+        },
+        "same_exposure_sensitivity": []
+      }
+    ]
+  },
+  "public_observations": {
+    "hat_p_7_kepler_quarters": {
+      "status": "analyzed",
+      "products": [
+        {
+          "file": "kplr010666592-2009166043257_llc.fits",
+          "sha256": "37faa7dc82fa5d9ec6d794369d93def0d78a49c91e61cf19bb4cafe571bb8f6c",
+          "target": "KIC 10666592",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 292.24728,
+          "dec": 47.969519,
+          "sector": null,
+          "quarter": 1,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0106%2F010666592%2Fkplr010666592-2009166043257_llc.fits",
+          "product": {
+            "target": "KIC 10666592",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010666592/kplr010666592-2009166043257_llc.fits",
+            "file": "kplr010666592-2009166043257_llc.fits"
+          }
+        },
+        {
+          "file": "kplr010666592-2009259160929_llc.fits",
+          "sha256": "2a10ce0fa87e8a757e6d66a740669bcf94a704eecf0646bbf898ad91b402fc08",
+          "target": "KIC 10666592",
+          "mission": "Kepler",
+          "bjd_reference": 2454833,
+          "provenance": "NASA MAST",
+          "time_system": "TDB",
+          "flux_column": "PDCSAP_FLUX",
+          "quality_column": "SAP_QUALITY",
+          "ra": 292.24728,
+          "dec": 47.969519,
+          "sector": null,
+          "quarter": 2,
+          "campaign": null,
+          "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3AKEPLER%2Furl%2Fmissions%2Fkepler%2Flightcurves%2F0106%2F010666592%2Fkplr010666592-2009259160929_llc.fits",
+          "product": {
+            "target": "KIC 10666592",
+            "uri": "mast:KEPLER/url/missions/kepler/lightcurves/0106/010666592/kplr010666592-2009259160929_llc.fits",
+            "file": "kplr010666592-2009259160929_llc.fits"
+          }
+        }
+      ],
+      "comparison": {
+        "status": "compared",
+        "comparisons": [
+          {
+            "catalogue_id": "K00002.01",
+            "cycles_from_fit_epochs": [
+              11,
+              -27
+            ],
+            "period_difference_days": 0.00024066417298440612,
+            "epoch_difference_days": 0.006676824297755957,
+            "projected_half_widths_days": [
+              0.017090420604411204,
+              0.018464124144822944
+            ],
+            "cycle_pairing": "unique within nominal bounds",
+            "epoch_intervals_overlap": true
+          }
+        ],
+        "product_sha256": [
+          "37faa7dc82fa5d9ec6d794369d93def0d78a49c91e61cf19bb4cafe571bb8f6c",
+          "2a10ce0fa87e8a757e6d66a740669bcf94a704eecf0646bbf898ad91b402fc08"
+        ],
+        "windows_bjd_tdb": [
+          [
+            2454964.5120536494,
+            2454997.9833790287
+          ],
+          [
+            2455007.199157175,
+            2455091.4061319656
+          ]
+        ],
+        "scope": "Disjoint observation windows and independently fitted ephemerides. Shared catalogue identity, pipeline systematics and unmodeled timing variations limit interpretation."
+      }
+    },
+    "wasp_12_tess_pixels": {
+      "status": "analyzed",
+      "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2019357164649-s0020-0000000086396382-0165-s_tp.fits",
+      "sha256": "9ae97cb13270a84e2d20455612036e72a6ab0b359442c68d3b1927e4aef37687",
+      "light_curve_sha256": "bf74a16f6e0c40b693a66de922e142d446cb44cee5bb7f26843062e436957f63",
+      "apertures": {
+        "optimal": {
+          "aperture_pixels": 11,
+          "events": 21,
+          "median_fractional_depth": 0.013735651969909668,
+          "median_centroid_shift_pixels": [
+            -0.000040922313928604126,
+            -0.000051058828830718994
+          ]
+        },
+        "collected": {
+          "aperture_pixels": 121,
+          "events": 21,
+          "median_fractional_depth": 0.008843958377838135,
+          "median_centroid_shift_pixels": [
+            0.0025294230563304154,
+            -0.006938289912795881
+          ]
+        }
+      },
+      "scope": "Same TESS sector and exposures. Descriptive aperture depths and flux-weighted centroids. No PRF localization, uncertainty calibration or independent confirmation."
+    }
+  }
+}

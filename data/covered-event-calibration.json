@@ -1,0 +1,1031 @@
+{
+  "synthetic": true,
+  "settings": {
+    "minimum_period": 0.85,
+    "maximum_period": 3.4,
+    "trend_days": 2,
+    "min_transits": 3,
+    "min_snr": 8,
+    "max_signals": 1
+  },
+  "versions": {
+    "python": "3.12.14",
+    "astropy": "8.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "development_seed": 105000,
+  "holdout_seed": 134100,
+  "completeness_by_depth": {
+    "0.001": {
+      "count": 0,
+      "total": 36,
+      "fraction": 0.0,
+      "wilson_95": [
+        0.0,
+        0.09641862859446367
+      ]
+    },
+    "0.002": {
+      "count": 2,
+      "total": 36,
+      "fraction": 0.05555555555555555,
+      "wilson_95": [
+        0.015369986664161853,
+        0.18144657208647252
+      ]
+    },
+    "0.004": {
+      "count": 32,
+      "total": 36,
+      "fraction": 0.8888888888888888,
+      "wilson_95": [
+        0.7468519140963513,
+        0.9559335969968435
+      ]
+    },
+    "0.008": {
+      "count": 32,
+      "total": 36,
+      "fraction": 0.8888888888888888,
+      "wilson_95": [
+        0.7468519140963513,
+        0.9559335969968435
+      ]
+    }
+  },
+  "false_positive_by_scenario": {
+    "correlated_noise": {
+      "count": 0,
+      "total": 36,
+      "fraction": 0.0,
+      "wilson_95": [
+        0.0,
+        0.09641862859446367
+      ]
+    },
+    "eclipsing_binary": {
+      "count": 0,
+      "total": 36,
+      "fraction": 0.0,
+      "wilson_95": [
+        0.0,
+        0.09641862859446367
+      ]
+    },
+    "asymmetric_eclipsing_binary": {
+      "count": 1,
+      "total": 36,
+      "fraction": 0.027777777777777776,
+      "wilson_95": [
+        0.004920407139810443,
+        0.14169718653273855
+      ]
+    },
+    "instrumental_dropouts": {
+      "count": 1,
+      "total": 36,
+      "fraction": 0.027777777777777776,
+      "wilson_95": [
+        0.004920407139810443,
+        0.14169718653273855
+      ]
+    },
+    "quality_edge_dropouts": {
+      "count": 0,
+      "total": 36,
+      "fraction": 0.0,
+      "wilson_95": [
+        0.0,
+        0.09641862859446367
+      ]
+    },
+    "stable_step_dropouts": {
+      "count": 36,
+      "total": 36,
+      "fraction": 1.0,
+      "wilson_95": [
+        0.9035813714055363,
+        1.0
+      ]
+    }
+  },
+  "interval_validation": {
+    "development_eligible": 70,
+    "joint_multiplier": 1.0,
+    "holdout_nominal": {
+      "attempted": 144,
+      "recovered": 66,
+      "period": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      },
+      "epoch": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      },
+      "joint": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      }
+    },
+    "holdout_scaled": {
+      "attempted": 144,
+      "recovered": 66,
+      "period": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      },
+      "epoch": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      },
+      "joint": {
+        "count": 60,
+        "total": 60,
+        "fraction": 1.0,
+        "wilson_95": [
+          0.93982814785791,
+          0.9999999999999998
+        ]
+      }
+    },
+    "strata": {
+      "depth": {
+        "0.001": {
+          "nominal": {
+            "attempted": 36,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          },
+          "scaled": {
+            "attempted": 36,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "0.002": {
+          "nominal": {
+            "attempted": 36,
+            "recovered": 2,
+            "period": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 36,
+            "recovered": 2,
+            "period": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 2,
+              "total": 2,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.34238022750665303,
+                1.0
+              ]
+            }
+          }
+        },
+        "0.004": {
+          "nominal": {
+            "attempted": 36,
+            "recovered": 32,
+            "period": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            },
+            "epoch": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            },
+            "joint": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 36,
+            "recovered": 32,
+            "period": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            },
+            "epoch": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            },
+            "joint": {
+              "count": 27,
+              "total": 27,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8754449702581328,
+                0.9999999999999998
+              ]
+            }
+          }
+        },
+        "0.008": {
+          "nominal": {
+            "attempted": 36,
+            "recovered": 32,
+            "period": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 36,
+            "recovered": 32,
+            "period": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 31,
+              "total": 31,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.889744604539564,
+                1.0
+              ]
+            }
+          }
+        }
+      },
+      "baseline_days": {
+        "9": {
+          "nominal": {
+            "attempted": 48,
+            "recovered": 21,
+            "period": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 48,
+            "recovered": 21,
+            "period": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 15,
+              "total": 15,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.7961166989641515,
+                1.0
+              ]
+            }
+          }
+        },
+        "15": {
+          "nominal": {
+            "attempted": 48,
+            "recovered": 21,
+            "period": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 48,
+            "recovered": 21,
+            "period": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 21,
+              "total": 21,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8453609810751531,
+                1.0
+              ]
+            }
+          }
+        },
+        "24": {
+          "nominal": {
+            "attempted": 48,
+            "recovered": 24,
+            "period": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 48,
+            "recovered": 24,
+            "period": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 24,
+              "total": 24,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8620237953250198,
+                1.0
+              ]
+            }
+          }
+        }
+      },
+      "duration_noise_snr": {
+        "<10": {
+          "nominal": {
+            "attempted": 65,
+            "recovered": 10,
+            "period": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 65,
+            "recovered": 10,
+            "period": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 5,
+              "total": 5,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.5655175352168251,
+                1.0
+              ]
+            }
+          }
+        },
+        "10\u2013<20": {
+          "nominal": {
+            "attempted": 40,
+            "recovered": 33,
+            "period": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 40,
+            "recovered": 33,
+            "period": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 32,
+              "total": 32,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8928208017449293,
+                1.0
+              ]
+            }
+          }
+        },
+        "\u226520": {
+          "nominal": {
+            "attempted": 25,
+            "recovered": 23,
+            "period": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 25,
+            "recovered": 23,
+            "period": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 23,
+              "total": 23,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8568833815495731,
+                1.0
+              ]
+            }
+          }
+        },
+        "unavailable": {
+          "nominal": {
+            "attempted": 14,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          },
+          "scaled": {
+            "attempted": 14,
+            "recovered": 0,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        }
+      },
+      "observed_transits": {
+        "0\u20133": {
+          "nominal": {
+            "attempted": 32,
+            "recovered": 6,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          },
+          "scaled": {
+            "attempted": 32,
+            "recovered": 6,
+            "period": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "epoch": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            },
+            "joint": {
+              "count": 0,
+              "total": 0,
+              "fraction": null,
+              "wilson_95": null
+            }
+          }
+        },
+        "4\u20136": {
+          "nominal": {
+            "attempted": 37,
+            "recovered": 20,
+            "period": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 37,
+            "recovered": 20,
+            "period": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 20,
+              "total": 20,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.8388748419471806,
+                1.0
+              ]
+            }
+          }
+        },
+        "\u22657": {
+          "nominal": {
+            "attempted": 75,
+            "recovered": 40,
+            "period": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            }
+          },
+          "scaled": {
+            "attempted": 75,
+            "recovered": 40,
+            "period": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            },
+            "epoch": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            },
+            "joint": {
+              "count": 40,
+              "total": 40,
+              "fraction": 1.0,
+              "wilson_95": [
+                0.9123783988027135,
+                1.0
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

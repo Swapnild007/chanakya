@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
   browser-script-syntax:
@@ -23,4 +24,49 @@ jobs:
         with:
           node-version: "22"
       - name: Check JavaScript syntax
-        run: node --check science-core.js && node --check app.js && node --check bls-validation.js && node --check full-analysis.js && node --check dashboard-upgrade.js && node --check multi-source-discovery.js && node --check research-pipeline.js && node tests/science-core.test.js
+        run: node --check science-core.js && node --check app.js && node --check bls-validation.js && node --check full-analysis.js && node --check dashboard-upgrade.js && node --check multi-source-discovery.js && node --check research-pipeline.js && node --check workstation.js && node --test tests/*.test.js
+  workstation-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install -r requirements.txt
+      - run: npm install --no-save playwright@1.58.2 && npx playwright install --with-deps chromium
+      - name: Exercise the workstation
+        env:
+          SCREENSHOTS_DIR: browser-screenshots
+        run: |
+          python -m astronomy.server --port 8765 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:8765/api/health; then break; fi
+            sleep 1
+          done
+          node tests/workstation.browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: AstroLens-desktop-and-mobile
+          path: browser-screenshots
+  public-observation-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - name: Acquire fixed MAST timing and pixel controls
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+        run: python -m astronomy.observation_validation | tee public-observations.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AstroLens-public-observation-validation
+          path: public-observations.json

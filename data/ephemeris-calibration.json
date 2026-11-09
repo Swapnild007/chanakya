@@ -1,0 +1,118 @@
+{
+  "synthetic": true,
+  "seed": 92741,
+  "repeats_per_case": 48,
+  "settings": {
+    "minimum_period": 0.85,
+    "maximum_period": 3.4,
+    "trend_days": 2,
+    "min_transits": 3,
+    "min_snr": 8,
+    "max_signals": 1
+  },
+  "completeness_by_depth": {
+    "0.001": {
+      "count": 0,
+      "total": 48,
+      "fraction": 0.0,
+      "wilson_95": [
+        6.938893903907228e-18,
+        0.07410012966611748
+      ]
+    },
+    "0.002": {
+      "count": 12,
+      "total": 48,
+      "fraction": 0.25,
+      "wilson_95": [
+        0.1492063367379791,
+        0.3878437280950796
+      ]
+    },
+    "0.004": {
+      "count": 47,
+      "total": 48,
+      "fraction": 0.9791666666666666,
+      "wilson_95": [
+        0.8910078200474814,
+        0.9963128890224893
+      ]
+    },
+    "0.008": {
+      "count": 43,
+      "total": 48,
+      "fraction": 0.8958333333333334,
+      "wilson_95": [
+        0.7783257830561368,
+        0.9546782809581869
+      ]
+    }
+  },
+  "false_positive_by_scenario": {
+    "correlated_noise": {
+      "count": 2,
+      "total": 48,
+      "fraction": 0.041666666666666664,
+      "wilson_95": [
+        0.011501893489386586,
+        0.13975655870455445
+      ]
+    },
+    "eclipsing_binary": {
+      "count": 0,
+      "total": 48,
+      "fraction": 0.0,
+      "wilson_95": [
+        6.938893903907228e-18,
+        0.07410012966611748
+      ]
+    },
+    "asymmetric_eclipsing_binary": {
+      "count": 0,
+      "total": 48,
+      "fraction": 0.0,
+      "wilson_95": [
+        6.938893903907228e-18,
+        0.07410012966611748
+      ]
+    },
+    "instrumental_dropouts": {
+      "count": 6,
+      "total": 48,
+      "fraction": 0.125,
+      "wilson_95": [
+        0.058570514385719794,
+        0.24700458286386834
+      ]
+    }
+  },
+  "interval_validation": {
+    "calibration_intervals": 50,
+    "holdout_intervals": 51,
+    "joint_multiplier": 1.0,
+    "holdout_before": {
+      "count": 50,
+      "total": 51,
+      "fraction": 0.9803921568627451,
+      "wilson_95": [
+        0.8969543127385502,
+        0.9965303073589391
+      ]
+    },
+    "holdout_after": {
+      "count": 50,
+      "total": 51,
+      "fraction": 0.9803921568627451,
+      "wilson_95": [
+        0.8969543127385502,
+        0.9965303073589391
+      ]
+    }
+  },
+  "versions": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "astropy": "8.0.2"
+  }
+}
