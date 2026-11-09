@@ -13,6 +13,7 @@ import numpy
 import scipy
 
 from .archive import MAX_FILE, download, request, target_id, valid_uri
+from .artifact_vetting import cadence_context, event_evidence
 from .discovery import Settings, preprocess, read_observation
 from .ephemeris import estimate
 from .server import process
@@ -65,13 +66,17 @@ def disjoint_timing_check(data, filename, result, settings):
     halves = []
     for mask in (time < midpoint, time >= midpoint):
         try:
-            t, _, y, audit = preprocess(time[mask], flux[mask], quality[mask] if quality is not None else None, settings)
+            local_quality = quality[mask] if quality is not None else None
+            t, _, y, audit = preprocess(time[mask], flux[mask], local_quality, settings)
         except ValueError as exc:
             halves.append({"status": "unavailable", "reason": str(exc)})
             continue
         cycles = range(int(numpy.ceil((t[0] - epoch) / period)), int(numpy.floor((t[-1] - epoch) / period)) + 1)
-        fit = estimate(t, y, {"period_days": period, "epoch_days": epoch,
-                             "duration_days": candidate["duration_days"], "event_cycles": cycles}, audit)
+        trial = {"period_days": period, "epoch_days": epoch,
+                 "duration_days": candidate["duration_days"], "event_cycles": cycles}
+        context = cadence_context(time[mask], flux[mask], local_quality)
+        evidence, _ = event_evidence(t, y, trial, audit, context, settings.min_transits)
+        fit = estimate(trial, evidence)
         if fit["status"] == "estimated":
             offset = fit["reference_cycle"]
             fit["epoch_at_common_cycle_days"] = fit["epoch_days"] - offset * fit["period_days"]

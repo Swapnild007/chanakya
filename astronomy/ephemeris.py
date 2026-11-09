@@ -1,8 +1,4 @@
 """Conditional linear ephemeris intervals from independently timed events."""
-import json
-from functools import lru_cache
-from pathlib import Path
-
 import numpy as np
 from scipy.stats import t as student_t
 
@@ -40,26 +36,13 @@ def event_timing(time, flux, center, duration, cadence, noise):
     return float(center + grid[peak]), float(error)
 
 
-@lru_cache(maxsize=1)
-def calibration():
-    path = Path(__file__).resolve().parent.parent / "data" / "ephemeris-calibration.json"
-    if not path.is_file():
-        return None
-    return json.loads(path.read_text())
-
-
-def estimate(time, flux, candidate, audit):
-    unavailable = {"status": "unavailable", "reason": "Fewer than four independently timed events"}
-    period, epoch, duration = (candidate[k] for k in ("period_days", "epoch_days", "duration_days"))
-    timings = []
-    for cycle in candidate["event_cycles"]:
-        center = epoch + cycle * period
-        half = 1.2 * duration
-        start, end = time.searchsorted([center - half, center + half])
-        timing = event_timing(time[start:end], flux[start:end], center, duration,
-                              audit["cadence_days"], audit["noise_mad"])
-        if timing is not None:
-            timings.append((cycle, *timing))
+def estimate(candidate, evidence):
+    """Fit only events timed inside windows that passed the coverage audit."""
+    unavailable = {"status": "unavailable", "reason": "Fewer than four timed events with two-sided coverage"}
+    period, epoch = (candidate[k] for k in ("period_days", "epoch_days"))
+    timings = [(row["cycle"], row["timing_days"], row["timing_error_days"])
+               for row in evidence["events"]
+               if row["two_sided_coverage"] and row["timing_days"] is not None]
     if len(timings) < 4:
         return unavailable
     cycles, times, errors = np.asarray(timings).T
@@ -74,22 +57,10 @@ def estimate(time, flux, candidate, audit):
     covariance = np.linalg.inv(weighted.T @ weighted) * max(1, reduced)
     half = student_t.ppf(.975, dof) * np.sqrt(np.diag(covariance))
     fitted = [float(origin + fit[0]), float(fit[1])]
-    result = {"status": "estimated", "confidence": .95, "method": "Event-profile timing and Student-t linear ephemeris",
+    return {"status": "estimated", "confidence": .95, "method": "Event-profile timing and Student-t linear ephemeris",
             "reference_cycle": reference_cycle, "timed_events": len(cycles), "reduced_chi_square": reduced,
             "epoch_days": fitted[0], "period_days": fitted[1],
             "epoch_interval_days": [float(fitted[0] - half[0]), float(fitted[0] + half[0])],
             "period_interval_days": [float(fitted[1] - half[1]), float(fitted[1] + half[1])],
             "epoch_period_covariance_days2": float(covariance[0, 1]),
-            "calibration_scope": "Conditional on this period family and a linear ephemeris. Alias and model systematics are excluded."}
-
-    evidence = calibration()
-    if evidence and evidence["interval_validation"]["joint_multiplier"] is not None:
-        factor = evidence["interval_validation"]["joint_multiplier"]
-        result["synthetic_calibration"] = {
-            "seed": evidence["seed"], "multiplier": factor,
-            "holdout": evidence["interval_validation"]["holdout_after"],
-            "period_interval_days": [float(fitted[1] - factor * half[1]), float(fitted[1] + factor * half[1])],
-            "epoch_interval_days": [float(fitted[0] - factor * half[0]), float(fitted[0] + factor * half[0])],
-            "scope": "Synthetic gapped and correlated-noise light curves. Coverage on actual observations is unverified."
-        }
-    return result
+            "calibration_scope": "Conditional on this period family and a linear ephemeris. Uses timed events with two-sided coverage. Alias and model systematics are excluded. Synthetic coverage for this event selection is pending revalidation."}

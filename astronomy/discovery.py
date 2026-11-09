@@ -269,7 +269,7 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
         if warnings and candidate["classification"] != "Insufficient evidence":
             candidate["classification"] = "Rejected or likely false positive"
         candidate["ephemeris"] = (
-            estimate(t[keep], y[keep], candidate, audit)
+            estimate(candidate, evidence)
             if not candidate["warnings"] and candidate["observed_transits"] >= 4
             else {"status": "unavailable", "reason": "Vetting failed or fewer than four supported events"}
         )
