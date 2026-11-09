@@ -20,12 +20,12 @@ class ArchiveError(RuntimeError):
     pass
 
 
-def request(url, payload=None, limit=4 * 1024 * 1024):
+def request(url, payload=None, limit=4 * 1024 * 1024, *, deadline_seconds=20):
     query = Request(url, data=urlencode(payload).encode() if payload else None,
                     headers={"User-Agent": "AstroLens/1.0 research"})
     for attempt in range(2):
         try:
-            deadline = time.monotonic() + 20
+            deadline = time.monotonic() + deadline_seconds
             with urlopen(query, timeout=8) as response:
                 data = bytearray()
                 while chunk := response.read1(64 * 1024):

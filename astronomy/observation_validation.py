@@ -25,9 +25,9 @@ LIGHT_CURVE_HASHES = {
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def get(uri, *, limit=MAX_FILE):
+def get(uri, *, limit=MAX_FILE, deadline_seconds=20):
     url = DOWNLOAD + urlencode({"uri": uri})
-    return request(url, limit=limit), url
+    return request(url, limit=limit, deadline_seconds=deadline_seconds), url
 
 
 def light_curve(uri, target, catalogue):
@@ -84,7 +84,10 @@ def wasp12_pixels(catalogue):
         raise ValueError("WASP-12 b was not recovered in the light curve")
     uri = WASP12_PREFIX + "_tp.fits"
     # This fixed research product is larger than an interactive light-curve upload.
-    data, url = get(uri, limit=96 * 1024 * 1024)
+    data, url = get(uri, limit=48 * 1024 * 1024, deadline_seconds=90)
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != "9ae97cb13270a84e2d20455612036e72a6ab0b359442c68d3b1927e4aef37687":
+        raise ValueError("Public target-pixel product differs from the pinned SHA-256")
     with fits.open(io.BytesIO(data), memmap=False) as hdus:
         primary, table = hdus[0].header, hdus[1]
         if (primary.get("TICID"), primary.get("SECTOR")) != (86396382, 20):
@@ -105,7 +108,7 @@ def wasp12_pixels(catalogue):
                                          candidate["period_days"], epoch, candidate["duration_days"])
                    for name, mask in subsets.items() if mask.any()}
     return {"status": "analyzed" if any(r["events"] for r in results.values()) else "unavailable",
-            "source_url": url, "sha256": hashlib.sha256(data).hexdigest(),
+            "source_url": url, "sha256": digest,
             "light_curve_sha256": light["observation"]["sha256"], "apertures": results,
             "scope": "Same TESS sector and exposures. Descriptive aperture depths and flux-weighted centroids. "
                      "No PRF localization, uncertainty calibration or independent confirmation."}

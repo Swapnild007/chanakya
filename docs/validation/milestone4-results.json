@@ -3812,8 +3812,31 @@
       }
     },
     "wasp_12_tess_pixels": {
-      "status": "unavailable",
-      "reason": "Archive response exceeded its size or time limit"
+      "status": "analyzed",
+      "source_url": "https://mast.stsci.edu/api/v0.1/Download/file?uri=mast%3ATESS%2Fproduct%2Ftess2019357164649-s0020-0000000086396382-0165-s_tp.fits",
+      "sha256": "9ae97cb13270a84e2d20455612036e72a6ab0b359442c68d3b1927e4aef37687",
+      "light_curve_sha256": "bf74a16f6e0c40b693a66de922e142d446cb44cee5bb7f26843062e436957f63",
+      "apertures": {
+        "optimal": {
+          "aperture_pixels": 11,
+          "events": 21,
+          "median_fractional_depth": 0.013735651969909668,
+          "median_centroid_shift_pixels": [
+            -0.000040922313928604126,
+            -0.000051058828830718994
+          ]
+        },
+        "collected": {
+          "aperture_pixels": 121,
+          "events": 21,
+          "median_fractional_depth": 0.008843958377838135,
+          "median_centroid_shift_pixels": [
+            0.0025294230563304154,
+            -0.006938289912795881
+          ]
+        }
+      },
+      "scope": "Same TESS sector and exposures. Descriptive aperture depths and flux-weighted centroids. No PRF localization, uncertainty calibration or independent confirmation."
     }
   }
 }
