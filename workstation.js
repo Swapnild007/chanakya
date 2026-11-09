@@ -172,6 +172,19 @@ function render(next, index = 0) {
         ["Timing consistency", vetting.timing_consistency_p]]) {
         panel.append(text("p", `${label}: ${value == null ? "insufficient events" : "p = " + value.toExponential(2)}`));
       }
+      if (vetting.events?.length) {
+        const eventList = text("details", "");
+        const rows = text("ul", "");
+        for (const event of vetting.events) {
+          const timingLabel = event.timing_days == null
+            ? "Timing unavailable"
+            : `Event center ${event.timing_days.toFixed(5)} d · timing error ${(event.timing_error_days * 1440).toFixed(1)} min`;
+          const coverage = event.two_sided_coverage ? "Two-sided coverage" : "Limited coverage";
+          rows.append(text("li", `Cycle ${event.cycle} · ${coverage} · ${event.flagged_cadences} flagged · ${event.missing_flux_cadences} missing · ${timingLabel}`));
+        }
+        eventList.append(text("summary", "Individual transit events"), rows);
+        panel.append(eventList);
+      }
       card.append(panel);
     }
     const fold = text("button", "Show folded curve");

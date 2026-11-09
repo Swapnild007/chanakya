@@ -17,6 +17,8 @@ SCENARIOS = (*CONTROLS, "quality_edge_dropouts", "stable_step_dropouts")
 DEVELOPMENT_SEED = 105000
 HOLDOUT_SEED = 134100
 REPLAYS = (93078, 93090, 93095, 93117, 93118, 93124)
+TIMING_STRESS_SEED = 180000
+TIMING_STRESS_REGIMES = ((18, 1.), (18, 2.), (30, 1.), (30, 2.))
 
 
 def jobs(seed, repeats):
@@ -28,6 +30,13 @@ def jobs(seed, repeats):
 
 def run_trial(job):
     return trial(*job)
+
+
+def run_timing_stress_trial(job):
+    seed, depth, baseline, cadence_minutes, red_noise_scale = job
+    return {**trial(seed, "injection", depth, baseline, cadence=cadence_minutes / 1440,
+                    red_noise_scale=red_noise_scale),
+            "cadence_minutes": cadence_minutes, "red_noise_scale": red_noise_scale}
 
 
 def coverage(rows, scale):
@@ -82,9 +91,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repeats", type=int, default=12, help="Trials per scenario/depth and baseline")
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--timing-stress", action="store_true",
+                        help="Evaluate nominal intervals on fresh cadence and correlated-noise strata")
     args = parser.parse_args()
     if not 1 <= args.repeats <= 30 or not 1 <= args.workers <= 8:
         parser.error("Use 1–30 repeats and 1–8 workers")
+    if args.timing_stress:
+        strata = [(depth, baseline, *regime) for regime in TIMING_STRESS_REGIMES
+                  for depth in DEPTHS for baseline in BASELINES for _ in range(args.repeats)]
+        cases = [(TIMING_STRESS_SEED + i, *stratum) for i, stratum in enumerate(strata)]
+        with ProcessPoolExecutor(max_workers=args.workers) as pool:
+            rows = list(pool.map(run_timing_stress_trial, cases))
+        summaries = [
+            {"cadence_minutes": cadence, "red_noise_scale": scale, **coverage(
+                [r for r in rows if (r["cadence_minutes"], r["red_noise_scale"]) == (cadence, scale)], 1.)}
+            for cadence, scale in TIMING_STRESS_REGIMES
+        ]
+        print(json.dumps({"synthetic": True, "seed": TIMING_STRESS_SEED, "settings": asdict(SETTINGS),
+                          "regimes": summaries, "holdout": rows}, indent=2, allow_nan=False))
+        return
     development = jobs(DEVELOPMENT_SEED, args.repeats)
     holdout = jobs(HOLDOUT_SEED, args.repeats)
     with ProcessPoolExecutor(max_workers=args.workers) as pool:

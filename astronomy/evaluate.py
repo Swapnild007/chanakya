@@ -17,11 +17,11 @@ DEPTHS = (.001, .002, .004, .008)
 CONTROLS = ("correlated_noise", "eclipsing_binary", "asymmetric_eclipsing_binary", "instrumental_dropouts")
 
 
-def case(seed, kind, depth=.004, baseline=15):
+def case(seed, kind, depth=.004, baseline=15, *, cadence=.0125, red_noise_scale=1.):
     rng = np.random.default_rng(seed)
-    time = np.arange(0, baseline, .0125)
+    time = np.arange(0, baseline, cadence)
     white = rng.normal(0, .001, len(time))
-    red = lfilter([1], [1, -.73], rng.normal(0, .00045, len(time)))
+    red = lfilter([1], [1, -.73], rng.normal(0, .00045 * red_noise_scale, len(time)))
     flux = 1 + white + red + .0012 * np.sin(2 * np.pi * time / 2.7 + rng.uniform(0, 6))
     quality = np.zeros(len(time), dtype=int)
     quality[rng.choice(len(time), 20, replace=False)] = 1
@@ -52,8 +52,9 @@ def case(seed, kind, depth=.004, baseline=15):
     return time, flux, quality, period, epoch
 
 
-def trial(seed, kind, depth, baseline=15):
-    time, flux, quality, period, epoch = case(seed, kind, depth, baseline)
+def trial(seed, kind, depth, baseline=15, *, cadence=.0125, red_noise_scale=1.):
+    time, flux, quality, period, epoch = case(seed, kind, depth, baseline, cadence=cadence,
+                                            red_noise_scale=red_noise_scale)
     result = analyze(time, flux, quality, settings=SETTINGS)
     signal = next(iter(result["candidates"]), None)
     passed = bool(signal and not signal["warnings"] and signal["observed_transits"] >= SETTINGS.min_transits)

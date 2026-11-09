@@ -1,4 +1,8 @@
 """Conditional linear ephemeris intervals from independently timed events."""
+import json
+from functools import lru_cache
+from pathlib import Path
+
 import numpy as np
 from scipy.stats import t as student_t
 
@@ -36,6 +40,12 @@ def event_timing(time, flux, center, duration, cadence, noise):
     return float(center + grid[peak]), float(error)
 
 
+@lru_cache(maxsize=1)
+def calibration():
+    path = Path(__file__).resolve().parent.parent / "data" / "covered-event-calibration.json"
+    return json.loads(path.read_text()) if path.is_file() else None
+
+
 def estimate(candidate, evidence):
     """Fit only events timed inside windows that passed the coverage audit."""
     unavailable = {"status": "unavailable", "reason": "Fewer than four timed events with two-sided coverage"}
@@ -57,10 +67,22 @@ def estimate(candidate, evidence):
     covariance = np.linalg.inv(weighted.T @ weighted) * max(1, reduced)
     half = student_t.ppf(.975, dof) * np.sqrt(np.diag(covariance))
     fitted = [float(origin + fit[0]), float(fit[1])]
-    return {"status": "estimated", "confidence": .95, "method": "Event-profile timing and Student-t linear ephemeris",
+    result = {"status": "estimated", "confidence": .95, "method": "Event-profile timing and Student-t linear ephemeris",
             "reference_cycle": reference_cycle, "timed_events": len(cycles), "reduced_chi_square": reduced,
             "epoch_days": fitted[0], "period_days": fitted[1],
             "epoch_interval_days": [float(fitted[0] - half[0]), float(fitted[0] + half[0])],
             "period_interval_days": [float(fitted[1] - half[1]), float(fitted[1] + half[1])],
             "epoch_period_covariance_days2": float(covariance[0, 1]),
-            "calibration_scope": "Conditional on this period family and a linear ephemeris. Uses timed events with two-sided coverage. Alias and model systematics are excluded. Synthetic coverage for this event selection is pending revalidation."}
+            "calibration_scope": "Conditional on this period family and a linear ephemeris. Uses timed events with two-sided coverage. Alias and model systematics are excluded."}
+    calibration_evidence = calibration()
+    if calibration_evidence and calibration_evidence["interval_validation"]["joint_multiplier"] is not None:
+        validation = calibration_evidence["interval_validation"]
+        factor = validation["joint_multiplier"]
+        result["synthetic_calibration"] = {
+            "seed": calibration_evidence["holdout_seed"], "multiplier": factor,
+            "holdout": validation["holdout_scaled"]["joint"],
+            "period_interval_days": [float(fitted[1] - factor * half[1]), float(fitted[1] + factor * half[1])],
+            "epoch_interval_days": [float(fitted[0] - factor * half[0]), float(fitted[0] + factor * half[0])],
+            "scope": "Measured on the 18-minute synthetic holdout among recovered signals with usable fits. Coverage on actual observations is unverified."
+        }
+    return result

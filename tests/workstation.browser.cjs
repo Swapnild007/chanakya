@@ -51,6 +51,8 @@ const { chromium } = require("playwright");
     const eventVetting = page.getByText("Cadence and event vetting", { exact: true }).first();
     await eventVetting.click();
     await page.getByText(/events with two-sided coverage/).first().waitFor();
+    await page.getByText("Individual transit events", { exact: true }).first().click();
+    await page.getByRole("listitem").filter({ hasText: /Cycle .*coverage.*flagged/ }).first().waitFor();
     await page.getByRole("link", { name: "Light Curve Laboratory", exact: true }).click();
     await page.locator("#curve-range").waitFor();
     assert.equal(await page.locator("#pan").isDisabled(), true);
