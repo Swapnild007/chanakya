@@ -78,11 +78,13 @@ const { chromium } = require("playwright");
       for (const name of pages) {
         await page.getByRole("link", { name, exact: true }).click();
         await page.getByRole("heading", { name, exact: true, level: 1 }).waitFor();
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name);
         if (name === "Candidate Investigation") {
           const detail = page.locator("#evidence details").first();
-          if (await detail.getAttribute("open") === null) await detail.locator("summary").click();
+          if (await detail.getAttribute("open") === null) await detail.locator(":scope > summary").click();
+          const events = detail.locator(":scope > details");
+          if (await events.getAttribute("open") === null) await events.locator(":scope > summary").click();
         }
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name);
         if (screenshots) {
           await page.screenshot({ path: `${screenshots}/${layout}-${name.toLowerCase().replaceAll(" ", "-")}.png`, fullPage: true });
         }
