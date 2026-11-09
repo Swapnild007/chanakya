@@ -86,3 +86,71 @@ def estimate(candidate, evidence):
             "scope": "Measured on the 18-minute synthetic holdout among recovered signals with usable fits. Coverage on actual observations is unverified."
         }
     return result
+
+
+def project_epoch(fit, cycles):
+    """Propagate the nominal marginal timing interval, including covariance."""
+    from math import sqrt
+
+    epoch_half = (fit["epoch_interval_days"][1] - fit["epoch_interval_days"][0]) / 2
+    period_half = (fit["period_interval_days"][1] - fit["period_interval_days"][0]) / 2
+    critical = student_t.ppf(.975, fit["timed_events"] - 2)
+    half_squared = (epoch_half ** 2 + (cycles * period_half) ** 2 +
+                    2 * cycles * fit["epoch_period_covariance_days2"] * critical ** 2)
+    center = fit["epoch_days"] + cycles * fit["period_days"]
+    return {"epoch_days": center, "half_width_days": sqrt(max(0, half_squared))}
+
+
+def compare_observations(first, second):
+    """Compare fitted ephemerides from disjoint products of the same target."""
+    meta_a, meta_b = (r["observation"] for r in (first, second))
+    if not meta_a.get("target") or meta_a["target"] != meta_b.get("target"):
+        return {"status": "unavailable", "reason": "No common verified target identifier"}
+    if any(m.get("time_system", "").upper() != "TDB" or m.get("bjd_reference") is None
+           for m in (meta_a, meta_b)):
+        return {"status": "unavailable", "reason": "Both products require a BJD TDB reference"}
+    if not meta_a.get("sha256") or not meta_b.get("sha256"):
+        return {"status": "unavailable", "reason": "Product provenance is missing"}
+    if meta_a["sha256"] == meta_b["sha256"]:
+        return {"status": "same product", "reason": "Identical product hashes"}
+    windows = [r["preprocessing"].get("observed_time_range_days") for r in (first, second)]
+    if any(window is None for window in windows):
+        return {"status": "unavailable", "reason": "Observation windows are missing"}
+    a, b = ([t + m["bjd_reference"] for t in window] for window, m in zip(windows, (meta_a, meta_b)))
+    if max(a[0], b[0]) <= min(a[1], b[1]):
+        return {"status": "overlapping windows", "reason": "Products may reuse the same exposures"}
+    comparisons = []
+    reference_time = (max(a[0], b[0]) + min(a[1], b[1])) / 2
+
+    def fits_by_id(report):
+        return {m["id"]: c["ephemeris"] for c in report["candidates"]
+                if c["ephemeris"]["status"] == "estimated" for m in c["catalogue_matches"]
+                if m["classification"] == "Known confirmed planet"}
+
+    fits_a, fits_b = fits_by_id(first), fits_by_id(second)
+    for key in sorted(fits_a.keys() & fits_b.keys()):
+        fa, fb = fits_a[key], fits_b[key]
+        pa, pb = fa["period_days"], fb["period_days"]
+        if pa <= 0 or pb <= 0 or abs(pa / pb - 1) > .01:
+            continue
+        epoch_a = meta_a["bjd_reference"] + fa["epoch_days"]
+        epoch_b = meta_b["bjd_reference"] + fb["epoch_days"]
+        cycle_a = round((reference_time - epoch_a) / pa)
+        anchor = epoch_a + cycle_a * pa
+        cycle_b = round((anchor - epoch_b) / pb)
+        proj_a, proj_b = project_epoch(fa, cycle_a), project_epoch(fb, cycle_b)
+        offset = epoch_b + cycle_b * pb - anchor
+        width = proj_a["half_width_days"] + proj_b["half_width_days"]
+        # When the nominal projections allow another cycle pairing, a wrapped
+        # difference could manufacture apparent agreement.
+        ambiguous = abs(offset) + width >= min(pa, pb) / 2
+        comparisons.append({"catalogue_id": key, "cycles_from_fit_epochs": [cycle_a, cycle_b],
+                            "period_difference_days": pb - pa,
+                            "epoch_difference_days": None if ambiguous else offset,
+                            "projected_half_widths_days": [proj_a["half_width_days"], proj_b["half_width_days"]],
+                            "cycle_pairing": "ambiguous" if ambiguous else "unique within nominal bounds",
+                            "epoch_intervals_overlap": None if ambiguous else abs(offset) <= width})
+    return {"status": "compared" if comparisons else "unavailable", "comparisons": comparisons,
+            "product_sha256": [meta_a["sha256"], meta_b["sha256"]],
+            "windows_bjd_tdb": [a, b],
+            "scope": "Disjoint observation windows and independently fitted ephemerides. Shared catalogue identity, pipeline systematics and unmodeled timing variations limit interpretation."}

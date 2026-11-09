@@ -101,3 +101,56 @@ def event_evidence(t, y, candidate, audit, context, minimum_events):
             "independent_events": len(independent), "gap_or_quality_affected_events": int(affected),
             "sharp_step_events": int(step_events), "depth_consistency_p": depth_p, "timing_consistency_p": timing_p,
             "events": rows}, warnings
+
+
+# FITS light-curve summaries. Target centroids can also respond to blends,
+# so their displacement is advisory. SAP and PDCSAP share the same exposures.
+ANCILLARY_COLUMNS = ("SAP_BKG", "POS_CORR1", "POS_CORR2", "MOM_CENTR1", "MOM_CENTR2", "SAP_FLUX")
+INSTRUMENT_COLUMNS = {"SAP_BKG", "POS_CORR1", "POS_CORR2"}
+
+
+def ancillary_evidence(time, quality, channels, candidate, events, cadence):
+    """Measure signed contrasts against two local shoulders on the same cadences."""
+    measurements = {}
+    clean = np.isfinite(time) & ((quality == 0) if quality is not None else True)
+    period, epoch, duration = (candidate[k] for k in ("period_days", "epoch_days", "duration_days"))
+    for name in ANCILLARY_COLUMNS:
+        if name not in channels:
+            continue
+        values = np.asarray(channels[name], float)
+        if values.shape != time.shape:
+            raise ValueError(f"{name} must align with TIME")
+        usable = clean & np.isfinite(values)
+        t, indices = np.unique(time[usable], return_index=True)
+        y = values[usable][indices]
+        rows = []
+        for event in events:
+            if not event["two_sided_coverage"]:
+                continue
+            center = epoch + event["cycle"] * period
+            start, stop = t.searchsorted([center - 1.5 * duration, center + 1.5 * duration])
+            x, flux = t[start:stop] - center, y[start:stop]
+            inside = np.abs(x) < duration / 2
+            left, right = x < -duration / 2, x > duration / 2
+            if min(left.sum(), right.sum()) < 3 or inside.sum() < max(3, .6 * duration / cadence):
+                continue
+            shoulders = left | right
+            continuum = np.polyval(np.polyfit(x[shoulders], flux[shoulders], 1), x)
+            residual = flux - continuum
+            scatter = 1.4826 * np.median(np.abs(residual[shoulders] - np.median(residual[shoulders])))
+            # A constant or quantized auxiliary stream has no defensible local scale.
+            if scatter <= 16 * np.finfo(float).eps * max(1., np.max(np.abs(flux))):
+                continue
+            rows.append({"cycle": event["cycle"], "contrast": float(np.median(residual[inside])),
+                         "shoulder_scatter": float(scatter)})
+        positive = sum(r["contrast"] > 5 * r["shoulder_scatter"] for r in rows)
+        negative = sum(r["contrast"] < -5 * r["shoulder_scatter"] for r in rows)
+        repeat = max(positive, negative)
+        measurements[name] = {"measured_events": len(rows), "repeated_events": repeat,
+                              "coincident": repeat >= 4 and repeat > len(rows) / 2,
+                              "events": rows}
+    coincident = [name for name in measurements if name in INSTRUMENT_COLUMNS and measurements[name]["coincident"]]
+    return {"status": "instrumental coincidence" if coincident else "insufficiently validated",
+            "coincident_channels": coincident, "channels": measurements,
+            "pixel_evidence": "unavailable", "independent_observations": "unavailable",
+            "scope": "Same-product light-curve summaries. Repeated background or pointing coincidences are heuristic evidence. Target centroids may also reflect blending. Independent measurements and pixel localization are unavailable."}

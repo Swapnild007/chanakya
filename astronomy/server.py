@@ -15,9 +15,10 @@ ROOT = Path(__file__).resolve().parent.parent
 SLOTS = BoundedSemaphore(2)
 
 
-def process(data, filename, selected=None, url=None, settings=Settings()):
+def process(data, filename, selected=None, url=None, settings=Settings(), *, catalogue_snapshot=None):
+    ancillary = {}
     try:
-        time, flux, quality, meta = read_observation(data, filename)
+        time, flux, quality, meta = read_observation(data, filename, ancillary=ancillary)
     except ImportError as exc:
         raise ArchiveError("FITS analysis requires Astropy. Install requirements.txt.") from exc
     except (OSError, ValueError, TypeError, IndexError) as exc:
@@ -26,10 +27,16 @@ def process(data, filename, selected=None, url=None, settings=Settings()):
         if meta["target"] != selected["target"]:
             raise ValueError("FITS target does not agree with the selected archive target")
         meta.update(provenance="NASA MAST", source_url=url, product=selected)
-    result = analyze(time, flux, quality, meta, settings)
+    result = analyze(time, flux, quality, meta, settings, ancillary=ancillary)
     if not result["candidates"]:
         return cross_match(result, [], {"status": "not needed", "reason": "No candidate to compare"})
-    rows, coverage = catalogues(meta)
+    if catalogue_snapshot is None:
+        rows, coverage = catalogues(meta)
+    else:
+        coverage = catalogue_snapshot.get(meta["target"])
+        if coverage is None:
+            raise ValueError("Target is absent from the catalogue snapshot")
+        rows = coverage["records_compared"]
     return cross_match(result, rows, coverage)
 
 

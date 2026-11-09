@@ -55,11 +55,15 @@ def case(seed, kind, depth=.004, baseline=15, *, cadence=.0125, red_noise_scale=
 def trial(seed, kind, depth, baseline=15, *, cadence=.0125, red_noise_scale=1.):
     time, flux, quality, period, epoch = case(seed, kind, depth, baseline, cadence=cadence,
                                             red_noise_scale=red_noise_scale)
-    result = analyze(time, flux, quality, settings=SETTINGS)
-    signal = next(iter(result["candidates"]), None)
+    signal = next(iter(analyze(time, flux, quality, settings=SETTINGS)["candidates"]), None)
+    return score_trial(signal, period, epoch, seed, kind, depth, baseline)
+
+
+def score_trial(signal, period, epoch, seed, kind, depth, baseline):
     passed = bool(signal and not signal["warnings"] and signal["observed_transits"] >= SETTINGS.min_transits)
-    recovery = bool(passed and abs(signal["period_days"] / period - 1) <= .01 and
+    detected = bool(signal and abs(signal["period_days"] / period - 1) <= .01 and
                     abs((signal["epoch_days"] - epoch + period / 2) % period - period / 2) <= .06)
+    recovery = passed and detected
     interval = signal.get("ephemeris", {}) if recovery else {}
     period_score = epoch_score = None
     if interval.get("status") == "estimated":
@@ -70,8 +74,15 @@ def trial(seed, kind, depth, baseline=15, *, cadence=.0125, red_noise_scale=1.):
         period_half = (interval["period_interval_days"][1] - interval["period_interval_days"][0]) / 2
         epoch_score = abs(t0 - truth) / epoch_half
         period_score = abs(interval["period_days"] - period) / period_half
+    evidence = signal.get("instrumental_vetting", {}) if signal else {}
+    covered = evidence.get("covered_events", 0)
+    stage = ("no detection" if signal is None else "incorrect period or phase" if not detected else
+             "vetting rejection" if not passed else "insufficient event coverage" if covered < 4 else
+             "unavailable timing fit" if period_score is None else "usable fit")
     return {"seed": seed, "scenario": kind, "depth": depth, "baseline_days": baseline,
-            "passed_vetting": passed, "recovered": recovery,
+            "passed_vetting": passed, "detected": detected, "recovered": recovery,
+            "fit_stage": stage, "covered_events": covered,
+            "observation_vetting_status": signal.get("observation_vetting", {}).get("status") if signal else None,
             "period_interval_score": period_score, "epoch_interval_score": epoch_score,
             "joint_interval_score": max(period_score, epoch_score) if period_score is not None else None,
             "duration_noise_snr": signal.get("duration_noise_snr") if signal else None,

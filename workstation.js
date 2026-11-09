@@ -172,6 +172,14 @@ function render(next, index = 0) {
         ["Timing consistency", vetting.timing_consistency_p]]) {
         panel.append(text("p", `${label}: ${value == null ? "insufficient events" : "p = " + value.toExponential(2)}`));
       }
+      const observationVetting = candidate.observation_vetting;
+      if (observationVetting) {
+        panel.append(text("p", `Observation evidence: ${observationVetting.status}`),
+          text("p", observationVetting.scope));
+        for (const [name, channel] of Object.entries(observationVetting.channels)) {
+          panel.append(text("p", `${name}: ${channel.repeated_events}/${channel.measured_events} measured events with a same-direction excursion`));
+        }
+      }
       if (vetting.events?.length) {
         const eventList = text("details", "");
         const rows = text("ul", "");

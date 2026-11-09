@@ -3,8 +3,9 @@ import argparse
 import hashlib
 import json
 import platform
+from itertools import combinations
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -12,10 +13,10 @@ import astropy
 import numpy
 import scipy
 
-from .archive import MAX_FILE, download, request, target_id, valid_uri
+from .archive import MAX_FILE, cross_match, download, request, target_id, valid_uri
 from .artifact_vetting import cadence_context, event_evidence
-from .discovery import Settings, preprocess, read_observation
-from .ephemeris import estimate
+from .discovery import Settings, analyze, preprocess, read_observation
+from .ephemeris import compare_observations, estimate, project_epoch
 from .server import process
 
 
@@ -48,7 +49,7 @@ def external_timing_comparisons(result):
     return comparisons
 
 
-def disjoint_timing_check(data, filename, result, settings):
+def disjoint_timing_check(observation, result, settings):
     """Fit disjoint cadence halves in an already identified period family."""
     comparisons = result["candidates"]
     timing = next(((candidate, match) for candidate in comparisons if candidate["ephemeris"]["status"] == "estimated"
@@ -57,7 +58,7 @@ def disjoint_timing_check(data, filename, result, settings):
     if timing is None:
         return {"status": "unavailable", "reason": "No vetted catalogue-matched ephemeris"}
     candidate, match = timing
-    time, flux, quality, meta = read_observation(data, filename)
+    time, flux, quality, meta = observation
     finite = time[numpy.isfinite(time)]
     midpoint = (finite.min() + finite.max()) / 2
     period = match["period"]
@@ -77,9 +78,14 @@ def disjoint_timing_check(data, filename, result, settings):
         context = cadence_context(time[mask], flux[mask], local_quality)
         evidence, _ = event_evidence(t, y, trial, audit, context, settings.min_transits)
         fit = estimate(trial, evidence)
+        fit["supported_events"] = len(evidence["events"])
+        fit["covered_events"] = evidence["covered_events"]
+        fit["timed_cycles"] = [event["cycle"] for event in evidence["events"]
+                               if event["two_sided_coverage"] and event["timing_days"] is not None]
         if fit["status"] == "estimated":
-            offset = fit["reference_cycle"]
-            fit["epoch_at_common_cycle_days"] = fit["epoch_days"] - offset * fit["period_days"]
+            projected = project_epoch(fit, -fit["reference_cycle"])
+            fit["epoch_at_common_cycle_days"] = projected["epoch_days"]
+            fit["epoch_at_common_cycle_half_width_days"] = projected["half_width_days"]
         halves.append(fit)
     ok = all(half["status"] == "estimated" for half in halves)
     return {"status": "compared" if ok else "partial", "catalogue_id": match["id"], "split_observation_days": float(midpoint),
@@ -100,7 +106,30 @@ def examine_unmatched(candidate):
             "disposition": "Requires independent observations and pixel-level vetting"}
 
 
-def analyze_target(row, cache, settings):
+def same_exposure_sensitivity(data, filename, result, settings):
+    """Refit a prespecified detrending and flux-column sensitivity grid."""
+    ancillary = {}
+    t, flux, quality, meta = read_observation(data, filename, ancillary=ancillary)
+    settings_grid = [
+        (meta["flux_column"], flux, replace(settings, trend_days=days)) for days in (1., 3.)
+    ]
+    if "SAP_FLUX" in ancillary:
+        settings_grid.append(("SAP_FLUX", ancillary["SAP_FLUX"], settings))
+    coverage = result["catalogue_coverage"]
+    checks = []
+    for column, vector, trial_settings in settings_grid:
+        trial_meta = {**meta, "flux_column": column}
+        try:
+            fitted = cross_match(analyze(t, vector, quality, trial_meta, trial_settings),
+                                 coverage["records_compared"], coverage)
+            timing = disjoint_timing_check((t, vector, quality, trial_meta), fitted, trial_settings)
+        except ValueError as exc:
+            timing = {"status": "unavailable", "reason": str(exc)}
+        checks.append({"flux_column": column, "trend_days": trial_settings.trend_days, "split_timing": timing})
+    return checks
+
+
+def analyze_target(row, cache, settings, catalogue_snapshot=None, sensitivity_target=None):
     target, uri = row["target"], row.get("uri")
     target_id(target)
     if not valid_uri(uri):
@@ -123,23 +152,27 @@ def analyze_target(row, cache, settings):
             raise ValueError("Public product exceeds the size limit or differs from the manifest SHA-256")
         if path and not path.exists():
             path.write_bytes(data)
-        result = process(data, filename, selected, url, settings)
+        result = process(data, filename, selected, url, settings, catalogue_snapshot=catalogue_snapshot)
         result.pop("curve")
         reference = row.get("expected_period_days")
         control = None
         if reference:
             control = any(abs(c["period_days"] / reference - 1) <= .01 and
                           c["classification"] == "Known confirmed planet" for c in result["candidates"])
+        sensitivity = (same_exposure_sensitivity(data, filename, result, settings)
+                       if target == sensitivity_target else [])
         return {**row, "status": "analyzed", "known_control_recovered": control,
+                "same_exposure_sensitivity": sensitivity,
                 "external_timing_comparisons": external_timing_comparisons(result),
-                "disjoint_timing_check": disjoint_timing_check(data, filename, result, settings), "result": result}
+                "disjoint_timing_check": disjoint_timing_check(read_observation(data, filename), result, settings), "result": result}
     except (ValueError, RuntimeError, OSError) as exc:
         return {**row, "status": "failed", "error": str(exc)}
 
 
-def survey(manifest, cache, settings, workers=1):
+def survey(manifest, cache, settings, workers=1, *, catalogue_snapshot=None, sensitivity_target=None):
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        records = list(pool.map(lambda row: analyze_target(row, cache, settings), manifest["targets"]))
+        records = list(pool.map(lambda row: analyze_target(row, cache, settings, catalogue_snapshot, sensitivity_target),
+                                manifest["targets"]))
     unmatched = [
         {"target": row["target"], "uri": row["uri"], "candidate": candidate,
          "investigation": examine_unmatched(candidate)}
@@ -154,7 +187,10 @@ def survey(manifest, cache, settings, workers=1):
                        for row in analyzed) for key, values in categories.items()}
     counts["photometry_flagged"] = sum(any(c["warnings"] for c in row["result"]["candidates"]) for row in analyzed)
     counts["no_signal"] = sum(not row["result"]["candidates"] for row in analyzed)
-    return {"purpose": manifest["purpose"], "selection": manifest.get("selection"),
+    pairs = [compare_observations(a["result"], b["result"]) for a, b in combinations(analyzed, 2)
+             if a["target"] == b["target"]]
+    return {"catalogue_mode": "replayed snapshot" if catalogue_snapshot is not None else "live",
+            "observation_comparisons": pairs, "purpose": manifest["purpose"], "selection": manifest.get("selection"),
             "target_counts": {"attempted": len(records), "analyzed": len(analyzed),
                               "failed": len(records) - len(analyzed), **counts},
             "settings": asdict(settings), "records": records,
@@ -170,11 +206,15 @@ def main():
     parser.add_argument("--min-period", type=float, default=.5)
     parser.add_argument("--max-period", type=float, default=5)
     parser.add_argument("--workers", type=int, choices=range(1, 5), default=1)
+    parser.add_argument("--catalogue-snapshot", type=Path, help="Replay recorded catalogue rows keyed by target")
+    parser.add_argument("--sensitivity-target", help="Measure same-exposure detrending and SAP sensitivity for this target")
     args = parser.parse_args()
     if args.cache:
         args.cache.mkdir(parents=True, exist_ok=True)
     report = survey(json.loads(args.manifest.read_text()), args.cache,
-                    Settings(minimum_period=args.min_period, maximum_period=args.max_period), args.workers)
+                    Settings(minimum_period=args.min_period, maximum_period=args.max_period), args.workers,
+                    catalogue_snapshot=json.loads(args.catalogue_snapshot.read_text()) if args.catalogue_snapshot else None,
+                    sensitivity_target=args.sensitivity_target)
     print(json.dumps(report, allow_nan=False, indent=2))
     return int(any(row["status"] == "failed" for row in report["records"]))
 

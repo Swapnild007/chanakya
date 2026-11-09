@@ -8,7 +8,7 @@ import numpy as np
 from scipy.ndimage import median_filter
 
 from .ephemeris import estimate
-from .artifact_vetting import cadence_context, event_evidence
+from .artifact_vetting import ANCILLARY_COLUMNS, ancillary_evidence, cadence_context, event_evidence
 
 
 @dataclass(frozen=True)
@@ -21,7 +21,7 @@ class Settings:
     max_signals: int = 2
 
 
-def read_observation(data, filename):
+def read_observation(data, filename, *, ancillary=None):
     meta = {"file": filename, "sha256": hashlib.sha256(data).hexdigest(),
             "target": None, "mission": None, "bjd_reference": None,
             "provenance": "user-supplied", "time_system": "unspecified"}
@@ -52,6 +52,11 @@ def read_observation(data, filename):
                         time_system=str(header.get("TIMESYS", "unspecified")),
                         flux_column=flux, quality_column=quality,
                         ra=header.get("RA_OBJ"), dec=header.get("DEC_OBJ"))
+            meta.update(sector=header.get("SECTOR"), quarter=header.get("QUARTER"),
+                        campaign=header.get("CAMPAIGN"))
+            if ancillary is not None:
+                ancillary.update({name: np.asarray(table.data[name], float) for name in ANCILLARY_COLUMNS
+                                  if name in names and name != flux and table.data[name].ndim == 1})
             return (np.asarray(table.data["TIME"], float), np.asarray(table.data[flux], float),
                     np.asarray(table.data[quality], float) if quality else None, meta)
     if not filename.lower().endswith(".csv"):
@@ -112,6 +117,7 @@ def preprocess(time, flux, quality, settings):
              "quality_rejected": int(valid.sum() - clean.sum()), "quality_policy": "require zero when present",
              "duplicates_removed": int(clean.sum() - t.size), "positive_outliers_removed": int((~keep).sum()),
              "cadence_days": cadence, "noise_mad": sigma, "gap_count": len(breaks),
+             "observed_time_range_days": [float(t[keep][0]), float(t[keep][-1])] if keep.any() else None,
              "coverage_days": float(t[-1] - t[0])}
     if keep.sum() < 100:
         raise ValueError("Too few cadences after outlier removal")
@@ -248,7 +254,7 @@ def vet(t, y, candidate, audit, settings):
                                      else "Transit-like signal — catalogue comparison pending"))
 
 
-def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
+def analyze(time, flux, quality=None, metadata=None, settings=Settings(), *, ancillary=None):
     limits = (settings.minimum_period, settings.maximum_period, settings.trend_days, settings.min_snr)
     if (not all(np.isfinite(limits)) or not .1 <= settings.minimum_period < settings.maximum_period <= 100
             or not .5 <= settings.trend_days <= 10 or not 3 <= settings.min_transits <= 10
@@ -265,6 +271,12 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
         vet(t[keep], y[keep], candidate, audit, settings)
         evidence, warnings = event_evidence(t[keep], y[keep], candidate, audit, context, settings.min_transits)
         candidate["instrumental_vetting"] = evidence
+        corroboration = ancillary_evidence(time, quality, ancillary or {}, candidate, evidence["events"],
+                                          audit["cadence_days"])
+        candidate["observation_vetting"] = corroboration
+        if corroboration["coincident_channels"]:
+            warnings.append("Repeated transit-phase background or pointing excursions: " +
+                            ", ".join(corroboration["coincident_channels"]))
         candidate["warnings"].extend(warnings)
         if warnings and candidate["classification"] != "Insufficient evidence":
             candidate["classification"] = "Rejected or likely false positive"
@@ -284,6 +296,6 @@ def analyze(time, flux, quality=None, metadata=None, settings=Settings()):
             break
     return {"observation": metadata or {}, "settings": asdict(settings), "preprocessing": audit,
             "algorithm": "Astropy BoxLeastSquares", "candidates": candidates, "curve": {"time": t.tolist(), "raw": raw.tolist(), "flux": y.tolist()},
-            "limitations": ["Single light curve. No pixel centroid, contamination, or independent follow-up vetting.",
+            "limitations": ["Single observation. FITS centroid summaries are same-product measurements. Pixel localization and independent follow-up are unavailable.",
                             "Box model and discrete duration grid. SNR assumes white noise and is not a false-alarm probability.",
                             "Ephemeris intervals are conditional on the selected period family and linear timing model. Segment edges, aliases and instrumental artifacts need review."]}

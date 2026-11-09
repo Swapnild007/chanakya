@@ -81,6 +81,7 @@ const { chromium } = require("playwright");
         if (name === "Candidate Investigation") {
           const detail = page.locator("#evidence details").first();
           if (await detail.getAttribute("open") === null) await detail.locator(":scope > summary").click();
+          await detail.getByText("Observation evidence: insufficiently validated", { exact: true }).waitFor();
           const events = detail.locator(":scope > details");
           if (await events.getAttribute("open") === null) await events.locator(":scope > summary").click();
         }
